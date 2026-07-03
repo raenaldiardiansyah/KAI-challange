@@ -677,13 +677,18 @@ main {
 }
 
 .realtime-train-row {
-  grid-template-columns: minmax(0, 1fr) auto auto minmax(96px, auto);
+  grid-template-columns: minmax(0, 1fr) auto;
+  row-gap: 12px;
   min-width: 0;
 }
 
-.realtime-train-row > div:nth-child(3),
+.realtime-train-row > div:nth-child(3) {
+  justify-self: start;
+}
+
 .realtime-train-row > div:nth-child(4) {
   justify-self: end;
+  align-self: end;
 }
 
 .realtime-train-row > *,
@@ -696,7 +701,10 @@ main {
 
 .realtime-train-row strong,
 .realtime-train-row p {
-  overflow-wrap: anywhere;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .realtime-train-row p {
@@ -2688,15 +2696,11 @@ pre {
   .train-row,
   .risk-row,
   .trainset-card,
-  .realtime-train-row,
   .overview-train-row {
     grid-template-columns: 1fr;
   }
 
-  .realtime-train-row > div:nth-child(3),
-  .realtime-train-row > div:nth-child(4) {
-    justify-self: start;
-  }
+
 
   .detail-grid,
   .sensor-grid {
