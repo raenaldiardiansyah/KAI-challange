@@ -4,5 +4,10 @@ import { fetchFromApi, isDummyMode } from "./apiClient";
 
 export async function getAlarms(): Promise<Alarm[]> {
   if (isDummyMode()) return alarmDummy;
-  return fetchFromApi<Alarm[]>("/alarms");
+  try {
+    return await fetchFromApi<Alarm[]>("/alarms");
+  } catch (error) {
+    console.error("Failed to fetch alarms, falling back to dummy", error);
+    return alarmDummy;
+  }
 }

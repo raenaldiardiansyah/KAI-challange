@@ -4,5 +4,9 @@ import { fetchFromApi, isDummyMode } from "./apiClient";
 
 export async function getReports(): Promise<Report[]> {
   if (isDummyMode()) return reportDummy;
-  return fetchFromApi<Report[]>("/reports");
+  try {
+    return await fetchFromApi<Report[]>("/reports");
+  } catch {
+    return reportDummy;
+  }
 }

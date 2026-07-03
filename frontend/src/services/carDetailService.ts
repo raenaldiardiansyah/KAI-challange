@@ -4,10 +4,18 @@ import { fetchFromApi, isDummyMode } from "./apiClient";
 
 export async function getCarDetails(): Promise<CarDetail[]> {
   if (isDummyMode()) return carDetailDummy;
-  return fetchFromApi<CarDetail[]>("/cars");
+  try {
+    return await fetchFromApi<CarDetail[]>("/cars");
+  } catch {
+    return carDetailDummy;
+  }
 }
 
 export async function getCarDetail(id: string): Promise<CarDetail | undefined> {
   if (isDummyMode()) return carDetailDummy.find((car) => car.id === id);
-  return fetchFromApi<CarDetail>(`/cars/${id}`);
+  try {
+    return await fetchFromApi<CarDetail>(`/cars/${id}`);
+  } catch {
+    return carDetailDummy.find((car) => car.id === id);
+  }
 }

@@ -4,10 +4,18 @@ import { fetchFromApi, isDummyMode } from "./apiClient";
 
 export async function getTrainsets(): Promise<Trainset[]> {
   if (isDummyMode()) return trainsetDummy;
-  return fetchFromApi<Trainset[]>("/trainsets");
+  try {
+    return await fetchFromApi<Trainset[]>("/trainsets");
+  } catch {
+    return trainsetDummy;
+  }
 }
 
 export async function getTrainset(id: string): Promise<Trainset | undefined> {
   if (isDummyMode()) return trainsetDummy.find((trainset) => trainset.id === id);
-  return fetchFromApi<Trainset>(`/trainsets/${id}`);
+  try {
+    return await fetchFromApi<Trainset>(`/trainsets/${id}`);
+  } catch {
+    return trainsetDummy.find((t) => t.id === id);
+  }
 }

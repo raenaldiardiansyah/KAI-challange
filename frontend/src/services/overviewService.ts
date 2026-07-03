@@ -5,5 +5,9 @@ export type OverviewData = typeof overviewDummy;
 
 export async function getOverviewData(): Promise<OverviewData> {
   if (isDummyMode()) return overviewDummy;
-  return fetchFromApi<OverviewData>("/overview");
+  try {
+    return await fetchFromApi<OverviewData>("/overview");
+  } catch {
+    return overviewDummy;
+  }
 }

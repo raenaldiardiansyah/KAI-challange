@@ -1,8 +1,11 @@
-const USE_DUMMY = process.env.NEXT_PUBLIC_USE_DUMMY === "true";
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const isLocalApi = API_URL.includes("localhost") || API_URL.includes("127.0.0.1");
 
 export function isDummyMode() {
-  return USE_DUMMY;
+  if (process.env.NEXT_PUBLIC_USE_DUMMY === "true") return true;
+  if (!API_URL) return true;
+  if (process.env.NODE_ENV === "production" && isLocalApi) return true;
+  return false;
 }
 
 export async function fetchFromApi<T>(path: string): Promise<T> {

@@ -4,5 +4,9 @@ import { fetchFromApi, isDummyMode } from "./apiClient";
 
 export async function getWorkOrders(): Promise<WorkOrder[]> {
   if (isDummyMode()) return workOrderDummy;
-  return fetchFromApi<WorkOrder[]>("/work-orders");
+  try {
+    return await fetchFromApi<WorkOrder[]>("/work-orders");
+  } catch {
+    return workOrderDummy;
+  }
 }

@@ -4,5 +4,9 @@ import { fetchFromApi, isDummyMode } from "./apiClient";
 
 export async function getTelemetry(): Promise<TelemetrySeries[]> {
   if (isDummyMode()) return telemetryDummy;
-  return fetchFromApi<TelemetrySeries[]>("/telemetry");
+  try {
+    return await fetchFromApi<TelemetrySeries[]>("/telemetry");
+  } catch {
+    return telemetryDummy;
+  }
 }

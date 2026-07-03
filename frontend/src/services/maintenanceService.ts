@@ -4,5 +4,9 @@ import { fetchFromApi, isDummyMode } from "./apiClient";
 
 export async function getMaintenanceRisks(): Promise<MaintenanceRisk[]> {
   if (isDummyMode()) return maintenanceDummy;
-  return fetchFromApi<MaintenanceRisk[]>("/maintenance");
+  try {
+    return await fetchFromApi<MaintenanceRisk[]>("/maintenance-risks");
+  } catch {
+    return maintenanceDummy;
+  }
 }
