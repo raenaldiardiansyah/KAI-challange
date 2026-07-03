@@ -1,7 +1,13 @@
+import path from "path";
 import type { NextConfig } from "next";
 
+const monorepoRoot = path.join(__dirname, "..");
+
 const nextConfig: NextConfig = {
-  // Tambahkan konfigurasi Next.js lainnya di sini jika diperlukan
+  outputFileTracingRoot: monorepoRoot,
+  turbopack: {
+    root: monorepoRoot,
+  },
 };
 
 export default nextConfig;
