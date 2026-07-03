@@ -1,6 +1,11 @@
-import { MapLibreTrainMap } from "@/components/maps/MapLibreTrainMap";
+import dynamic from "next/dynamic";
 import { Card } from "@/components/ui/Card";
 import type { OverviewData } from "@/services/overviewService";
+
+const MapLibreTrainMap = dynamic(
+  () => import("@/components/maps/MapLibreTrainMap").then((mod) => mod.MapLibreTrainMap),
+  { ssr: false, loading: () => <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>Memuat Peta...</div> }
+);
 
 export function LiveTrainMap({ points }: { points: OverviewData["mapPoints"] }) {
   return (

@@ -1,9 +1,15 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
-import { MapLibreTrainMap, type TrainMapPoint } from "@/components/maps/MapLibreTrainMap";
+import type { TrainMapPoint } from "@/components/maps/MapLibreTrainMap";
+
+const MapLibreTrainMap = dynamic(
+  () => import("@/components/maps/MapLibreTrainMap").then((mod) => mod.MapLibreTrainMap),
+  { ssr: false, loading: () => <div style={{ height: "200px", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>Memuat Peta...</div> }
+);
 
 const ROUTES_PER_PAGE = 2;
 
