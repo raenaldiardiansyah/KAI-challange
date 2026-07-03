@@ -1,0 +1,15 @@
+{
+  "name": "kai-challenge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KAI predictive maintenance dashboard monorepo",
+  "scripts": {
+    "dev": "pnpm dev:frontend",
+    "dev:frontend": "pnpm --dir frontend dev",
+    "build": "pnpm build:frontend",
+    "build:frontend": "pnpm --dir frontend build",
+    "start:frontend": "pnpm --dir frontend start",
+    "lint:frontend": "pnpm --dir frontend lint",
+    "install:frontend": "pnpm --dir frontend install"
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
 import type { CarDetail } from "@/types/car";
 import type { HealthStatus } from "@/types/common";
 
@@ -49,7 +50,10 @@ export function CarSubsystemStatus({ car }: { car: CarDetail }) {
             </div>
             <div className="subsystem-status-row">
               <span style={{ fontSize: "12px", color: "#64748b" }}>Skor Kesehatan</span>
-              <span style={{ fontSize: "13px", fontWeight: "bold", color: sub.healthScore < 60 ? "#b91c1c" : "inherit" }}>{sub.healthScore}%</span>
+              <span className="percent-with-delta">
+                <span className="percent-value" style={{ color: sub.healthScore < 60 ? "#b91c1c" : "inherit" }}>{sub.healthScore}%</span>
+                <MetricDelta value={sub.healthScore} compact />
+              </span>
             </div>
             <div className="subsystem-status-row">
               <span style={{ fontSize: "12px", color: "#64748b" }}>Bukti (Evidence)</span>

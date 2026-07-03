@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { WorkOrderForm } from "./WorkOrderForm";
+import { WorkOrderForm, type WorkOrderDraft } from "./WorkOrderForm";
 import { getStatusMeta, type SpkRow, type SpkStatus, WorkOrderTable } from "./WorkOrderTable";
 import type { Severity } from "@/types/common";
 import type { WorkOrder } from "@/types/workOrder";
@@ -133,6 +133,30 @@ export function WorkOrderWorkspace({ workOrders }: { workOrders: WorkOrder[] }) 
     setSelectedId(id);
   };
 
+  const handleSaveDraft = (draft: WorkOrderDraft) => {
+    const nextId = `SPK-2407-${String(rows.length + 1).padStart(3, "0")}`;
+    const newRow: SpkRow = {
+      id: nextId,
+      source: draft.source,
+      eventCode: draft.eventCode,
+      asset: `${draft.trainsetId} - C${draft.carNumber}`,
+      trainsetId: draft.trainsetId,
+      carNumber: draft.carNumber,
+      subsystem: draft.subsystem,
+      task: draft.task,
+      priority: draft.priority,
+      status: "open",
+      deadline: draft.deadline,
+      assignee: "Belum ditugaskan",
+      evidence: ["Draft dibuat dari form SPK", `${draft.subsystem} perlu validasi teknis`],
+      recommendation: "Validasi evidence lapangan lalu tetapkan PIC maintenance.",
+      notes: "SPK baru tersimpan di local state frontend untuk simulasi."
+    };
+
+    setRows((currentRows) => [newRow, ...currentRows]);
+    setSelectedId(nextId);
+  };
+
   return (
     <div className="page-grid spk-workflow-page">
       <header className="spk-page-header">
@@ -156,7 +180,7 @@ export function WorkOrderWorkspace({ workOrders }: { workOrders: WorkOrder[] }) 
 
       <section className="spk-workflow-layout">
         <aside className="workflow-form-panel">
-          <WorkOrderForm />
+          <WorkOrderForm onSave={handleSaveDraft} />
         </aside>
         <section className="workflow-table-panel">
           <WorkOrderTable

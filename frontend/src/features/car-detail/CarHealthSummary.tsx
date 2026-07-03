@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
 import type { CarDetail } from "@/types/car";
 import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from "recharts";
 
@@ -31,11 +32,14 @@ export function CarHealthSummary({ car }: { car: CarDetail }) {
           <ResponsiveContainer width="100%" height="100%">
             <RadialBarChart innerRadius="70%" outerRadius="100%" data={data} startAngle={180} endAngle={0}>
               <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
-              <RadialBar background={{ fill: trackColor }} dataKey="value" cornerRadius={10} />
+              <RadialBar isAnimationActive={false} background={{ fill: trackColor }} dataKey="value" cornerRadius={10} />
             </RadialBarChart>
           </ResponsiveContainer>
           <div style={{ position: "absolute", top: "60%", left: "50%", transform: "translate(-50%, -50%)", textAlign: "center" }}>
             <span style={{ fontSize: "28px", fontWeight: "bold", color: color }}>{car.healthScore}%</span>
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "6px" }}>
+              <MetricDelta value={car.healthScore} compact />
+            </div>
           </div>
         </div>
         <div className="stack">
@@ -45,7 +49,10 @@ export function CarHealthSummary({ car }: { car: CarDetail }) {
           </div>
           <div>
             <span style={{ fontSize: "12px", color: "#64748b" }}>Tingkat Keyakinan</span>
-            <strong style={{ display: "block" }}>86%</strong>
+            <strong className="percent-with-delta confidence-score-row">
+              <span className="percent-value">86%</span>
+              <MetricDelta value={86} compact />
+            </strong>
           </div>
           <div>
             <span style={{ fontSize: "12px", color: "#64748b" }}>Estimasi TTW</span>

@@ -73,6 +73,7 @@ export function WorkOrderTable({
 }) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
+  const [footerMessage, setFooterMessage] = useState("");
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
@@ -192,8 +193,20 @@ export function WorkOrderTable({
       ) : null}
 
       <div className="spk-table-footer">
-        <Button variant="ghost" className="table-mini-button">Export</Button>
-        <Button variant="secondary" className="table-mini-button">Refresh Queue</Button>
+        {footerMessage ? <span>{footerMessage}</span> : null}
+        <Button variant="ghost" className="table-mini-button" onClick={() => setFooterMessage("Export SPK disimulasikan di frontend.")}>Export</Button>
+        <Button
+          variant="secondary"
+          className="table-mini-button"
+          onClick={() => {
+            setStatusFilter("all");
+            setPriorityFilter("all");
+            onSelect(rows[0]?.id ?? selectedId);
+            setFooterMessage("Queue diperbarui dari state lokal.");
+          }}
+        >
+          Refresh Queue
+        </Button>
       </div>
     </Card>
   );

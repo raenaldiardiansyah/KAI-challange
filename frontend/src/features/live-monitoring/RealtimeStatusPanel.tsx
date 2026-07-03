@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
 import { StatusIndicator } from "@/components/ui/StatusIndicator";
 import type { Trainset } from "@/types/trainset";
 
@@ -17,10 +18,16 @@ export function RealtimeStatusPanel({ trainsets }: { trainsets: Trainset[] }) {
             </div>
             <div style={{ textAlign: "right", fontSize: "12px" }}>
               <StatusIndicator status={trainset.healthStatus} />
-              <div style={{ marginTop: "4px" }}>{trainset.healthScore}%</div>
+              <div className="percent-with-delta" style={{ justifyContent: "flex-end", marginTop: "6px" }}>
+                <span className="percent-value">{trainset.healthScore}%</span>
+                <MetricDelta value={trainset.healthScore} compact />
+              </div>
             </div>
             <div>
-              <Badge label={`${trainset.alarmCount} Alarm`} severity={trainset.alarmCount > 1 ? "High" : "Low"} />
+              <span className="percent-with-delta">
+                <Badge label={`${trainset.alarmCount} Alarm`} severity={trainset.alarmCount > 1 ? "High" : "Low"} />
+                <MetricDelta value={trainset.alarmCount} delta={trainset.alarmCount > 1 ? 1 : -1} inverse compact unit="alarm" label="alarm" />
+              </span>
             </div>
             <div style={{ fontSize: "11px", color: "#64748b", textAlign: "right" }}>
               {formatDate(trainset.lastUpdate)}

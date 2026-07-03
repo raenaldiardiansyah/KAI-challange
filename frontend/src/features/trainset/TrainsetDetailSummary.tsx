@@ -1,10 +1,10 @@
 import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
 import type { Trainset } from "@/types/trainset";
-import { TrendUp, TrendDown, MapPin, WifiHigh, WifiSlash, Train } from "@phosphor-icons/react/dist/ssr";
+import { MapPin, WifiHigh, WifiSlash, Train } from "@phosphor-icons/react/dist/ssr";
 
 export function TrainsetDetailSummary({ trainset }: { trainset: Trainset }) {
   const isOnline = trainset.dataStatus === "Online";
-  const isHealthy = trainset.healthScore >= 70;
   
   const chipStyle: React.CSSProperties = {
     background: "var(--surface-3, #f1f5f9)",
@@ -41,10 +41,10 @@ export function TrainsetDetailSummary({ trainset }: { trainset: Trainset }) {
         
         {/* Kesehatan */}
         <div style={chipStyle}>
-          <span>Kesehatan {trainset.healthScore}%</span>
-          <span style={{ display: "inline-flex", alignItems: "center", color: isHealthy ? "#10b981" : "#ef4444", fontSize: "12px", marginLeft: "4px" }}>
-            {isHealthy ? <TrendUp size={14} weight="bold" style={{marginRight: "2px"}} /> : <TrendDown size={14} weight="bold" style={{marginRight: "2px"}} />}
-            {isHealthy ? "2.4%" : "1.8%"}
+          <span>Kesehatan</span>
+          <span className="percent-with-delta trainset-percent-row">
+            <span className="percent-value">{trainset.healthScore}%</span>
+            <MetricDelta value={trainset.healthScore} compact />
           </span>
         </div>
 

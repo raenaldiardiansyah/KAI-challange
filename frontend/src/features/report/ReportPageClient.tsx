@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import type { Alarm } from "@/types/alarm";
+import type { Report } from "@/types/report";
 import type { Trainset } from "@/types/trainset";
 import type { TelemetrySeries } from "@/types/telemetry";
 import type { ReportFilterValues } from "@/types/reportFilter";
@@ -15,6 +16,7 @@ import { TelemetryTable } from "@/features/telemetry/TelemetryTable";
 
 type ReportPageClientProps = {
   alarms: Alarm[];
+  reports: Report[];
   trainsets: Trainset[];
   telemetry: TelemetrySeries[];
 };
@@ -23,7 +25,7 @@ type ReportPageClientProps = {
  * Client-side wrapper for the Report Analytics page.
  * Owns the filter state and passes filtered data down to all child components.
  */
-export function ReportPageClient({ alarms, trainsets, telemetry }: ReportPageClientProps) {
+export function ReportPageClient({ alarms, reports, trainsets, telemetry }: ReportPageClientProps) {
   const [filter, setFilter] = useState<ReportFilterValues>(DEFAULT_FILTER);
 
   // ── Pre-filter alarms by period for summary component ───────
@@ -59,7 +61,7 @@ export function ReportPageClient({ alarms, trainsets, telemetry }: ReportPageCli
       </section>
 
       <section>
-        <ReportTable filter={filter} />
+        <ReportTable filter={filter} reports={reports} />
       </section>
 
       <section>

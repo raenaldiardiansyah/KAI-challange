@@ -171,8 +171,8 @@ export function ReportTrendChart({ alarms, filter }: ReportTrendChartProps) {
               formatter={(value, name) => [`${value} insiden`, name === "critical" ? "Kritis" : "Waspada"]}
               labelStyle={{ color: "#64748b" }}
             />
-            {mode !== "warning" ? <Bar dataKey="critical" fill="#ef4444" radius={[3, 3, 0, 0]} /> : null}
-            {mode !== "critical" ? <Bar dataKey="warning" fill="#f59e0b" radius={[3, 3, 0, 0]} /> : null}
+            {mode !== "warning" ? <Bar isAnimationActive={false} dataKey="critical" fill="#ef4444" radius={[3, 3, 0, 0]} /> : null}
+            {mode !== "critical" ? <Bar isAnimationActive={false} dataKey="warning" fill="#f59e0b" radius={[3, 3, 0, 0]} /> : null}
           </BarChart>
         </ResponsiveContainer>
       </div>

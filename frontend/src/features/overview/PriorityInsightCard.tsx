@@ -1,10 +1,15 @@
-import { Warning, Train, Target, Heartbeat } from "@phosphor-icons/react/dist/ssr";
+"use client";
+
+import { Warning, Train, Target, Heartbeat } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
 import type { Insight } from "@/types/insight";
+import { useRouter } from "next/navigation";
 
 export function PriorityInsightCard({ insight }: { insight: Insight }) {
+  const router = useRouter();
   const isAlert = insight.severity === "High" || insight.severity === "Critical";
 
   const bubbleStyle = {
@@ -29,19 +34,29 @@ export function PriorityInsightCard({ insight }: { insight: Insight }) {
           <div className="meta-row" style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
             <span style={bubbleStyle}>
               <Target size={16} weight="bold" style={{ marginRight: "4px", color: "var(--accent)" }} />
-              Akurasi Prediksi: {insight.confidence}%
+              Akurasi Prediksi:
+              <span className="percent-with-delta" style={{ marginLeft: "6px" }}>
+                <span className="percent-value">{insight.confidence}%</span>
+                <MetricDelta value={insight.confidence} compact />
+              </span>
             </span>
             <span style={bubbleStyle}>
               <Heartbeat size={16} weight="bold" style={{ marginRight: "4px", color: "var(--danger)" }} />
-              Kesehatan: {insight.healthScore}%
+              Kesehatan:
+              <span className="percent-with-delta" style={{ marginLeft: "6px" }}>
+                <span className="percent-value">{insight.healthScore}%</span>
+                <MetricDelta value={insight.healthScore} compact />
+              </span>
             </span>
             <span style={bubbleStyle}>
               <Train size={16} weight="bold" style={{ marginRight: "4px" }} />
               {insight.trainsetName} - C{insight.carNumber}
             </span>
           </div>
-          <p className="recommendation">{insight.recommendation}</p>
-          <Button>Tinjau Bukti</Button>
+          <p className="recommendation" style={{ marginTop: "20px" }}>{insight.recommendation}</p>
+          <div style={{ marginTop: "32px" }}>
+            <Button onClick={() => router.push(`/car-detail?car=${insight.carNumber}`)}>Tinjau Bukti</Button>
+          </div>
         </div>
       </div>
     </Card>

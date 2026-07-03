@@ -29,7 +29,7 @@ export function HealthByCarChart({ carsInsights }: { carsInsights: Insight[] }) 
               cursor={{ fill: "transparent" }}
               contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)", fontSize: "12px" }}
             />
-            <Bar dataKey="health" radius={[4, 4, 0, 0]}>
+            <Bar isAnimationActive={false} dataKey="health" radius={[4, 4, 0, 0]}>
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={getColor(entry.severity)} />
               ))}

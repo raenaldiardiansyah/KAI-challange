@@ -4,13 +4,13 @@ import { TrainsetComposition } from "@/features/trainset/TrainsetComposition";
 import { PriorityCars } from "@/features/trainset/PriorityCars";
 import { HealthByCarChart } from "@/features/trainset/HealthByCarChart";
 import { SubsystemHeatmap } from "@/features/trainset/SubsystemHeatmap";
+import { getOverviewData } from "@/services/overviewService";
 import { getTrainsets } from "@/services/trainsetService";
-import { carInsightsDummy } from "@/dummy/insightDummy"; 
 
 export default async function TrainsetPage() {
-  const trainsets = await getTrainsets();
+  const [trainsets, overview] = await Promise.all([getTrainsets(), getOverviewData()]);
   const selectedTrainset = trainsets[0];
-  const carInsights = carInsightsDummy;
+  const carInsights = overview.carInsights;
 
   return (
     <div className="page-grid trainset-master-layout">

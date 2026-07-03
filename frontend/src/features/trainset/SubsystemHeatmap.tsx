@@ -67,8 +67,7 @@ export function SubsystemHeatmap({ totalCars, carsInsights }: { totalCars: numbe
                         borderRadius: "4px",
                         border: status === "Normal" ? "1px solid var(--line, #e2e8f0)" : "1px solid #fecaca",
                         opacity: status === "Normal" ? 0.72 : 0.95,
-                        cursor: "pointer",
-                        transition: "opacity 0.2s"
+                        cursor: "pointer"
                       }}
                       onClick={() => router.push("/car-detail")}
                       onMouseOver={(e) => e.currentTarget.style.opacity = "1"}

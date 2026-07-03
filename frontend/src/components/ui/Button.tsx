@@ -24,8 +24,16 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof
 export function Button({ children, icon, variant, asChild = false, className, ...props }: ButtonProps) {
   const Comp = asChild ? Slot : "button";
 
+  if (asChild) {
+    return (
+      <Comp className={cn(buttonVariants({ variant }), className)} type={undefined} {...props}>
+        {children}
+      </Comp>
+    );
+  }
+
   return (
-    <Comp className={cn(buttonVariants({ variant }), className)} type={asChild ? undefined : "button"} {...props}>
+    <Comp className={cn(buttonVariants({ variant }), className)} type="button" {...props}>
       {icon}
       {children && <span>{children}</span>}
     </Comp>

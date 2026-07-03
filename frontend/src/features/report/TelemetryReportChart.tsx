@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import type { TelemetrySeries } from "@/types/telemetry";
@@ -18,14 +18,13 @@ export function TelemetryReportChart({ series, filter }: { series: TelemetrySeri
     return first ? `${first.trainsetId}-${first.carNumber}` : "";
   });
 
-  useEffect(() => {
-    const first = filteredSeries[0];
-    setSelectedKey(first ? `${first.trainsetId}-${first.carNumber}` : "");
-  }, [filteredSeries]);
+  const effectiveSelectedKey = filteredSeries.some((item) => `${item.trainsetId}-${item.carNumber}` === selectedKey)
+    ? selectedKey
+    : (filteredSeries[0] ? `${filteredSeries[0].trainsetId}-${filteredSeries[0].carNumber}` : "");
 
   const selectedSeries = useMemo(() => {
-    return filteredSeries.find((item) => `${item.trainsetId}-${item.carNumber}` === selectedKey) ?? filteredSeries[0];
-  }, [selectedKey, filteredSeries]);
+    return filteredSeries.find((item) => `${item.trainsetId}-${item.carNumber}` === effectiveSelectedKey) ?? filteredSeries[0];
+  }, [effectiveSelectedKey, filteredSeries]);
 
   if (filteredSeries.length === 0) {
     return <Card title="Ringkasan Telemetri Sensor"><p>Tidak ada data telemetri untuk armada yang dipilih</p></Card>;
@@ -49,7 +48,7 @@ export function TelemetryReportChart({ series, filter }: { series: TelemetrySeri
         <Select
           aria-label="Pilih seri telemetri"
           className="telemetry-report-select"
-          value={selectedKey}
+          value={effectiveSelectedKey}
           onChange={(event) => setSelectedKey(event.target.value)}
         >
           {filteredSeries.map((item) => {
@@ -71,9 +70,9 @@ export function TelemetryReportChart({ series, filter }: { series: TelemetrySeri
             <YAxis tick={{ fontSize: 12, fill: "#64748b" }} />
             <Tooltip contentStyle={{ borderRadius: "8px", fontSize: "12px" }} />
             <Legend wrapperStyle={{ fontSize: "12px" }} />
-            <Area type="monotone" dataKey="Threshold Brake Cylinder" stroke="#64748b" strokeDasharray="3 3" fill="none" />
-            <Area type="monotone" dataKey="Brake Pipe" stroke="#10b981" fillOpacity={1} fill="url(#colorBP)" />
-            <Area type="monotone" dataKey="Brake Cylinder" stroke="#ef4444" fillOpacity={1} fill="url(#colorBC)" />
+            <Area isAnimationActive={false} type="monotone" dataKey="Threshold Brake Cylinder" stroke="#64748b" strokeDasharray="3 3" fill="none" />
+            <Area isAnimationActive={false} type="monotone" dataKey="Brake Pipe" stroke="#10b981" fillOpacity={1} fill="url(#colorBP)" />
+            <Area isAnimationActive={false} type="monotone" dataKey="Brake Cylinder" stroke="#ef4444" fillOpacity={1} fill="url(#colorBC)" />
           </AreaChart>
         </ResponsiveContainer>
       </div>

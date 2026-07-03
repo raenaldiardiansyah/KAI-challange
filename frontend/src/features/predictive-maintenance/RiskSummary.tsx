@@ -12,8 +12,8 @@ export function RiskSummary({ risks }: { risks: MaintenanceRisk[] }) {
   return (
     <div className="summary-grid">
       <Card>
-        <div className="metric-card">
-          <span style={{ background: "#fee2e2", color: "#b91c1c" }}>{high}</span>
+        <div className="metric-card risk-summary-card risk-soft-high">
+          <span>{high}</span>
           <div>
             <strong>Risiko Tinggi</strong>
             <p>Butuh tindakan segera</p>
@@ -21,8 +21,8 @@ export function RiskSummary({ risks }: { risks: MaintenanceRisk[] }) {
         </div>
       </Card>
       <Card>
-        <div className="metric-card">
-          <span style={{ background: "#fef3c7", color: "#d97706" }}>{medium}</span>
+        <div className="metric-card risk-summary-card risk-soft-medium">
+          <span>{medium}</span>
           <div>
             <strong>Risiko Sedang</strong>
             <p>Perlu inspeksi</p>
@@ -30,8 +30,8 @@ export function RiskSummary({ risks }: { risks: MaintenanceRisk[] }) {
         </div>
       </Card>
       <Card>
-        <div className="metric-card">
-          <span style={{ background: "#dbeafe", color: "#1d4ed8" }}>{watch}</span>
+        <div className="metric-card risk-summary-card risk-soft-watch">
+          <span>{watch}</span>
           <div>
             <strong>Pantau (Watch)</strong>
             <p>Indikasi awal anomali</p>
@@ -39,8 +39,8 @@ export function RiskSummary({ risks }: { risks: MaintenanceRisk[] }) {
         </div>
       </Card>
       <Card>
-        <div className="metric-card">
-          <span style={{ background: "#f1f5f9", color: "#475569" }}>{limited}</span>
+        <div className="metric-card risk-summary-card risk-soft-limited">
+          <span>{limited}</span>
           <div>
             <strong>Data Terbatas</strong>
             <p>Koneksi sensor putus</p>

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
 import type { Alarm } from "@/types/alarm";
 import type { Trainset } from "@/types/trainset";
 import type { ReportFilterValues } from "@/types/reportFilter";
@@ -63,6 +64,7 @@ export function ReportSummary({ alarms, trainsets, filter }: ReportSummaryProps)
           </span>
           <div>
             <strong>Rata-Rata Kesehatan</strong>
+            <MetricDelta value={avgHealth} compact label="periode ini" />
             <p>Armada KAI {periodLabel}</p>
           </div>
         </div>
@@ -85,6 +87,7 @@ export function ReportSummary({ alarms, trainsets, filter }: ReportSummaryProps)
           </span>
           <div>
             <strong>Ketersediaan Data</strong>
+            <MetricDelta value={dataAvailability} compact label="uptime" />
             <p>Uptime sistem telemetri {periodLabel}</p>
           </div>
         </div>

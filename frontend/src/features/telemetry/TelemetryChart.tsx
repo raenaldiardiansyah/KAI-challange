@@ -22,9 +22,9 @@ export function TelemetryChart({ series }: { series: TelemetrySeries }) {
             <YAxis domain={[0, 6]} tick={{ fontSize: 12, fill: "#64748b" }} />
             <Tooltip contentStyle={{ borderRadius: "8px", fontSize: "12px" }} />
             <Legend wrapperStyle={{ fontSize: "12px" }} />
-            <Line type="stepAfter" dataKey="Threshold Brake Cylinder" stroke="#64748b" strokeDasharray="3 3" dot={false} strokeWidth={1} />
-            <Line type="monotone" dataKey="Brake Pipe" stroke="#10b981" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
-            <Line type="monotone" dataKey="Brake Cylinder" stroke="#ef4444" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+            <Line isAnimationActive={false} type="stepAfter" dataKey="Threshold Brake Cylinder" stroke="#64748b" strokeDasharray="3 3" dot={false} strokeWidth={1} />
+            <Line isAnimationActive={false} type="monotone" dataKey="Brake Pipe" stroke="#10b981" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+            <Line isAnimationActive={false} type="monotone" dataKey="Brake Cylinder" stroke="#ef4444" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

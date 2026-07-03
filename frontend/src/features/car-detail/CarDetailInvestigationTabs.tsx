@@ -104,7 +104,7 @@ export function CarDetailInvestigationTabs({
           </div>
         ) : null}
 
-        {activeTab === "action" ? <CarPriorityAction /> : null}
+        {activeTab === "action" ? <CarPriorityAction onViewEvidence={() => setActiveTab("evidence")} /> : null}
       </div>
     </div>
   );

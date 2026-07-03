@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
 import type { Insight } from "@/types/insight";
 
 export function PriorityCars({ carsInsights }: { carsInsights: Insight[] }) {
@@ -28,7 +29,10 @@ export function PriorityCars({ carsInsights }: { carsInsights: Insight[] }) {
               <p style={{ fontSize: "12px" }}>{car.diagnosis}</p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <strong style={{ color: car.healthScore < 60 ? "#b42318" : "#047857" }}>{car.healthScore}%</strong>
+              <div className="percent-with-delta trainset-percent-row trainset-percent-row-end">
+                <strong className="percent-value" style={{ color: car.healthScore < 60 ? "#b42318" : "#047857" }}>{car.healthScore}%</strong>
+                <MetricDelta value={car.healthScore} compact />
+              </div>
               <p style={{ fontSize: "12px" }}>Kesehatan</p>
             </div>
           </div>

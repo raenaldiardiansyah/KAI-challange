@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
 import type { CarDetail } from "@/types/car";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
@@ -34,7 +35,10 @@ export function CarSensorPanel({ car }: { car: CarDetail }) {
           <div style={{ background: "#fee2e2", padding: "12px", borderRadius: "8px", border: "1px solid #fecaca" }}>
             <span style={{ fontSize: "12px", color: "#64748b", display: "block" }}>Brake Cylinder (BC) saat ini</span>
             <strong style={{ fontSize: "20px", color: "#b91c1c" }}>{car.brakeCylinderBar} bar</strong>
-            <span style={{ fontSize: "12px", color: "#b91c1c", display: "block", marginTop: "4px" }}>Deviasi Tinggi (-52%)</span>
+            <span className="percent-with-delta" style={{ marginTop: "6px" }}>
+              <span style={{ fontSize: "12px", color: "#b91c1c" }}>Deviasi Tinggi (-52%)</span>
+              <MetricDelta value={52} delta={-52} inverse compact />
+            </span>
           </div>
         </div>
         
@@ -48,8 +52,8 @@ export function CarSensorPanel({ car }: { car: CarDetail }) {
                 contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)", fontSize: "12px" }}
               />
               <Legend wrapperStyle={{ fontSize: "12px" }} />
-              <Line type="monotone" dataKey="Brake Pipe" stroke="#10b981" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
-              <Line type="monotone" dataKey="Brake Cylinder" stroke="#ef4444" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+              <Line isAnimationActive={false} type="monotone" dataKey="Brake Pipe" stroke="#10b981" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
+              <Line isAnimationActive={false} type="monotone" dataKey="Brake Cylinder" stroke="#ef4444" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>

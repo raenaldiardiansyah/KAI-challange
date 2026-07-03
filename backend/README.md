@@ -1,15 +1,7 @@
 # Backend Placeholder
 
-Folder ini disediakan sebagai placeholder untuk integrasi backend.
+Folder ini disiapkan untuk integrasi backend/API pada tahap berikutnya.
 
-Pada tahap awal pengembangan, frontend menggunakan dummy data yang berada di:
+Saat ini scope utama project adalah frontend dashboard predictive maintenance KAI.
 
-frontend/src/dummy/
-
-Backend utama, API, database, MQTT processing, analytic engine, FMEA/rule base, dan LLM processing berada pada sisi REKA/backend.
-
-Jika API backend sudah tersedia, frontend akan mengambil data melalui service di:
-
-frontend/src/services/
-
-Folder backend ini tidak dihapus agar struktur project tetap siap untuk integrasi API atau backend bridge di tahap berikutnya.
+Backend production, MQTT processing, database, rule base, analytic engine, dan LLM processing tidak dijalankan di frontend.

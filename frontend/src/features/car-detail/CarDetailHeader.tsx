@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
 import { StatusIndicator } from "@/components/ui/StatusIndicator";
 import type { CarDetail } from "@/types/car";
 
@@ -27,7 +28,10 @@ export function CarDetailHeader({ car }: { car: CarDetail }) {
         </div>
         <div style={chipStyle}>
           <span style={{ color: "var(--text-muted)" }}>Kesehatan</span>
-          <span>{car.healthScore}%</span>
+          <span className="percent-with-delta">
+            <span className="percent-value">{car.healthScore}%</span>
+            <MetricDelta value={car.healthScore} compact />
+          </span>
         </div>
         <div style={chipStyle}>
           <span style={{ color: "var(--text-muted)" }}>Brake Pipe</span>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import type { Severity } from "@/types/common";
 
 const priorityOptions = [
   { value: "critical", label: "Critical", description: "Stop operasi bila perlu" },
@@ -13,8 +14,43 @@ const priorityOptions = [
   { value: "medium", label: "Medium", description: "Masuk antrean inspeksi" }
 ];
 
-export function WorkOrderForm() {
-  const [selectedPriority, setSelectedPriority] = useState("high");
+export type WorkOrderDraft = {
+  source: string;
+  trainsetId: string;
+  carNumber: number;
+  subsystem: string;
+  eventCode: string;
+  priority: Severity;
+  deadline: string;
+  task: string;
+};
+
+const defaultDraft: WorkOrderDraft = {
+  source: "Alarm: Anomali Brake Cylinder C5",
+  trainsetId: "TS-001",
+  carNumber: 5,
+  subsystem: "Brake System",
+  eventCode: "LOCAL_BC_DEVIATION",
+  priority: "High",
+  deadline: "2026-07-05",
+  task: "Cek kebocoran pada katup Brake Cylinder Car 5"
+};
+
+export function WorkOrderForm({ onSave }: { onSave: (draft: WorkOrderDraft) => void }) {
+  const [draft, setDraft] = useState(defaultDraft);
+
+  const updateDraft = <K extends keyof WorkOrderDraft>(key: K, value: WorkOrderDraft[K]) => {
+    setDraft((current) => ({ ...current, [key]: value }));
+  };
+
+  const handleReset = () => {
+    setDraft(defaultDraft);
+  };
+
+  const handleSave = () => {
+    onSave(draft);
+    setDraft(defaultDraft);
+  };
 
   return (
     <Card title="Buat Draft SPK Baru" eyebrow="Form Tindakan SPK">
@@ -34,28 +70,28 @@ export function WorkOrderForm() {
       <div className="form-grid spk-form-grid">
         <label className="field-control">
           <span>Pilih Sumber Indikasi</span>
-          <Select defaultValue="alarm5">
+          <Select value={draft.source} onChange={(event) => updateDraft("source", event.target.value)}>
             <option value="none">-- Tanpa Referensi --</option>
-            <option value="alarm5">Alarm: Anomali Brake Cylinder C5</option>
-            <option value="insight1">Insight: Deviasi tekanan 52%</option>
-            <option value="pm">Predictive: TTW 2 Hari</option>
+            <option value="Alarm: Anomali Brake Cylinder C5">Alarm: Anomali Brake Cylinder C5</option>
+            <option value="Insight: Deviasi tekanan 52%">Insight: Deviasi tekanan 52%</option>
+            <option value="Predictive: TTW 2 Hari">Predictive: TTW 2 Hari</option>
           </Select>
         </label>
         
         <div className="spk-two-column-fields">
           <label className="field-control">
             <span>Armada</span>
-            <Select defaultValue="ts001">
-              <option value="ts001">Anggrek Lembah M02406</option>
-              <option value="ts002">Argo Wilis M02408</option>
-              <option value="ts003">Argo Parahyangan M02412</option>
+            <Select value={draft.trainsetId} onChange={(event) => updateDraft("trainsetId", event.target.value)}>
+              <option value="TS-001">Anggrek Lembah M02406</option>
+              <option value="TS-002">Argo Wilis M02408</option>
+              <option value="TS-003">Argo Parahyangan M02412</option>
             </Select>
           </label>
           <label className="field-control">
             <span>Gerbong</span>
-            <Select defaultValue="c5">
+            <Select value={`C${draft.carNumber}`} onChange={(event) => updateDraft("carNumber", Number(event.target.value.replace("C", "")))}>
               {Array.from({ length: 10 }, (_, index) => (
-                <option key={index + 1} value={`c${index + 1}`}>C{index + 1}</option>
+                <option key={index + 1} value={`C${index + 1}`}>C{index + 1}</option>
               ))}
             </Select>
           </label>
@@ -64,16 +100,16 @@ export function WorkOrderForm() {
         <div className="spk-two-column-fields">
           <label className="field-control">
             <span>Subsystem</span>
-            <Select defaultValue="brake">
-              <option value="brake">Brake System</option>
-              <option value="genset">Genset</option>
-              <option value="hvac">HVAC</option>
-              <option value="door">Door System</option>
+            <Select value={draft.subsystem} onChange={(event) => updateDraft("subsystem", event.target.value)}>
+              <option value="Brake System">Brake System</option>
+              <option value="Genset">Genset</option>
+              <option value="HVAC">HVAC</option>
+              <option value="Door System">Door System</option>
             </Select>
           </label>
           <label className="field-control">
             <span>Event Code</span>
-            <Input type="text" defaultValue="LOCAL_BC_DEVIATION" />
+            <Input type="text" value={draft.eventCode} onChange={(event) => updateDraft("eventCode", event.target.value)} />
           </label>
         </div>
 
@@ -84,9 +120,9 @@ export function WorkOrderForm() {
               <button
                 key={option.value}
                 type="button"
-                className={option.value === selectedPriority ? "priority-choice active" : "priority-choice"}
-                aria-pressed={option.value === selectedPriority}
-                onClick={() => setSelectedPriority(option.value)}
+                className={option.label === draft.priority ? "priority-choice active" : "priority-choice"}
+                aria-pressed={option.label === draft.priority}
+                onClick={() => updateDraft("priority", option.label as Severity)}
               >
                 <strong>{option.label}</strong>
                 <small>{option.description}</small>
@@ -97,7 +133,7 @@ export function WorkOrderForm() {
 
         <label className="field-control">
           <span>Batas Waktu (Deadline)</span>
-          <Input type="date" defaultValue="2026-07-05" />
+          <Input type="date" value={draft.deadline} onChange={(event) => updateDraft("deadline", event.target.value)} />
         </label>
 
         <div className="spk-description-actions">
@@ -105,13 +141,14 @@ export function WorkOrderForm() {
             <span>Deskripsi Tugas</span>
             <Textarea
               rows={5}
-              defaultValue="Cek kebocoran pada katup Brake Cylinder Car 5"
+              value={draft.task}
+              onChange={(event) => updateDraft("task", event.target.value)}
             />
           </label>
 
           <div className="spk-form-actions">
-            <Button variant="secondary">Reset</Button>
-            <Button variant="primary">Simpan SPK</Button>
+            <Button variant="secondary" onClick={handleReset}>Reset</Button>
+            <Button variant="primary" onClick={handleSave}>Simpan SPK</Button>
           </div>
         </div>
       </div>

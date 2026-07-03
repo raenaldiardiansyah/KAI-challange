@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
 import type { Insight } from "@/types/insight";
 
 const evidenceMeta: Record<string, { label: string; unit?: string }> = {
@@ -23,11 +24,16 @@ export function EvidencePanel({ insight }: { insight: Insight }) {
         {Object.entries(insight.evidence).map(([key, value]) => {
           const isAlert = key === "bc" || key === "difference";
           const meta = evidenceMeta[key] ?? { label: key };
+          const numericValue = Number(value);
+          const isPercent = meta.unit === "%" && Number.isFinite(numericValue);
 
           return (
           <div key={key} className={isAlert ? "evidence-cell alert" : "evidence-cell"}>
             <span>{meta.label}</span>
-            <strong>{value}{meta.unit ? ` ${meta.unit}` : ""}</strong>
+            <strong className={isPercent ? "percent-with-delta" : undefined}>
+              <span>{value}{meta.unit ? ` ${meta.unit}` : ""}</span>
+              {isPercent ? <MetricDelta value={numericValue} compact /> : null}
+            </strong>
           </div>
         );})}
       </div>

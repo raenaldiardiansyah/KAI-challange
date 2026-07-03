@@ -5,30 +5,21 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Table } from "@/components/ui/Table";
 import { DownloadSimple } from "@phosphor-icons/react/dist/ssr";
+import type { Report } from "@/types/report";
 import type { ReportFilterValues } from "@/types/reportFilter";
 
 interface ReportTableProps {
   filter: ReportFilterValues;
+  reports: Report[];
 }
 
-export function ReportTable({ filter }: ReportTableProps) {
-  const data = [
-    { id: "REP-07-26-01", date: "2026-07-01", type: "Bulanan", title: "Laporan Performa Armada Juni 2026", status: "Ready" },
-    { id: "REP-07-26-02", date: "2026-07-01", type: "Analitik", title: "Ringkasan Anomali Subsistem Brake", status: "Ready" },
-    { id: "REP-07-26-03", date: "2026-07-02", type: "Harian", title: "Daily Shift Report 02 Juli", status: "Generating..." },
-    { id: "REP-07-26-04", date: "2026-07-03", type: "Harian", title: "Daily Shift Report 03 Juli", status: "Ready" },
-    { id: "REP-06-26-05", date: "2026-06-28", type: "Mingguan", title: "Laporan Mingguan Armada W26", status: "Ready" },
-    { id: "REP-06-26-06", date: "2026-06-15", type: "Bulanan", title: "Laporan Performa Armada Mei 2026", status: "Ready" },
-    { id: "REP-05-26-07", date: "2026-05-01", type: "Analitik", title: "Ringkasan Anomali Subsistem HVAC", status: "Ready" },
-    { id: "REP-03-26-08", date: "2026-03-15", type: "Bulanan", title: "Laporan Performa Armada Februari 2026", status: "Ready" },
-  ];
-
+export function ReportTable({ filter, reports }: ReportTableProps) {
   const filteredData = useMemo(() => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    return data.filter((row) => {
-      const rowDate = new Date(row.date);
+    return reports.filter((row) => {
+      const rowDate = new Date(row.generatedAt);
 
       switch (filter.period) {
         case "today":
@@ -51,7 +42,7 @@ export function ReportTable({ filter }: ReportTableProps) {
           return true;
       }
     });
-  }, [filter.period]);
+  }, [filter.period, reports]);
 
   return (
     <Card title="Arsip Laporan" eyebrow="Unduh Laporan Format Dokumen">
@@ -70,24 +61,27 @@ export function ReportTable({ filter }: ReportTableProps) {
           {filteredData.map((row) => (
             <tr key={row.id}>
               <td>{row.id}</td>
-              <td>{row.date}</td>
+              <td>{new Date(row.generatedAt).toLocaleDateString("id-ID")}</td>
               <td>{row.type}</td>
-              <td>{row.title}</td>
+              <td>
+                <strong>{row.title}</strong>
+                <p>{row.summary}</p>
+              </td>
               <td>
                 <span style={{ 
-                  color: row.status === "Ready" ? "#10b981" : "#d97706",
+                  color: "#10b981",
                   fontWeight: "bold",
                   fontSize: "12px"
                 }}>
-                  {row.status}
+                  Siap
                 </span>
               </td>
               <td>
                 <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
-                  <Button variant="ghost" className="table-mini-button" disabled={row.status !== "Ready"} icon={<DownloadSimple size={12} />}>
+                  <Button variant="ghost" className="table-mini-button" icon={<DownloadSimple size={12} />}>
                     Simulasi PDF (Belum terhubung backend)
                   </Button>
-                  <Button variant="secondary" className="table-mini-button" disabled={row.status !== "Ready"} icon={<DownloadSimple size={12} />}>
+                  <Button variant="secondary" className="table-mini-button" icon={<DownloadSimple size={12} />}>
                     Simulasi Excel (Belum terhubung backend)
                   </Button>
                 </div>
