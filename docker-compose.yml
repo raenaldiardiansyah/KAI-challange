@@ -1,0 +1,13 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_USE_DUMMY: "true"
+      NEXT_PUBLIC_API_URL: "http://localhost:5000/api"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
