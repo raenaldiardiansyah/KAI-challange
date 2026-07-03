@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: process.cwd(),
-  }
+  // Tambahkan konfigurasi Next.js lainnya di sini jika diperlukan
 };
 
 export default nextConfig;
