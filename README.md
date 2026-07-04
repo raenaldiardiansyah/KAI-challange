@@ -16,8 +16,8 @@ Frontend dashboard untuk RAMS Rail Assets Monitoring System. Scope TEL-U pada re
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Default environment:
