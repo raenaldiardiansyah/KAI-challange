@@ -19,7 +19,7 @@ export function CarDetailHeader({ car }: { car: CarDetail }) {
   };
 
   return (
-    <Card title={`Gerbong ${car.carNumber}`} eyebrow={`${car.trainsetId} - ${car.role}`}>
+    <Card title={`Gerbong ${car.carNumber}`} eyebrow={`${car.trainsetId} - ${car.role}`} className="summary-accent-card summary-tone-info">
       <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "12px", width: "100%" }}>
         <div style={chipStyle}>
           <StatusIndicator status={car.healthStatus} />

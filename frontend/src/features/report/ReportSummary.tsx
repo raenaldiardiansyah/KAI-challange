@@ -57,11 +57,9 @@ export function ReportSummary({ alarms, trainsets, filter }: ReportSummaryProps)
 
   return (
     <div className="summary-grid">
-      <Card>
+      <Card className="summary-accent-card summary-tone-success">
         <div className="metric-card">
-          <span style={{ background: "#d1fae5", color: "#059669" }}>
-            {avgHealth}%
-          </span>
+          <span>{avgHealth}%</span>
           <div>
             <strong>Rata-Rata Kesehatan</strong>
             <MetricDelta value={avgHealth} compact label="periode ini" />
@@ -69,22 +67,18 @@ export function ReportSummary({ alarms, trainsets, filter }: ReportSummaryProps)
           </div>
         </div>
       </Card>
-      <Card>
+      <Card className="summary-accent-card summary-tone-danger">
         <div className="metric-card">
-          <span style={{ background: "#fee2e2", color: "#b91c1c" }}>
-            {criticalCount}
-          </span>
+          <span>{criticalCount}</span>
           <div>
             <strong>Total Insiden Kritis</strong>
             <p>Insiden {periodLabel}</p>
           </div>
         </div>
       </Card>
-      <Card>
+      <Card className="summary-accent-card summary-tone-warning">
         <div className="metric-card">
-          <span style={{ background: "#fef3c7", color: "#d97706" }}>
-            {dataAvailability}%
-          </span>
+          <span>{dataAvailability}%</span>
           <div>
             <strong>Ketersediaan Data</strong>
             <MetricDelta value={dataAvailability} compact label="uptime" />
@@ -92,11 +86,9 @@ export function ReportSummary({ alarms, trainsets, filter }: ReportSummaryProps)
           </div>
         </div>
       </Card>
-      <Card>
+      <Card className="summary-accent-card summary-tone-info">
         <div className="metric-card">
-          <span style={{ background: "#dbeafe", color: "#1d4ed8" }}>
-            {closedCount}
-          </span>
+          <span>{closedCount}</span>
           <div>
             <strong>SPK Diselesaikan</strong>
             <p>Diselesaikan {periodLabel}</p>

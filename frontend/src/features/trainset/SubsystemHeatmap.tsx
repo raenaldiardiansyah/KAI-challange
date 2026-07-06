@@ -4,9 +4,29 @@ import { Card } from "@/components/ui/Card";
 import type { Insight } from "@/types/insight";
 import { useRouter } from "next/navigation";
 
-export function SubsystemHeatmap({ totalCars, carsInsights }: { totalCars: number, carsInsights: Insight[] }) {
+type SubsystemHeatmapProps = {
+  trainsetId: string;
+  trainsetName?: string;
+  totalCars: number;
+  carsInsights: Insight[];
+};
+
+export function SubsystemHeatmap({ trainsetId, trainsetName, totalCars, carsInsights }: SubsystemHeatmapProps) {
   const router = useRouter();
   const subsystems = ["Brake System", "Door", "HVAC", "Genset", "Speed & GPS"];
+
+  const buildCarDetailUrl = (carNumber: number, subsystem: string) => {
+    const params = new URLSearchParams({
+      trainset: trainsetId,
+      car: carNumber.toString()
+    });
+
+    if (subsystem !== "Speed & GPS") {
+      params.set("subsystem", subsystem);
+    }
+
+    return `/car-detail?${params.toString()}`;
+  };
   
   // Create dummy statuses for heatmap based on the insights provided
   // In a real app, this would come from a structured subsystem status matrix per car
@@ -56,11 +76,16 @@ export function SubsystemHeatmap({ totalCars, carsInsights }: { totalCars: numbe
                 {sys}
               </div>
               {Array.from({ length: totalCars }, (_, i) => {
+                const carNumber = i + 1;
                 const status = getSubsystemStatus(i + 1, sys);
+                const targetLabel = `${trainsetName ?? trainsetId} (${trainsetId}) - C${carNumber} - ${sys}: ${status}`;
                 return (
                   <div key={`${sys}-${i}`} style={{ padding: "4px" }}>
                     <div
-                      title={`Gerbong ${i + 1} - ${sys}: ${status}`}
+                      aria-label={`Buka detail ${targetLabel}`}
+                      role="button"
+                      tabIndex={0}
+                      title={targetLabel}
                       style={{
                         height: "32px",
                         background: getColor(status),
@@ -69,7 +94,13 @@ export function SubsystemHeatmap({ totalCars, carsInsights }: { totalCars: numbe
                         opacity: status === "Normal" ? 0.72 : 0.95,
                         cursor: "pointer"
                       }}
-                      onClick={() => router.push("/car-detail")}
+                      onClick={() => router.push(buildCarDetailUrl(carNumber, sys))}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          router.push(buildCarDetailUrl(carNumber, sys));
+                        }
+                      }}
                       onMouseOver={(e) => e.currentTarget.style.opacity = "1"}
                       onMouseOut={(e) => e.currentTarget.style.opacity = "0.9"}
                     />

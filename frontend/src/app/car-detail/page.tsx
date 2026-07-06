@@ -40,7 +40,7 @@ function buildFallbackCar(trainsetId: string, carNumber: number, healthScore: nu
   };
 }
 
-export default async function CarDetailPage({ searchParams }: { searchParams?: Promise<{ car?: string; trainset?: string }> }) {
+export default async function CarDetailPage({ searchParams }: { searchParams?: Promise<{ car?: string; trainset?: string; subsystem?: string }> }) {
   const params = await searchParams;
   const [cars, telemetrySeries, trainsets, insights] = await Promise.all([
     getCarDetails(), 
@@ -76,6 +76,15 @@ export default async function CarDetailPage({ searchParams }: { searchParams?: P
   const exactCar = cars.find((candidate) => candidate.trainsetId === selectedTrainsetId && candidate.carNumber === targetCarNumber);
   const selectedInsight = insights.find((insight) => insight.trainsetId === selectedTrainsetId && insight.carNumber === targetCarNumber);
   const car = exactCar ?? buildFallbackCar(selectedTrainsetId, targetCarNumber, selectedInsight?.healthScore ?? selectedTrainset?.healthScore ?? 90);
+  const selectedSubsystem = params?.subsystem && car.subsystems.some((subsystem) => subsystem.subsystem === params.subsystem)
+    ? params.subsystem
+    : "all";
+  const visibleCar = selectedSubsystem === "all"
+    ? car
+    : {
+        ...car,
+        subsystems: car.subsystems.filter((subsystem) => subsystem.subsystem === selectedSubsystem)
+      };
 
   const selectedTelemetry = telemetrySeries.find(
     (series) => series.trainsetId === car.trainsetId && series.carNumber === car.carNumber
@@ -94,18 +103,20 @@ export default async function CarDetailPage({ searchParams }: { searchParams?: P
         <CarSelectorFilter 
           defaultCar={targetCarNumber.toString()} 
           defaultTrainset={selectedTrainsetId}
+          defaultSubsystem={selectedSubsystem}
           trainsets={trainsets.map(t => ({ id: t.id, name: t.name }))}
           issueTrainsets={issueTrainsets}
           issueCarsByTrainset={issueCarsByTrainset}
           totalCarsByTrainset={Object.fromEntries(trainsets.map((trainset) => [trainset.id, trainset.totalCars]))}
+          availableSubsystems={car.subsystems.map((subsystem) => subsystem.subsystem)}
         />
         
         <div className="car-detail-summary-grid">
-          <CarDetailHeader car={car} />
-          <CarHealthSummary car={car} />
+          <CarDetailHeader car={visibleCar} />
+          <CarHealthSummary car={visibleCar} />
         </div>
 
-        <CarDetailInvestigationTabs car={car} telemetry={selectedTelemetry} />
+        <CarDetailInvestigationTabs car={visibleCar} telemetry={selectedTelemetry} />
       </div>
     </>
   );

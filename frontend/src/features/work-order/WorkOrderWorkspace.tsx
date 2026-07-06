@@ -169,8 +169,8 @@ export function WorkOrderWorkspace({ workOrders }: { workOrders: WorkOrder[] }) 
 
       <section className="spk-summary-grid">
         {summary.map((item) => (
-          <Card key={item.label}>
-            <div className={`spk-summary-card tone-${item.tone}`}>
+          <Card key={item.label} className={`summary-accent-card summary-tone-${item.tone}`}>
+            <div className="spk-summary-card">
               <span>{item.label}</span>
               <strong>{item.value}</strong>
             </div>

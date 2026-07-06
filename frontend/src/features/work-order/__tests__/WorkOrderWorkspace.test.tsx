@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { WorkOrderWorkspace } from "../WorkOrderWorkspace";
@@ -6,7 +6,9 @@ import { workOrderDummy } from "@/dummy/workOrderDummy";
 
 // WorkOrderTable uses DotsThreeVertical from phosphor-icons
 vi.mock("@phosphor-icons/react/dist/ssr", () => ({
-  DotsThreeVertical: (props: any) => <span data-testid="dots-icon" {...props} />,
+  DotsThreeVertical: function MockDotsThreeVertical(props: any) {
+    return <span data-testid="dots-icon" {...props} />;
+  },
 }));
 
 describe("WorkOrderWorkspace", () => {
@@ -44,7 +46,7 @@ describe("WorkOrderWorkspace", () => {
     await user.click(row);
 
     // Detail panel eyebrow should update to show SPK-2407-002
-    const detailPanel = screen.getByText("Detail SPK Terpilih").closest("[class*='card']")!;
+    const detailPanel = screen.getByText("Detail SPK Terpilih").closest("[class*='card']") as HTMLElement;
     expect(within(detailPanel).getByText("SPK-2407-002")).toBeInTheDocument();
   });
 
@@ -65,12 +67,15 @@ describe("WorkOrderWorkspace", () => {
     render(<WorkOrderWorkspace workOrders={workOrderDummy} />);
 
     // The first SPK (from workOrderDummy Draft) maps to "open" status
-    // The detail panel should show the "Mulai Dikerjakan" button
-    const startButtons = screen.getAllByRole("button", { name: /mulai dikerjakan/i });
-    await user.click(startButtons[0]);
+    await user.click(screen.getByRole("button", { name: /aksi SPK-001/i }));
+    const actionDialog = screen.getByRole("dialog", { name: /SPK-001/i });
+    expect(actionDialog).toBeInTheDocument();
+
+    await user.click(within(actionDialog).getByRole("button", { name: /mulai dikerjakan/i }));
 
     // After clicking, status should change to in-progress, which shows "Tandai Selesai"
-    expect(screen.getAllByRole("button", { name: /tandai selesai/i })[0]).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /aksi SPK-001/i }));
+    expect(within(screen.getByRole("dialog", { name: /SPK-001/i })).getByRole("button", { name: /tandai selesai/i })).toBeInTheDocument();
   });
 
   it("timeline steps are rendered", () => {

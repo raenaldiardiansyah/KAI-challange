@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Table } from "@/components/ui/Table";
 import type { Alarm } from "@/types/alarm";
 import { formatDate } from "@/utils/formatDate";
+import { CheckCircle } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 
 export function AlarmTable({
@@ -69,13 +70,24 @@ export function AlarmTable({
                   {getStatusText(alarm.status)}
                 </span>
               </td>
-              <td onClick={(event) => event.stopPropagation()}>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  {alarm.status === "Open" && (
-                    <Button variant="secondary" className="table-mini-button" onClick={() => alert(`Alarm ${alarm.id} disetujui (Acknowledged)`)}>Acknowledge</Button>
-                  )}
-                  <Button variant="ghost" className="table-mini-button" onClick={() => router.push(`/car-detail?car=${alarm.carNumber}`)}>Evidence</Button>
-                  <Button className="table-mini-button" style={{ color: "white" }} onClick={() => router.push('/work-order')}>Buat SPK</Button>
+              <td className="alarm-action-cell" onClick={(event) => event.stopPropagation()}>
+                <div className="alarm-action-row">
+                  <div className="alarm-action-grid">
+                    <Button variant="ghost" className="table-mini-button alarm-evidence-button" onClick={() => router.push(`/car-detail?car=${alarm.carNumber}`)}>Evidence</Button>
+                    <Button className="table-mini-button" style={{ color: "white" }} onClick={() => router.push('/work-order')}>Buat SPK</Button>
+                  </div>
+                  <div className="alarm-acknowledge-slot">
+                    {alarm.status === "Open" && (
+                      <Button
+                        variant="secondary"
+                        className="table-mini-button alarm-acknowledge-button"
+                        icon={<CheckCircle size={16} weight="bold" />}
+                        aria-label="Sudah di acknowledge"
+                        title="Sudah di acknowledge"
+                        onClick={() => alert(`Sudah di acknowledge: Alarm ${alarm.id}`)}
+                      />
+                    )}
+                  </div>
                 </div>
               </td>
             </tr>

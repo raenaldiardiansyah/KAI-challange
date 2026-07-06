@@ -27,7 +27,7 @@ export default async function TrainsetPage() {
           <HealthByCarChart carsInsights={carInsights} />
         </div>
         
-        <SubsystemHeatmap totalCars={selectedTrainset.totalCars} carsInsights={carInsights} />
+        <SubsystemHeatmap trainsetId={selectedTrainset.id} trainsetName={selectedTrainset.name} totalCars={selectedTrainset.totalCars} carsInsights={carInsights} />
       </section>
     </div>
   );

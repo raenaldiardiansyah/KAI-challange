@@ -5,16 +5,16 @@ import type { OverviewData } from "@/services/overviewService";
 
 export function SummaryCards({ summary }: { summary: OverviewData["summary"] }) {
   const items = [
-    { label: "Armada Aktif", value: `${summary.onlineTrainsets}/${summary.totalTrainsets}`, icon: <Broadcast size={20} /> },
-    { label: "Total Gerbong", value: summary.totalCars, icon: <Train size={20} /> },
-    { label: "Kesehatan Global", value: `${summary.globalHealthScore}%`, icon: <Wrench size={20} />, percentValue: summary.globalHealthScore },
-    { label: "Alarm Aktif", value: summary.activeAlarms, icon: <Warning size={20} />, alarmDelta: summary.activeAlarms > 2 ? 2 : -1 }
+    { label: "Armada Aktif", value: `${summary.onlineTrainsets}/${summary.totalTrainsets}`, icon: <Broadcast size={20} />, tone: "info" },
+    { label: "Total Gerbong", value: summary.totalCars, icon: <Train size={20} />, tone: "dark" },
+    { label: "Kesehatan Global", value: `${summary.globalHealthScore}%`, icon: <Wrench size={20} />, percentValue: summary.globalHealthScore, tone: "success" },
+    { label: "Alarm Aktif", value: summary.activeAlarms, icon: <Warning size={20} />, alarmDelta: summary.activeAlarms > 2 ? 2 : -1, tone: "danger" }
   ];
 
   return (
     <div className="summary-grid">
       {items.map((item) => (
-        <Card key={item.label}>
+        <Card key={item.label} className={`summary-accent-card summary-tone-${item.tone}`}>
           <div className="metric-card">
             <span>{item.icon}</span>
             <div>

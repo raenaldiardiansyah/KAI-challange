@@ -11,7 +11,7 @@ export function ConnectedTrainList({ trainsets }: { trainsets: Trainset[] }) {
       <div className="stack">
         {trainsets.map((trainset) => (
           <div className="train-row overview-train-row" key={trainset.id}>
-            <div>
+            <div className="overview-train-identity">
               <strong>{trainset.name}</strong>
               <p>{trainset.route} - {trainset.location}</p>
             </div>
@@ -20,7 +20,7 @@ export function ConnectedTrainList({ trainsets }: { trainsets: Trainset[] }) {
               <Badge label={`${trainset.alarmCount} alarm`} severity={trainset.alarmCount > 1 ? "High" : "Low"} />
               <MetricDelta value={trainset.alarmCount} delta={trainset.alarmCount > 1 ? 1 : -1} inverse compact unit="alarm" label="alarm" />
             </span>
-            <span>{formatDate(trainset.lastUpdate)}</span>
+            <span className="overview-train-date">{formatDate(trainset.lastUpdate)}</span>
           </div>
         ))}
       </div>

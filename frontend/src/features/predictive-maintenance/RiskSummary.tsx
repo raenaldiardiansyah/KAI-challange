@@ -11,8 +11,8 @@ export function RiskSummary({ risks }: { risks: MaintenanceRisk[] }) {
 
   return (
     <div className="summary-grid">
-      <Card>
-        <div className="metric-card risk-summary-card risk-soft-high">
+      <Card className="summary-accent-card risk-soft-high">
+        <div className="metric-card">
           <span>{high}</span>
           <div>
             <strong>Risiko Tinggi</strong>
@@ -20,8 +20,8 @@ export function RiskSummary({ risks }: { risks: MaintenanceRisk[] }) {
           </div>
         </div>
       </Card>
-      <Card>
-        <div className="metric-card risk-summary-card risk-soft-medium">
+      <Card className="summary-accent-card risk-soft-medium">
+        <div className="metric-card">
           <span>{medium}</span>
           <div>
             <strong>Risiko Sedang</strong>
@@ -29,8 +29,8 @@ export function RiskSummary({ risks }: { risks: MaintenanceRisk[] }) {
           </div>
         </div>
       </Card>
-      <Card>
-        <div className="metric-card risk-summary-card risk-soft-watch">
+      <Card className="summary-accent-card risk-soft-watch">
+        <div className="metric-card">
           <span>{watch}</span>
           <div>
             <strong>Pantau (Watch)</strong>
@@ -38,8 +38,8 @@ export function RiskSummary({ risks }: { risks: MaintenanceRisk[] }) {
           </div>
         </div>
       </Card>
-      <Card>
-        <div className="metric-card risk-summary-card risk-soft-limited">
+      <Card className="summary-accent-card risk-soft-limited">
+        <div className="metric-card">
           <span>{limited}</span>
           <div>
             <strong>Data Terbatas</strong>

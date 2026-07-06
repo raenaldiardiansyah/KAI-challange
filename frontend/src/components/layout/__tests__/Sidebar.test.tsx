@@ -1,11 +1,15 @@
-import { describe, it, expect, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { Sidebar } from "../Sidebar";
 import { routes } from "@/constants/routes";
 
 // Mock the icons
 vi.mock("@phosphor-icons/react/dist/ssr", () => {
-  const createIcon = (name: string) => (props: any) => <span data-testid={`icon-${name}`} {...props} />;
+  const createIcon = (name: string) => {
+    const MockIcon = (props: any) => <span data-testid={`icon-${name}`} {...props} />;
+    MockIcon.displayName = `Mock${name}Icon`;
+    return MockIcon;
+  };
   return {
     ChartDonut: createIcon("ChartDonut"),
     Train: createIcon("Train"),

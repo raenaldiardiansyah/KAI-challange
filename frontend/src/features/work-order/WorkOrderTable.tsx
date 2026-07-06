@@ -74,6 +74,7 @@ export function WorkOrderTable({
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [footerMessage, setFooterMessage] = useState("");
+  const [activeActionId, setActiveActionId] = useState<string | null>(null);
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
@@ -82,6 +83,9 @@ export function WorkOrderTable({
       return matchStatus && matchPriority;
     });
   }, [priorityFilter, rows, statusFilter]);
+  const activeActionRow = rows.find((row) => row.id === activeActionId);
+  const activeActionStatus = activeActionRow ? getStatusMeta(activeActionRow.status) : null;
+  const activeStatusActions = activeActionRow ? getStatusActions(activeActionRow.status) : [];
 
   return (
     <Card
@@ -122,7 +126,6 @@ export function WorkOrderTable({
           {filteredRows.map((row) => {
             const status = getStatusMeta(row.status);
             const isSelected = row.id === selectedId;
-            const statusActions = getStatusActions(row.status);
 
             return (
               <tr
@@ -142,51 +145,113 @@ export function WorkOrderTable({
                   <span className="spk-status-pill" style={{ background: status.bg, color: status.color }}>{status.label}</span>
                 </td>
                 <td onClick={(event) => event.stopPropagation()}>
-                  <details className="row-action-menu">
-                    <summary aria-label={`Aksi ${row.id}`}>
+                  <div className="row-action-menu">
+                    <button
+                      type="button"
+                      className="row-action-trigger"
+                      aria-label={`Aksi ${row.id}`}
+                      aria-haspopup="dialog"
+                      onClick={() => setActiveActionId(row.id)}
+                    >
                       <DotsThreeVertical size={18} weight="bold" />
-                    </summary>
-                    <div className="row-action-content">
-                      <button type="button" onClick={() => onSelect(row.id)}>Lihat Detail</button>
-                      {statusActions.length > 0 ? (
-                        <div className="row-action-group">
-                          <span>Progress Status</span>
-                          {statusActions.map((action) => (
-                            <button
-                              key={action.nextStatus}
-                              type="button"
-                              onClick={() => onStatusChange(row.id, action.nextStatus)}
-                            >
-                              {action.label}
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="row-action-note">Status sudah selesai</div>
-                      )}
-                      <div className="row-action-group">
-                        <span>Override Prioritas</span>
-                        {(["Critical", "High", "Medium", "Low"] as Severity[]).map((priority) => (
-                          <button
-                            key={priority}
-                            type="button"
-                            className={row.priority === priority ? "selected" : ""}
-                            onClick={() => onPriorityChange(row.id, priority)}
-                          >
-                            {priorityLabel[priority]}
-                          </button>
-                        ))}
-                      </div>
-                      <button type="button" onClick={() => onSelect(row.id)}>Lihat Evidence</button>
-                      <button type="button" onClick={() => onSelect(row.id)}>Buat Catatan</button>
-                    </div>
-                  </details>
+                    </button>
+                  </div>
                 </td>
               </tr>
             );
           })}
         </tbody>
       </Table>
+
+      {activeActionRow && activeActionStatus ? (
+        <div className="row-action-popover-backdrop" role="presentation" onClick={() => setActiveActionId(null)}>
+          <div
+            className="row-action-popover"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="row-action-popover-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="row-action-popover-header">
+              <div>
+                <p className="eyebrow">Aksi SPK</p>
+                <h3 id="row-action-popover-title">{activeActionRow.id}</h3>
+              </div>
+              <button type="button" className="row-action-close" aria-label="Tutup aksi SPK" onClick={() => setActiveActionId(null)}>x</button>
+            </div>
+            <div className="row-action-popover-meta">
+              <span>{activeActionRow.asset}</span>
+              <span className="spk-status-pill" style={{ background: activeActionStatus.bg, color: activeActionStatus.color }}>{activeActionStatus.label}</span>
+            </div>
+            <div className="row-action-content">
+              <button
+                type="button"
+                onClick={() => {
+                  onSelect(activeActionRow.id);
+                  setActiveActionId(null);
+                }}
+              >
+                Lihat Detail
+              </button>
+              {activeStatusActions.length > 0 ? (
+                <div className="row-action-group">
+                  <span>Progress Status</span>
+                  {activeStatusActions.map((action) => (
+                    <button
+                      key={action.nextStatus}
+                      type="button"
+                      onClick={() => {
+                        onStatusChange(activeActionRow.id, action.nextStatus);
+                        setActiveActionId(null);
+                      }}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="row-action-note">Status sudah selesai</div>
+              )}
+              <div className="row-action-group">
+                <span>Override Prioritas</span>
+                {(["Critical", "High", "Medium", "Low"] as Severity[]).map((priority) => (
+                  <button
+                    key={priority}
+                    type="button"
+                    className={`priority-action priority-${priority.toLowerCase()}${activeActionRow.priority === priority ? " selected" : ""}`}
+                    onClick={() => {
+                      onPriorityChange(activeActionRow.id, priority);
+                      setActiveActionId(null);
+                    }}
+                  >
+                    {priorityLabel[priority]}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="row-action-evidence"
+                onClick={() => {
+                  onSelect(activeActionRow.id);
+                  setActiveActionId(null);
+                }}
+              >
+                Lihat Evidence
+              </button>
+              <button
+                type="button"
+                className="row-action-note-button"
+                onClick={() => {
+                  onSelect(activeActionRow.id);
+                  setActiveActionId(null);
+                }}
+              >
+                Buat Catatan
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {filteredRows.length === 0 ? (
         <div className="empty-state">Tidak ada SPK yang cocok dengan filter saat ini.</div>

@@ -20,13 +20,14 @@ export function CarHealthSummary({ car }: { car: CarDetail }) {
 
   const color = getHealthColor(car.healthScore);
   const trackColor = getTrackColor(car.healthScore);
+  const tone = car.healthScore <= 30 ? "danger" : car.healthScore <= 60 ? "warning" : "success";
 
   const data = [
     { name: "Health", value: car.healthScore, fill: color }
   ];
 
   return (
-    <Card title="Status Kesehatan & Risiko" eyebrow="Snapshot">
+    <Card title="Status Kesehatan & Risiko" eyebrow="Snapshot" className={`summary-accent-card summary-tone-${tone}`}>
       <div className="car-health-layout">
         <div style={{ height: "160px", position: "relative" }}>
           <ResponsiveContainer width="100%" height="100%">

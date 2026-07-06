@@ -13,7 +13,7 @@ const EXPANDED_DEFAULT_WIDTH = 260;
 const MIN_EXPANDED_WIDTH = 240;
 const MAX_WIDTH = 320;
 const SNAP_THRESHOLD = 180;
-const ENABLE_SIDEBAR_NAV_SCROLL = false;
+const ENABLE_SIDEBAR_NAV_SCROLL = true;
 
 export function Sidebar() {
   const pathname = usePathname();

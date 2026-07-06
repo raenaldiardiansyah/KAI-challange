@@ -12,9 +12,9 @@ export function AlarmSummary({ alarms }: { alarms: Alarm[] }) {
 
   return (
     <div className="summary-grid">
-      <Card>
+      <Card className="summary-accent-card summary-tone-danger">
         <div className="metric-card">
-          <span style={{ background: "#fee2e2", color: "#b91c1c" }}>{open}</span>
+          <span>{open}</span>
           <div>
             <strong>Belum Ditangani</strong>
             <MetricDelta value={open} delta={open > 1 ? 1 : -1} inverse compact unit="alarm" label="alarm" />
@@ -22,9 +22,9 @@ export function AlarmSummary({ alarms }: { alarms: Alarm[] }) {
           </div>
         </div>
       </Card>
-      <Card>
+      <Card className="summary-accent-card summary-tone-warning">
         <div className="metric-card">
-          <span style={{ background: "#fef3c7", color: "#d97706" }}>{ack}</span>
+          <span>{ack}</span>
           <div>
             <strong>Sedang Dicek</strong>
             <MetricDelta value={ack} delta={ack > 1 ? 1 : -1} inverse compact unit="alarm" label="alarm" />
@@ -32,9 +32,9 @@ export function AlarmSummary({ alarms }: { alarms: Alarm[] }) {
           </div>
         </div>
       </Card>
-      <Card>
+      <Card className="summary-accent-card summary-tone-info">
         <div className="metric-card">
-          <span style={{ background: "#dbeafe", color: "#1d4ed8" }}>{cleared}</span>
+          <span>{cleared}</span>
           <div>
             <strong>Auto Cleared</strong>
             <MetricDelta value={cleared} delta={1} compact unit="alarm" label="alarm" />
@@ -42,9 +42,9 @@ export function AlarmSummary({ alarms }: { alarms: Alarm[] }) {
           </div>
         </div>
       </Card>
-      <Card>
+      <Card className="summary-accent-card summary-tone-danger">
         <div className="metric-card">
-          <span style={{ background: "#fee2e2", color: "#b91c1c" }}>{high}</span>
+          <span>{high}</span>
           <div>
             <strong>Risiko Tinggi</strong>
             <MetricDelta value={high} delta={high > 0 ? 1 : -1} inverse compact unit="alarm" label="alarm" />

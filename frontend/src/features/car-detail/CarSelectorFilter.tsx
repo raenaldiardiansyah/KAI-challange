@@ -8,27 +8,44 @@ type TrainsetInfo = { id: string; name: string; };
 export function CarSelectorFilter({ 
   defaultCar = "5", 
   defaultTrainset,
+  defaultSubsystem = "all",
   trainsets = [], 
   issueTrainsets = [], 
   issueCarsByTrainset = {},
-  totalCarsByTrainset = {}
+  totalCarsByTrainset = {},
+  availableSubsystems = []
 }: { 
   defaultCar?: string;
   defaultTrainset?: string;
+  defaultSubsystem?: string;
   trainsets?: TrainsetInfo[];
   issueTrainsets?: string[];
   issueCarsByTrainset?: Record<string, number[]>;
   totalCarsByTrainset?: Record<string, number>;
+  availableSubsystems?: string[];
 }) {
   const router = useRouter();
   const selectedTrainset = defaultTrainset ?? trainsets[0]?.id ?? "TS-001";
   const issueCars = issueCarsByTrainset[selectedTrainset] ?? [];
   const totalCars = totalCarsByTrainset[selectedTrainset] ?? 10;
 
+  const buildDetailUrl = (trainsetId: string, car: string | number, subsystem = defaultSubsystem) => {
+    const params = new URLSearchParams({
+      trainset: trainsetId,
+      car: car.toString()
+    });
+
+    if (subsystem !== "all") {
+      params.set("subsystem", subsystem);
+    }
+
+    return `?${params.toString()}`;
+  };
+
   const handleTrainsetChange = (trainsetId: string) => {
     const nextIssueCars = issueCarsByTrainset[trainsetId] ?? [];
     const nextCar = nextIssueCars[0] ?? 1;
-    router.push(`?trainset=${trainsetId}&car=${nextCar}`);
+    router.push(buildDetailUrl(trainsetId, nextCar));
   };
 
   return (
@@ -54,7 +71,7 @@ export function CarSelectorFilter({
         <Select 
           value={defaultCar} 
           aria-label="Gerbong"
-          onChange={(e) => router.push(`?trainset=${selectedTrainset}&car=${e.target.value}`)}
+          onChange={(e) => router.push(buildDetailUrl(selectedTrainset, e.target.value))}
         >
           {Array.from({ length: totalCars }, (_, i) => i + 1).map(car => {
             const hasIssue = issueCars.includes(car);
@@ -65,11 +82,15 @@ export function CarSelectorFilter({
             );
           })}
         </Select>
-        <Select defaultValue="all" aria-label="Subsistem">
+        <Select
+          value={defaultSubsystem}
+          aria-label="Subsistem"
+          onChange={(event) => router.push(buildDetailUrl(selectedTrainset, defaultCar, event.target.value))}
+        >
           <option value="all">Semua Subsistem</option>
-          <option value="brake">Brake System</option>
-          <option value="door">Door</option>
-          <option value="hvac">HVAC</option>
+          {availableSubsystems.map((subsystem) => (
+            <option key={subsystem} value={subsystem}>{subsystem}</option>
+          ))}
         </Select>
       </div>
     </div>

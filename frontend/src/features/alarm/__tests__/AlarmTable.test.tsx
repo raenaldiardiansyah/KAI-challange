@@ -34,12 +34,12 @@ describe("AlarmTable", () => {
     expect(rows).toHaveLength(20);
   });
 
-  it("clicking 'Acknowledge' on an Open alarm calls window.alert", async () => {
+  it("clicking acknowledge icon on an Open alarm calls window.alert", async () => {
     const user = userEvent.setup();
     render(<AlarmTable alarms={alarmDummy} />);
 
     // ALM-001 is the first Open alarm
-    const ackButtons = screen.getAllByRole("button", { name: /acknowledge/i });
+    const ackButtons = screen.getAllByRole("button", { name: /sudah di acknowledge/i });
     await user.click(ackButtons[0]);
 
     expect(globalThis.alert).toHaveBeenCalled();
