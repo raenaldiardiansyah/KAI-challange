@@ -22,23 +22,22 @@ const insight: Insight = {
 };
 
 describe("TrainComposition", () => {
-  it("links each car to the explicit car detail route", () => {
+  it("uses overview composition as a local summary selector", () => {
+    const onSelectCar = vi.fn();
+
     render(
       <TrainComposition
         totalCars={10}
         selectedCar={5}
         carsInsights={[insight]}
-        onSelectCar={vi.fn()}
+        onSelectCar={onSelectCar}
       />
     );
 
-    expect(screen.getByRole("link", { name: "C5" })).toHaveAttribute(
-      "href",
-      "/car-detail?trainset=TS-001&car=5&subsystem=Brake+System"
-    );
-    expect(screen.getByRole("link", { name: "C1" })).toHaveAttribute(
-      "href",
-      "/car-detail?trainset=TS-001&car=1"
-    );
+    expect(screen.queryByRole("link", { name: "C5" })).not.toBeInTheDocument();
+
+    screen.getByRole("button", { name: "C5" }).click();
+
+    expect(onSelectCar).toHaveBeenCalledWith(5);
   });
 });

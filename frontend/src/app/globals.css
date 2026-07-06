@@ -996,10 +996,12 @@ main {
   border: 1px solid var(--line);
   border-radius: 6px;
   color: inherit;
+  cursor: pointer;
   display: block;
+  font: inherit;
   padding: 12px 6px;
   text-align: center;
-  cursor: pointer;
+  width: 100%;
 }
 
 .composition .car-item:hover {
