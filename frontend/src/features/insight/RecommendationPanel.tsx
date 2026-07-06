@@ -11,7 +11,13 @@ export function RecommendationPanel({ insight }: { insight: Insight }) {
   return (
     <Card title="Rekomendasi Tindakan" eyebrow="Saran dari sistem">
       <p className="recommendation">{insight.recommendation}</p>
-      <Button icon={<CheckCircle size={16} />} onClick={() => router.push("/work-order")}>Buat Draft SPK</Button>
+      <Button
+        icon={<CheckCircle size={16} />}
+        onClick={() => router.push("/work-order")}
+        style={{ alignSelf: "flex-start" }}
+      >
+        Buat Draft SPK
+      </Button>
     </Card>
   );
 }
