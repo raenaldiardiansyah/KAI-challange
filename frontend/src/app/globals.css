@@ -877,8 +877,8 @@ th {
 }
 
 .map-filter-pills button.active {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: #162340;
+  border-color: #162340;
   color: #ffffff;
 }
 
