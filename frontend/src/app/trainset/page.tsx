@@ -20,7 +20,7 @@ export default async function TrainsetPage() {
       <section className="stack detail-workspace">
         <TrainsetDetailSummary trainset={selectedTrainset} />
         
-        <TrainsetComposition totalCars={selectedTrainset.totalCars} carsInsights={carInsights} />
+        <TrainsetComposition trainsetId={selectedTrainset.id} totalCars={selectedTrainset.totalCars} carsInsights={carInsights} />
         
         <div className="two-column-grid">
           <PriorityCars carsInsights={carInsights} />

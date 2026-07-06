@@ -214,6 +214,144 @@ select {
   width: 0;
 }
 
+.scrollbar-on-interaction,
+.table-wrap,
+.master-list-panel,
+.alarm-filter-panel,
+.workflow-form-panel,
+.live-side-column,
+.alarm-search-suggestions,
+.analytic-flow,
+pre {
+  scrollbar-color: transparent transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.scrollbar-on-interaction:hover,
+.scrollbar-on-interaction:focus-within,
+.scrollbar-on-interaction:active,
+.table-wrap:hover,
+.table-wrap:focus-within,
+.table-wrap:active,
+.master-list-panel:hover,
+.master-list-panel:focus-within,
+.master-list-panel:active,
+.alarm-filter-panel:hover,
+.alarm-filter-panel:focus-within,
+.alarm-filter-panel:active,
+.workflow-form-panel:hover,
+.workflow-form-panel:focus-within,
+.workflow-form-panel:active,
+.live-side-column:hover,
+.live-side-column:focus-within,
+.live-side-column:active,
+.alarm-search-suggestions:hover,
+.alarm-search-suggestions:focus-within,
+.alarm-search-suggestions:active,
+.analytic-flow:hover,
+.analytic-flow:focus-within,
+.analytic-flow:active,
+pre:hover,
+pre:focus-within,
+pre:active {
+  scrollbar-color: rgba(100, 116, 139, 0.38) transparent;
+}
+
+.scrollbar-on-interaction::-webkit-scrollbar,
+.table-wrap::-webkit-scrollbar,
+.master-list-panel::-webkit-scrollbar,
+.alarm-filter-panel::-webkit-scrollbar,
+.workflow-form-panel::-webkit-scrollbar,
+.live-side-column::-webkit-scrollbar,
+.alarm-search-suggestions::-webkit-scrollbar,
+.analytic-flow::-webkit-scrollbar,
+pre::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.scrollbar-on-interaction::-webkit-scrollbar-track,
+.table-wrap::-webkit-scrollbar-track,
+.master-list-panel::-webkit-scrollbar-track,
+.alarm-filter-panel::-webkit-scrollbar-track,
+.workflow-form-panel::-webkit-scrollbar-track,
+.live-side-column::-webkit-scrollbar-track,
+.alarm-search-suggestions::-webkit-scrollbar-track,
+.analytic-flow::-webkit-scrollbar-track,
+pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-on-interaction::-webkit-scrollbar-thumb,
+.table-wrap::-webkit-scrollbar-thumb,
+.master-list-panel::-webkit-scrollbar-thumb,
+.alarm-filter-panel::-webkit-scrollbar-thumb,
+.workflow-form-panel::-webkit-scrollbar-thumb,
+.live-side-column::-webkit-scrollbar-thumb,
+.alarm-search-suggestions::-webkit-scrollbar-thumb,
+.analytic-flow::-webkit-scrollbar-thumb,
+pre::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.scrollbar-on-interaction:hover::-webkit-scrollbar-thumb,
+.scrollbar-on-interaction:focus-within::-webkit-scrollbar-thumb,
+.scrollbar-on-interaction:active::-webkit-scrollbar-thumb,
+.table-wrap:hover::-webkit-scrollbar-thumb,
+.table-wrap:focus-within::-webkit-scrollbar-thumb,
+.table-wrap:active::-webkit-scrollbar-thumb,
+.master-list-panel:hover::-webkit-scrollbar-thumb,
+.master-list-panel:focus-within::-webkit-scrollbar-thumb,
+.master-list-panel:active::-webkit-scrollbar-thumb,
+.alarm-filter-panel:hover::-webkit-scrollbar-thumb,
+.alarm-filter-panel:focus-within::-webkit-scrollbar-thumb,
+.alarm-filter-panel:active::-webkit-scrollbar-thumb,
+.workflow-form-panel:hover::-webkit-scrollbar-thumb,
+.workflow-form-panel:focus-within::-webkit-scrollbar-thumb,
+.workflow-form-panel:active::-webkit-scrollbar-thumb,
+.live-side-column:hover::-webkit-scrollbar-thumb,
+.live-side-column:focus-within::-webkit-scrollbar-thumb,
+.live-side-column:active::-webkit-scrollbar-thumb,
+.alarm-search-suggestions:hover::-webkit-scrollbar-thumb,
+.alarm-search-suggestions:focus-within::-webkit-scrollbar-thumb,
+.alarm-search-suggestions:active::-webkit-scrollbar-thumb,
+.analytic-flow:hover::-webkit-scrollbar-thumb,
+.analytic-flow:focus-within::-webkit-scrollbar-thumb,
+.analytic-flow:active::-webkit-scrollbar-thumb,
+pre:hover::-webkit-scrollbar-thumb,
+pre:focus-within::-webkit-scrollbar-thumb,
+pre:active::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.32);
+}
+
+.scrollbar-on-interaction::-webkit-scrollbar-thumb:hover,
+.table-wrap::-webkit-scrollbar-thumb:hover,
+.master-list-panel::-webkit-scrollbar-thumb:hover,
+.alarm-filter-panel::-webkit-scrollbar-thumb:hover,
+.workflow-form-panel::-webkit-scrollbar-thumb:hover,
+.live-side-column::-webkit-scrollbar-thumb:hover,
+.alarm-search-suggestions::-webkit-scrollbar-thumb:hover,
+.analytic-flow::-webkit-scrollbar-thumb:hover,
+pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(37, 99, 235, 0.5);
+}
+
+.scrollbar-on-interaction::-webkit-scrollbar-button,
+.table-wrap::-webkit-scrollbar-button,
+.master-list-panel::-webkit-scrollbar-button,
+.alarm-filter-panel::-webkit-scrollbar-button,
+.workflow-form-panel::-webkit-scrollbar-button,
+.live-side-column::-webkit-scrollbar-button,
+.alarm-search-suggestions::-webkit-scrollbar-button,
+.analytic-flow::-webkit-scrollbar-button,
+pre::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
 .sidebar nav {
   display: grid;
   gap: 4px;
@@ -853,16 +991,18 @@ main {
   grid-template-columns: repeat(10, minmax(42px, 1fr));
 }
 
-.composition span {
+.composition .car-item {
   background: #f1f5f9;
   border: 1px solid var(--line);
   border-radius: 6px;
+  color: inherit;
+  display: block;
   padding: 12px 6px;
   text-align: center;
   cursor: pointer;
 }
 
-.composition span:hover {
+.composition .car-item:hover {
   background: #e2e8f0;
 }
 
@@ -2932,11 +3072,12 @@ pre {
     overflow-x: auto;
     overflow-y: hidden;
     padding-right: 0;
-    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+    scrollbar-width: thin;
   }
 
   .sidebar-nav-scroll::-webkit-scrollbar {
-    display: none;
+    height: 6px;
   }
 
   .sidebar nav {
@@ -3060,11 +3201,33 @@ pre {
     overflow-x: auto;
     padding: 0 12px 4px;
     scroll-snap-type: x mandatory;
-    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+    scrollbar-width: thin;
+  }
+
+  .summary-grid:hover,
+  .summary-grid:focus-within,
+  .summary-grid:active {
+    scrollbar-color: rgba(100, 116, 139, 0.38) transparent;
   }
 
   .summary-grid::-webkit-scrollbar {
-    display: none;
+    height: 6px;
+  }
+
+  .summary-grid::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .summary-grid::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  .summary-grid:hover::-webkit-scrollbar-thumb,
+  .summary-grid:focus-within::-webkit-scrollbar-thumb,
+  .summary-grid:active::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.32);
   }
 
   .summary-grid>.card {
@@ -3098,12 +3261,34 @@ pre {
     left: 8px;
     overflow-x: auto;
     right: 8px;
-    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+    scrollbar-width: thin;
     top: 8px;
   }
 
   .map-filter-pills::-webkit-scrollbar {
-    display: none;
+    height: 6px;
+  }
+
+  .map-filter-pills::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .map-filter-pills::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  .map-filter-pills:hover,
+  .map-filter-pills:focus-within,
+  .map-filter-pills:active {
+    scrollbar-color: rgba(100, 116, 139, 0.38) transparent;
+  }
+
+  .map-filter-pills:hover::-webkit-scrollbar-thumb,
+  .map-filter-pills:focus-within::-webkit-scrollbar-thumb,
+  .map-filter-pills:active::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.32);
   }
 
   .map-filter-pills button {
@@ -3135,11 +3320,33 @@ pre {
     margin: 10px -2px 0;
     overflow-x: auto;
     padding-bottom: 2px;
-    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+    scrollbar-width: thin;
   }
 
   .map-legend-row::-webkit-scrollbar {
-    display: none;
+    height: 6px;
+  }
+
+  .map-legend-row::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .map-legend-row::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  .map-legend-row:hover,
+  .map-legend-row:focus-within,
+  .map-legend-row:active {
+    scrollbar-color: rgba(100, 116, 139, 0.38) transparent;
+  }
+
+  .map-legend-row:hover::-webkit-scrollbar-thumb,
+  .map-legend-row:focus-within::-webkit-scrollbar-thumb,
+  .map-legend-row:active::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.32);
   }
 
   .map-legend-row span {

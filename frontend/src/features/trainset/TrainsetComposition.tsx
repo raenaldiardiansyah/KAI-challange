@@ -2,15 +2,15 @@
 
 import { Card } from "@/components/ui/Card";
 import type { Insight } from "@/types/insight";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type TrainsetCompositionProps = {
+  trainsetId: string;
   totalCars: number;
   carsInsights: Insight[];
 };
 
-export function TrainsetComposition({ totalCars, carsInsights }: TrainsetCompositionProps) {
-  const router = useRouter();
+export function TrainsetComposition({ trainsetId, totalCars, carsInsights }: TrainsetCompositionProps) {
   const getStatusColor = (car: number) => {
     const insight = carsInsights.find((c) => c.carNumber === car);
     if (!insight) return "#10b981"; // Normal/Green
@@ -32,13 +32,21 @@ export function TrainsetComposition({ totalCars, carsInsights }: TrainsetComposi
       <div className="composition" style={{ gridTemplateColumns: `repeat(${totalCars}, minmax(42px, 1fr))` }}>
         {Array.from({ length: totalCars }, (_, index) => {
           const car = index + 1;
+          const insight = carsInsights.find((c) => c.carNumber === car);
           const color = getStatusColor(car);
           const isIssue = color !== "#10b981";
+          const params = new URLSearchParams({
+            trainset: insight?.trainsetId ?? trainsetId,
+            car: String(car)
+          });
+
+          if (insight?.subsystem) params.set("subsystem", insight.subsystem);
 
           return (
-            <span
+            <Link
               key={car}
               className="car-item"
+              href={`/car-detail?${params.toString()}`}
               style={{
                 backgroundColor: isIssue ? `${color}20` : "#f8fafc",
                 borderColor: color,
@@ -46,11 +54,10 @@ export function TrainsetComposition({ totalCars, carsInsights }: TrainsetComposi
                 fontWeight: isIssue ? "bold" : "normal",
                 cursor: "pointer"
               }}
-              title={`Gerbong ${car}`}
-              onClick={() => router.push("/car-detail")}
+              title={insight ? `${insight.trainsetName} - C${car}: ${insight.diagnosis}` : `${trainsetId} - C${car}: Normal`}
             >
               C{car}
-            </span>
+            </Link>
           );
         })}
       </div>
