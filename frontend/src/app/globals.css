@@ -1449,61 +1449,6 @@ th {
 }
 
 .risk-soft-high {
-<<<<<<< HEAD
-  background: #ffffff;
-  border: 1px solid #f43f5e;
-  border-radius: var(--radius);
-  margin: -16px;
-  padding: 16px;
-  height: calc(100% + 32px);
-}
-
-.risk-soft-high>span {
-  background: #fecdd3 !important;
-  color: #be123c !important;
-}
-
-.risk-soft-medium {
-  background: #ffffff;
-  border: 1px solid #f59e0b;
-  border-radius: var(--radius);
-  margin: -16px;
-  padding: 16px;
-  height: calc(100% + 32px);
-}
-
-.risk-soft-medium>span {
-  background: #fde68a !important;
-  color: #b45309 !important;
-}
-
-.risk-soft-watch {
-  background: #ffffff;
-  border: 1px solid #3b82f6;
-  border-radius: var(--radius);
-  margin: -16px;
-  padding: 16px;
-  height: calc(100% + 32px);
-}
-
-.risk-soft-watch>span {
-  background: #bfdbfe !important;
-  color: #1d4ed8 !important;
-}
-
-.risk-soft-limited {
-  background: #ffffff;
-  border: 1px solid #94a3b8;
-  border-radius: var(--radius);
-  margin: -16px;
-  padding: 16px;
-  height: calc(100% + 32px);
-}
-
-.risk-soft-limited>span {
-  background: #cbd5e1 !important;
-  color: #475569 !important;
-=======
   border-color: #f43f5e;
 }
 
@@ -1541,7 +1486,6 @@ th {
   background: #f8fafc;
   border-color: #cbd5e1;
   color: #475569;
->>>>>>> 7565469 (update tampilan dan color)
 }
 
 .chart-helper-text,
