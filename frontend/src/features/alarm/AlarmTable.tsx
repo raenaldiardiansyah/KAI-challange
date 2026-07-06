@@ -20,7 +20,7 @@ export function AlarmTable({
 }) {
   const [visibleCount, setVisibleCount] = useState(10);
   const router = useRouter();
-  
+
   const getStatusText = (status: string) => {
     switch (status) {
       case "Open": return "Terbuka";
@@ -61,8 +61,8 @@ export function AlarmTable({
               <td style={{ maxWidth: "200px" }}>{alarm.message}</td>
               <td><Badge label={alarm.severity} severity={alarm.severity} /></td>
               <td>
-                <span style={{ 
-                  fontSize: "12px", 
+                <span style={{
+                  fontSize: "12px",
                   fontWeight: "bold",
                   color: alarm.status === "Open" ? "#b91c1c" : (alarm.status === "Acknowledged" ? "#d97706" : "#10b981")
                 }}>
@@ -75,7 +75,7 @@ export function AlarmTable({
                     <Button variant="secondary" className="table-mini-button" onClick={() => alert(`Alarm ${alarm.id} disetujui (Acknowledged)`)}>Acknowledge</Button>
                   )}
                   <Button variant="ghost" className="table-mini-button" onClick={() => router.push(`/car-detail?car=${alarm.carNumber}`)}>Evidence</Button>
-                  <Button className="table-mini-button" onClick={() => router.push('/work-order')}>Buat SPK</Button>
+                  <Button className="table-mini-button" style={{ color: "white" }} onClick={() => router.push('/work-order')}>Buat SPK</Button>
                 </div>
               </td>
             </tr>
@@ -85,7 +85,7 @@ export function AlarmTable({
       {alarms.length === 0 ? (
         <div className="empty-state">Tidak ada alarm yang cocok dengan pencarian.</div>
       ) : null}
-      
+
       {visibleCount < alarms.length && (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
           <Button variant="secondary" onClick={() => setVisibleCount((prev) => prev + 10)}>

@@ -5,13 +5,12 @@ import { MapPin, WifiHigh, WifiSlash, Train } from "@phosphor-icons/react/dist/s
 
 export function TrainsetDetailSummary({ trainset }: { trainset: Trainset }) {
   const isOnline = trainset.dataStatus === "Online";
-  
+
   const chipStyle: React.CSSProperties = {
     background: "var(--surface-3, #f1f5f9)",
     color: "var(--text-strong, #0f172a)",
     padding: "8px 16px",
-    borderRadius: "12px",
-    border: "1px solid var(--line, #e2e8f0)",
+    borderRadius: "99px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -24,7 +23,7 @@ export function TrainsetDetailSummary({ trainset }: { trainset: Trainset }) {
   return (
     <Card title={trainset.name} eyebrow="Ringkasan armada terpilih">
       <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "12px", width: "100%" }}>
-        
+
         {/* Status Data */}
         <div style={chipStyle}>
           {isOnline ? <WifiHigh size={16} color="#10b981" weight="bold" /> : <WifiSlash size={16} color="#ef4444" weight="bold" />}
@@ -32,13 +31,13 @@ export function TrainsetDetailSummary({ trainset }: { trainset: Trainset }) {
             {trainset.dataStatus}
           </span>
         </div>
-        
+
         {/* Lokasi */}
         <div style={chipStyle}>
           <MapPin size={16} weight="bold" color="#3b82f6" />
           {trainset.location}
         </div>
-        
+
         {/* Kesehatan */}
         <div style={chipStyle}>
           <span>Kesehatan</span>

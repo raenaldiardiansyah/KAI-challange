@@ -9,7 +9,6 @@ export function CarDetailHeader({ car }: { car: CarDetail }) {
     color: "var(--text-strong, #0f172a)",
     padding: "8px 16px",
     borderRadius: "12px",
-    border: "1px solid var(--line, #e2e8f0)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

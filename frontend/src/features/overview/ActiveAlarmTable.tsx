@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
@@ -42,8 +43,8 @@ export function ActiveAlarmTable({ alarms }: { alarms: Alarm[] }) {
   };
 
   return (
-    <Card 
-      title="Alarm Aktif" 
+    <Card
+      title="Alarm Aktif"
       eyebrow="Terbuka dan diketahui"
     >
       <Table>
@@ -59,20 +60,18 @@ export function ActiveAlarmTable({ alarms }: { alarms: Alarm[] }) {
           ))}
         </tbody>
       </Table>
-      
+
       {totalPages > 1 && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginTop: "16px", fontSize: "12px", borderTop: "1px solid var(--line)", paddingTop: "12px" }}>
           <span style={{ color: "var(--muted)" }}>Menampilkan {startIndex + 1}-{Math.min(startIndex + pageSize, alarms.length)} dari {alarms.length}</span>
           <div style={{ textAlign: "center" }}>
-            <button 
-              onClick={handleToggleSize}
-              style={{ fontSize: "11px", fontWeight: "bold", color: "var(--accent)", background: "transparent", border: "none", cursor: "pointer", textDecoration: "underline" }}
-            >
+            <Button variant="secondary" className="table-mini-button" onClick={handleToggleSize}>
               {pageSize === 5 ? "Lihat lebih banyak" : "Lihat lebih sedikit"}
-            </button>
+            </Button>
           </div>
           <div style={{ display: "flex", gap: "6px", alignItems: "center", justifyContent: "flex-end" }}>
-            <button 
+            <button
+              className="pagination-nav-button"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(p => p - 1)}
               style={{ padding: "4px 10px", background: currentPage === 1 ? "transparent" : "var(--surface-2)", color: currentPage === 1 ? "var(--muted)" : "var(--text)", border: "1px solid var(--line)", borderRadius: "4px", cursor: currentPage === 1 ? "not-allowed" : "pointer", fontWeight: "bold" }}
@@ -80,7 +79,8 @@ export function ActiveAlarmTable({ alarms }: { alarms: Alarm[] }) {
               Prev
             </button>
             <span style={{ padding: "0 4px", fontWeight: "bold", color: "var(--text)" }}>{currentPage} / {totalPages}</span>
-            <button 
+            <button
+              className="pagination-nav-button"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(p => p + 1)}
               style={{ padding: "4px 10px", background: currentPage === totalPages ? "transparent" : "var(--surface-2)", color: currentPage === totalPages ? "var(--muted)" : "var(--text)", border: "1px solid var(--line)", borderRadius: "4px", cursor: currentPage === totalPages ? "not-allowed" : "pointer", fontWeight: "bold" }}

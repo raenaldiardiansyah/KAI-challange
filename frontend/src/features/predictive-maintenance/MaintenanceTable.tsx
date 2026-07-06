@@ -42,7 +42,7 @@ export function MaintenanceTable({
                   <Button asChild variant="secondary" className="table-mini-button">
                     <Link href="/car-detail">Lihat Evidence</Link>
                   </Button>
-                  <Button asChild className="table-mini-button">
+                  <Button asChild className="table-mini-button" style={{ color: "white" }}>
                     <Link href="/work-order">Buat SPK</Link>
                   </Button>
                 </div>
