@@ -637,7 +637,7 @@ main {
 .status-critical,
 .status-offline,
 .status-limited {
-  background: #f8fafc;
+  background: #ffff;
   color: #334155;
 }
 
@@ -665,10 +665,24 @@ main {
 }
 
 .train-row,
-.risk-row,
 .trainset-card {
   align-items: center;
   border: 1px solid var(--line);
+  border-radius: 6px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  padding: 12px;
+}
+
+.overview-train-row {
+  border: none;
+  background: #eef2f7;
+}
+
+.risk-row {
+  align-items: center;
+  background: #eef2f7;
   border-radius: 6px;
   display: grid;
   gap: 12px;
