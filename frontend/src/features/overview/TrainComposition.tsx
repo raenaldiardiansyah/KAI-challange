@@ -21,11 +21,14 @@ export function TrainComposition({
           const car = index + 1;
           const isSelected = car === selectedCar;
           const insight = carsInsights.find(c => c.carNumber === car);
-          const isAnomaly = insight?.severity === "High" || insight?.severity === "Critical" || insight?.severity === "Medium";
+          const isAnomaly = insight?.severity === "High" || insight?.severity === "Critical";
+          const isWarning = insight?.severity === "Medium";
 
           let className = "car-item overview-car-item";
           if (isSelected) className += " selected";
           if (isAnomaly) className += " anomaly";
+          if (isWarning) className += " warning";
+          const isAttention = isAnomaly || isWarning;
 
           return (
             <button
@@ -33,7 +36,7 @@ export function TrainComposition({
               key={car}
               className={className}
               onClick={() => onSelectCar(car)}
-              title={isAnomaly ? `${insight?.trainsetName} - C${car}: ${insight?.diagnosis}` : `${insight?.trainsetName || "Trainset"} - C${car}: Normal`}
+              title={isAttention ? `${insight?.trainsetName} - C${car}: ${insight?.diagnosis}` : `${insight?.trainsetName || "Trainset"} - C${car}: Normal`}
             >
               C{car}
             </button>

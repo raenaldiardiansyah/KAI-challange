@@ -57,7 +57,6 @@ export function TrainPositionMap({ points }: { points: TrainMapPoint[] }) {
         <>
           <Link className="map-preview-link" href="/live-monitoring" aria-label="Buka Pantauan Langsung">
             <MapLibreTrainMap points={priorityPoints} variant="mini" />
-            <span className="map-preview-cta">Buka Pantauan Langsung</span>
           </Link>
           <div className="map-legend-row" aria-label="Legenda status peta">
             <span><i className="legend-dot legend-warning" /> Waspada</span>
@@ -70,7 +69,6 @@ export function TrainPositionMap({ points }: { points: TrainMapPoint[] }) {
         <div className="overview-map-empty">
           <strong>Tidak ada armada prioritas</strong>
           <span>Semua armada aktif berada dalam status normal. Pantauan penuh tetap tersedia di Live Monitoring.</span>
-          <Link className="button button-secondary" href="/live-monitoring">Buka Pantauan Langsung</Link>
         </div>
       )}
       <div className="map-route-legend">

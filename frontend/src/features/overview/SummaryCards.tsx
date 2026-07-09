@@ -17,7 +17,11 @@ export function SummaryCards({ summary }: { summary: OverviewData["summary"] }) 
     <div className="summary-grid-6">
       {items.map((item) => (
         <Card key={item.label} className="summary-card-container">
-          <Link href={item.link} className="summary-card">
+          <Link
+            href={item.link}
+            className="summary-card"
+            title={`${item.value} ${item.label}${item.delta ? `, perubahan ${item.delta}` : ""}`}
+          >
             <div className="summary-card-icon">{item.icon}</div>
             <div className="summary-card-content">
               <span className="summary-card-value">{item.value}</span>
