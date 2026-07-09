@@ -72,6 +72,7 @@ export const insightDummy: Insight[] = [
 export const carInsightsDummy: Insight[] = Array.from({ length: 10 }, (_, i) => {
   const carNumber = i + 1;
   const existingInsight = insightDummy.find(ins => ins.carNumber === carNumber);
+  const healthScore = 90 + ((carNumber * 7) % 10);
   
   if (existingInsight) {
     return existingInsight;
@@ -86,10 +87,15 @@ export const carInsightsDummy: Insight[] = Array.from({ length: 10 }, (_, i) => 
     event: "NO_ACTIVE_ANOMALY",
     severity: "Normal",
     confidence: 100,
-    healthScore: Math.floor(Math.random() * 10) + 90, // Random 90-99
+    healthScore,
     diagnosis: "Status Armada Sehat",
     risk: "Normal",
-    evidence: { status: "OK", lastCheck: new Date().toISOString() },
+    evidence: {
+      status: "OK",
+      healthVariance: 100 - healthScore,
+      telemetryLatency: 3 + (carNumber % 4),
+      maintenanceMargin: 5 + (carNumber % 5)
+    },
     structuredInsight: {
       faultType: "NONE",
       detectedPattern: "Operating within normal parameters",

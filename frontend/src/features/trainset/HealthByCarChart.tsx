@@ -18,8 +18,8 @@ export function HealthByCarChart({ carsInsights }: { carsInsights: Insight[] }) 
   };
 
   return (
-    <Card title="Kesehatan Tiap Gerbong" eyebrow="Skor kesehatan">
-      <div style={{ width: "100%", height: 260 }}>
+    <Card title="Kesehatan Tiap Gerbong" eyebrow="Skor kesehatan" className="trainset-health-chart-card">
+      <div className="trainset-health-chart-frame">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />

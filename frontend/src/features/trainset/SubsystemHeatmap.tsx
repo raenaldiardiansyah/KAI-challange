@@ -58,9 +58,9 @@ export function SubsystemHeatmap({ trainsetId, trainsetName, totalCars, carsInsi
   };
 
   return (
-    <Card title="Peta Risiko Subsistem" eyebrow="Distribusi status">
-      <div className="scrollbar-on-interaction" style={{ overflowX: "auto" }}>
-        <div style={{ display: "grid", gridTemplateColumns: `120px repeat(${totalCars}, minmax(40px, 1fr))`, gap: "4px", minWidth: "600px" }}>
+    <Card title="Peta Risiko Subsistem" eyebrow="Distribusi status" className="trainset-heatmap-card">
+      <div className="scrollbar-on-interaction trainset-heatmap-scroll" style={{ overflowX: "auto" }}>
+        <div className="trainset-heatmap-grid" style={{ gridTemplateColumns: `130px repeat(${totalCars}, minmax(48px, 1fr))` }}>
           {/* Header row */}
           <div style={{ padding: "8px", fontSize: "12px", color: "#64748b", fontWeight: "bold" }}>Subsistem</div>
           {Array.from({ length: totalCars }, (_, i) => (
