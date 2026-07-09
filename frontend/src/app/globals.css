@@ -4227,11 +4227,15 @@ pre {
   flex: 1;
 }
 
-.overview-compact-fit .summary-card-value,
+.overview-compact-fit .summary-card-value {
+  flex-shrink: 0;
+}
+
 .overview-compact-fit .summary-card-label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .overview-compact-fit .summary-card-delta {
