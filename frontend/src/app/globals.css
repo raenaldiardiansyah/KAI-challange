@@ -55,21 +55,21 @@ select {
   position: sticky;
   top: 0;
   height: 100vh;
-  max-width: var(--sidebar-width, 96px);
-  min-width: var(--sidebar-width, 96px);
+  max-width: var(--sidebar-width, 88px);
+  min-width: var(--sidebar-width, 88px);
   z-index: 50;
-  width: var(--sidebar-width, 96px);
+  width: var(--sidebar-width, 88px);
 }
 
 .sidebar-inner {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   height: 100%;
   min-height: 0;
   overflow: hidden;
   overflow-x: hidden;
-  padding: 20px 14px;
+  padding: 18px 10px;
 }
 
 .sidebar-resizer {
@@ -107,6 +107,10 @@ select {
 
 .sidebar-toggle:hover {
   transform: translateY(-50%);
+}
+
+body:has([data-overview-compact="true"]) .sidebar-toggle {
+  display: none;
 }
 
 .realtime-clock {
@@ -3986,8 +3990,8 @@ pre {
 
 .overview-presentation-canvas .overview-page {
   display: grid;
-  gap: 8px;
-  grid-template-rows: minmax(0, 42fr) minmax(56px, 8fr) minmax(0, 50fr);
+  gap: 6px;
+  grid-template-rows: minmax(0, 50fr) 54px minmax(0, 32fr);
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -4005,7 +4009,7 @@ pre {
 }
 
 .overview-presentation-canvas .overview-bottom-grid {
-  padding-top: 6px;
+  padding-top: 0;
 }
 
 .overview-presentation-canvas .overview-row-2,
@@ -4044,7 +4048,7 @@ pre {
 
 .overview-presentation-canvas .overview-composition-card {
   min-height: 0 !important;
-  padding: 10px 12px !important;
+  padding: 9px 11px !important;
 }
 
 .overview-presentation-canvas .overview-car-grid {
@@ -4053,14 +4057,14 @@ pre {
 }
 
 .overview-presentation-canvas .overview-car-item {
-  height: 34px !important;
-  min-height: 34px !important;
+  height: 32px !important;
+  min-height: 32px !important;
   padding: 0 8px !important;
 }
 
 .overview-presentation-canvas .overview-priority-card {
   min-height: 0 !important;
-  padding: 12px 14px !important;
+  padding: 12px 14px 14px !important;
 }
 
 .overview-presentation-canvas .overview-priority-shell {
@@ -4110,14 +4114,14 @@ pre {
 }
 
 .overview-presentation-canvas .overview-priority-actions .button {
-  min-height: 34px !important;
+  min-height: 32px !important;
   padding: 0 11px !important;
 }
 
 .overview-presentation-canvas .overview-map-card {
   display: grid !important;
   gap: 8px 10px;
-  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+  grid-template-columns: minmax(0, 1.28fr) minmax(248px, 0.72fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   min-height: 0 !important;
   overflow: hidden;
@@ -4231,6 +4235,7 @@ pre {
 .overview-presentation-canvas .summary-grid-6 {
   gap: 8px !important;
   height: 100%;
+  min-height: 0;
 }
 
 .overview-presentation-canvas .summary-card {
@@ -4278,7 +4283,7 @@ pre {
   flex-direction: column !important;
   min-height: 0 !important;
   overflow: hidden;
-  padding: 12px 14px !important;
+  padding: 10px 12px !important;
 }
 
 .overview-presentation-canvas .overview-alarm-chart,
@@ -4290,13 +4295,13 @@ pre {
 }
 
 .overview-presentation-canvas .overview-alarm-chart-summary {
-  gap: 8px !important;
-  margin-bottom: 10px !important;
+  gap: 7px !important;
+  margin-bottom: 8px !important;
 }
 
 .overview-presentation-canvas .overview-alarm-chart-summary > div {
   border-radius: 6px !important;
-  padding: 9px 11px !important;
+  padding: 7px 9px !important;
 }
 
 .overview-presentation-canvas .overview-alarm-chart-summary strong {
@@ -4310,8 +4315,8 @@ pre {
 }
 
 .overview-presentation-canvas .overview-alarm-bars {
-  gap: 8px !important;
-  margin: 8px 0 !important;
+  gap: 6px !important;
+  margin: 6px 0 !important;
 }
 
 .overview-presentation-canvas .overview-alarm-bar-row {
@@ -4325,13 +4330,13 @@ pre {
 }
 
 .overview-presentation-canvas .overview-alarm-status-grid {
-  gap: 8px !important;
-  padding-top: 8px !important;
+  gap: 7px !important;
+  padding-top: 7px !important;
 }
 
 .overview-presentation-canvas .overview-alarm-status-grid > div {
   border-radius: 6px !important;
-  padding: 8px 10px !important;
+  padding: 7px 9px !important;
 }
 
 .overview-presentation-canvas .overview-alarm-status-grid strong {
@@ -4350,8 +4355,8 @@ pre {
 }
 
 .overview-presentation-canvas .llm-insight-body {
-  gap: 8px !important;
-  padding: 12px 14px 12px 18px !important;
+  gap: 7px !important;
+  padding: 10px 12px 10px 17px !important;
   position: relative;
 }
 

@@ -8,7 +8,7 @@ import { RealtimeClock } from "./RealtimeClock";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react/dist/ssr";
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const COLLAPSED_WIDTH = 96;
+const COLLAPSED_WIDTH = 88;
 const EXPANDED_DEFAULT_WIDTH = 260;
 const MIN_EXPANDED_WIDTH = 240;
 const MAX_WIDTH = 320;
@@ -29,7 +29,8 @@ export function Sidebar() {
     const timeout = setTimeout(() => {
       const savedWidth = localStorage.getItem("sidebarWidth");
       if (savedWidth) {
-        setWidth(parseInt(savedWidth, 10));
+        const parsedWidth = parseInt(savedWidth, 10);
+        setWidth(parsedWidth <= SNAP_THRESHOLD ? COLLAPSED_WIDTH : parsedWidth);
       }
       setIsMounted(true);
     }, 50);
