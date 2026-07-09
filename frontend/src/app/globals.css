@@ -4355,7 +4355,7 @@ pre {
 }
 
 .overview-presentation-canvas .llm-insight-body {
-  gap: 7px !important;
+  gap: 5px !important;
   padding: 10px 12px 10px 17px !important;
   position: relative;
 }
@@ -4363,11 +4363,13 @@ pre {
 .overview-presentation-canvas .llm-insight-title {
   font-size: 16px !important;
   line-height: 1.25 !important;
+  margin: 0 !important;
 }
 
 .overview-presentation-canvas .llm-insight-text {
   font-size: 12px !important;
   line-height: 1.35 !important;
+  margin: 0 !important;
   -webkit-line-clamp: 3;
 }
 
