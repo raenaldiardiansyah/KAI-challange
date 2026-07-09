@@ -1,0 +1,31 @@
+
+.map-route-legend-header strong,
+.map-route-item strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.map-route-list {
+  display: grid;
+  gap: 8px;
+}
+
+.map-route-item {
+  border-top: 1px solid #e2e8f0;
+  display: grid;
+  gap: 2px;
+  padding-top: 8px;
+}
+
+.map-route-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.map-route-legend span,
+.map-route-legend small,
+.map-route-legend-header small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}

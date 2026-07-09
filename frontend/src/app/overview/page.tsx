@@ -1,5 +1,4 @@
 import { ActiveAlarmTable } from "@/features/overview/ActiveAlarmTable";
-import { ConnectedTrainList } from "@/features/overview/ConnectedTrainList";
 import { PredictiveMaintenancePanel } from "@/features/overview/PredictiveMaintenancePanel";
 import { InteractiveTrainsetPanel } from "@/features/overview/InteractiveTrainsetPanel";
 import { SummaryCards } from "@/features/overview/SummaryCards";
@@ -11,23 +10,21 @@ export default async function OverviewPage() {
 
   return (
     <>
-      <div className="page-grid overview-layout">
-        <section className="overview-critical-row">
-          <div className="stack">
+      <div className="page-grid overview-compact-layout">
+        <section className="overview-top-grid">
+          <div>
             <InteractiveTrainsetPanel carInsights={data.carInsights} />
           </div>
           <TrainPositionMap points={data.mapPoints} />
         </section>
 
-        <SummaryCards summary={data.summary} />
-
-        <section className="overview-alarm-wide">
-          <ActiveAlarmTable alarms={data.alarms} />
+        <section className="overview-row-2">
+          <SummaryCards summary={data.summary} />
         </section>
 
-        <section className="overview-followup-grid">
-          <PredictiveMaintenancePanel risks={data.maintenance} />
-          <ConnectedTrainList trainsets={data.trainsets} />
+        <section className="overview-bottom-grid">
+          <ActiveAlarmTable alarms={data.alarms} />
+          <PredictiveMaintenancePanel risks={data.maintenance} insights={data.carInsights} />
         </section>
       </div>
     </>

@@ -1,0 +1,46 @@
+        onMouseDown={startResizing}
+        title="Drag to resize"
+      />
+      <button
+        className="sidebar-toggle"
+        onClick={handleToggle}
+        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {isCollapsed ? <CaretRight size={32} weight="bold" /> : <CaretLeft size={32} weight="bold" />}
+      </button>
+
+      <div className="sidebar-inner">
+        <div className="brand" style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px 0' : '8px 10px 22px' }}>
+          {isCollapsed ? (
+            <Image src="/images/logo.png" alt="Logo" width={36} height={36} style={{ objectFit: "contain" }} />
+          ) : (
+            <>
+              <span>TEL-U</span>
+              <strong>Insight System</strong>
+            </>
+          )}
+        </div>
+        <div className={ENABLE_SIDEBAR_NAV_SCROLL ? "sidebar-nav-scroll" : "sidebar-nav-static"}>
+          <nav aria-label="Main navigation">
+            {routes.map((route) => {
+              const Icon = route.icon;
+
+              return (
+                <Link
+                  className={`sidebar-link${pathname === route.href ? " active" : ""}${isCollapsed ? " collapsed" : ""}`}
+                  href={route.href}
+                  key={route.href}
+                  title={isCollapsed ? route.label : undefined}
+                >
+                  <Icon size={isCollapsed ? 22 : 20} weight="regular" />
+                  <span>{isCollapsed ? route.shortLabel || route.label : route.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+        <RealtimeClock isCollapsed={isCollapsed} />
+      </div>
+    </aside>
+  );
+}

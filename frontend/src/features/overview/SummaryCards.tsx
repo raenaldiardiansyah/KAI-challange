@@ -1,39 +1,35 @@
-import { Broadcast, Train, Warning, Wrench } from "@phosphor-icons/react/dist/ssr";
+import { Broadcast, Train, Warning, Wrench, Heartbeat, Brain, TrendUp, TrendDown } from "@phosphor-icons/react/dist/ssr";
 import { Card } from "@/components/ui/Card";
-import { MetricDelta } from "@/components/ui/MetricDelta";
 import type { OverviewData } from "@/services/overviewService";
+import Link from "next/link";
 
 export function SummaryCards({ summary }: { summary: OverviewData["summary"] }) {
   const items = [
-    { label: "Armada Aktif", value: `${summary.onlineTrainsets}/${summary.totalTrainsets}`, icon: <Broadcast size={20} />, tone: "info" },
-    { label: "Total Gerbong", value: summary.totalCars, icon: <Train size={20} />, tone: "dark" },
-    { label: "Kesehatan Global", value: `${summary.globalHealthScore}%`, icon: <Wrench size={20} />, percentValue: summary.globalHealthScore, tone: "success" },
-    { label: "Alarm Aktif", value: summary.activeAlarms, icon: <Warning size={20} />, alarmDelta: summary.activeAlarms > 2 ? 2 : -1, tone: "danger" }
+    { label: "Armada Aktif", value: `${summary.onlineTrainsets}/${summary.totalTrainsets}`, icon: <Broadcast size={24} weight="fill" color="var(--accent)" />, link: "/live-monitoring" },
+    { label: "Total Gerbong", value: summary.totalCars, icon: <Train size={24} weight="fill" color="var(--muted)" />, link: "/trainset" },
+    { label: "Kesehatan Global", value: `${summary.globalHealthScore}%`, icon: <Wrench size={24} weight="fill" color="#10b981" />, link: "/predictive-maintenance", delta: "1.2%", dir: "down", deltaColor: "#10b981" },
+    { label: "Alarm Aktif", value: summary.activeAlarms, icon: <Warning size={24} weight="fill" color="var(--danger)" />, link: "/alarm-center", delta: "2 alarm", dir: "up", deltaColor: "var(--danger)" },
+    { label: "Risiko Prediktif", value: 2, icon: <Heartbeat size={24} weight="fill" color="var(--warning)" />, link: "/predictive-maintenance", delta: "1", dir: "up", deltaColor: "var(--danger)" },
+    { label: "Insight LLM", value: 3, icon: <Brain size={24} weight="fill" color="#2563eb" />, link: "/insight-analytic", delta: "1", dir: "up", deltaColor: "var(--danger)" }
   ];
 
   return (
-    <div className="summary-grid">
+    <div className="summary-grid-6">
       {items.map((item) => (
-        <Card key={item.label} className={`summary-accent-card summary-tone-${item.tone}`}>
-          <div className="metric-card">
-            <span>{item.icon}</span>
-            <div>
-              <strong>
-                {item.percentValue ? (
-                  <span className="percent-with-delta">
-                    <span>{item.value}</span>
-                    <MetricDelta value={item.percentValue} compact />
-                  </span>
-                ) : item.alarmDelta ? (
-                  <span className="percent-with-delta">
-                    <span>{item.value}</span>
-                    <MetricDelta value={Number(item.value)} delta={item.alarmDelta} inverse compact unit="alarm" label="alarm" />
-                  </span>
-                ) : item.value}
-              </strong>
-              <p>{item.label}</p>
+        <Card key={item.label} className="summary-card-container">
+          <Link href={item.link} className="summary-card" style={{ textDecoration: "none", color: "inherit" }}>
+            <div className="summary-card-icon">{item.icon}</div>
+            <div className="summary-card-content" style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
+              <span className="summary-card-value" style={{ fontSize: "20px", lineHeight: 1, fontWeight: 700 }}>{item.value}</span>
+              <span className="summary-card-label" style={{ fontSize: "12px", lineHeight: 1.2, whiteSpace: "nowrap" }}>{item.label}</span>
             </div>
-          </div>
+            {item.delta && (
+              <div className="summary-card-delta" style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", fontWeight: 700, color: item.deltaColor }}>
+                {item.dir === "up" ? <TrendUp size={14} weight="bold" /> : <TrendDown size={14} weight="bold" />}
+                {item.delta}
+              </div>
+            )}
+          </Link>
         </Card>
       ))}
     </div>

@@ -1,0 +1,44 @@
+import { Broadcast, Brain, Gauge, Train, Warning, Wrench } from "@phosphor-icons/react/dist/ssr";
+import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
+import type { OverviewData } from "@/services/overviewService";
+
+type SummaryCardsProps = {
+  summary: OverviewData["summary"];
+  predictiveRiskCount: number;
+  insightCount: number;
+};
+
+export function SummaryCards({ summary, predictiveRiskCount, insightCount }: SummaryCardsProps) {
+  const items = [
+    { label: "Armada Aktif", value: `${summary.onlineTrainsets}/${summary.totalTrainsets}`, icon: <Broadcast size={20} />, tone: "info" },
+    { label: "Total Gerbong", value: summary.totalCars, icon: <Train size={20} />, tone: "dark" },
+    { label: "Kesehatan Global", value: `${summary.globalHealthScore}%`, icon: <Wrench size={20} />, percentValue: summary.globalHealthScore, tone: "success" },
+    { label: "Alarm Aktif", value: summary.activeAlarms, icon: <Warning size={20} />, alarmDelta: summary.activeAlarms > 2 ? 2 : -1, tone: "danger" },
+    { label: "Risiko Prediktif", value: predictiveRiskCount, icon: <Gauge size={20} />, alarmDelta: predictiveRiskCount > 1 ? 1 : -1, tone: "warning" },
+    { label: "Insight LLM", value: insightCount, icon: <Brain size={20} />, alarmDelta: insightCount > 2 ? 1 : -1, tone: "muted" }
+  ];
+
+  return (
+    <div className="summary-grid overview-summary-grid">
+      {items.map((item) => (
+        <Card key={item.label} className={`summary-accent-card summary-tone-${item.tone}`}>
+          <div className="metric-card">
+            <span>{item.icon}</span>
+            <div>
+              <strong>
+                {item.value}
+              </strong>
+              <p>{item.label}</p>
+            </div>
+            {item.percentValue ? (
+              <MetricDelta value={item.percentValue} compact />
+            ) : item.alarmDelta ? (
+              <MetricDelta value={Number(item.value)} delta={item.alarmDelta} inverse compact unit="alarm" />
+            ) : null}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}

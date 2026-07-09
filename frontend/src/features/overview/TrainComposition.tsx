@@ -15,15 +15,15 @@ export function TrainComposition({
   onSelectCar
 }: TrainCompositionProps) {
   return (
-    <Card title="Komposisi Kereta" eyebrow="Mewakili armada aktif">
-      <div className="composition">
+    <Card title="Komposisi Kereta" eyebrow="Mewakili armada aktif" className="overview-composition-card">
+      <div className="composition overview-car-grid" style={{ gap: "8px" }}>
         {Array.from({ length: totalCars }, (_, index) => {
           const car = index + 1;
           const isSelected = car === selectedCar;
           const insight = carsInsights.find(c => c.carNumber === car);
           const isAnomaly = insight?.severity === "High" || insight?.severity === "Critical" || insight?.severity === "Medium";
 
-          let className = "car-item";
+          let className = "car-item overview-car-item";
           if (isSelected) className += " selected";
           if (isAnomaly) className += " anomaly";
 

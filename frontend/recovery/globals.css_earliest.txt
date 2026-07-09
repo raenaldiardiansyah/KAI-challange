@@ -1,0 +1,51 @@
+.eyebrow {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 0 3px;
+  text-transform: uppercase;
+}
+
+.metric-card {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  height: 100%;
+}
+
+.metric-card>span {
+  align-items: center;
+  background: #e0f2fe;
+  border-radius: 6px;
+  color: #0369a1;
+  display: grid;
+  height: 40px;
+  place-items: center;
+  width: 40px;
+}
+
+.metric-card strong {
+  display: block;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.metric-card p,
+.train-row p,
+.risk-row p,
+.trainset-card p {
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+
+.summary-accent-card {
+  background: #ffffff;
+  border-width: 1px;
+}
+
+.summary-accent-card .metric-card>span {
+  border: 1px solid transparent;
+}
+
+.summary-tone-success {
+  border-color: #16a34a;

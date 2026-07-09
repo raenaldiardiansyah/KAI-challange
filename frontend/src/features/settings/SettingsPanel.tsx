@@ -3,8 +3,16 @@
 import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { Input } from "@/components/ui/Input";
+import { setDashboardScale, getDashboardScale, subscribeDashboardScale } from "@/lib/dashboardScale";
+import { useSyncExternalStore } from "react";
 
 export function SettingsPanel() {
+  const currentScale = useSyncExternalStore(
+    subscribeDashboardScale,
+    getDashboardScale,
+    () => 0.5
+  );
+
   return (
     <Card title="Pengaturan Sistem" eyebrow="Preferensi & Integrasi">
       <div className="form-grid" style={{ gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
@@ -19,6 +27,24 @@ export function SettingsPanel() {
               <option value="dark">Gelap (Dark Mode)</option>
               <option value="auto">Ikuti Sistem</option>
             </Select>
+          </div>
+          
+          <div>
+            <label style={{ display: "block", fontSize: "12px", marginBottom: "4px", color: "#64748b" }}>Skala Dashboard</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                className={`button ${currentScale === 0.5 ? "button-primary" : "button-secondary"}`}
+                onClick={() => setDashboardScale(0.5)}
+              >50% Compact</button>
+              <button 
+                className={`button ${currentScale === 0.75 ? "button-primary" : "button-secondary"}`}
+                onClick={() => setDashboardScale(0.75)}
+              >75% Balanced</button>
+              <button 
+                className={`button ${currentScale === 1 ? "button-primary" : "button-secondary"}`}
+                onClick={() => setDashboardScale(1)}
+              >100% Normal</button>
+            </div>
           </div>
           
           <div>

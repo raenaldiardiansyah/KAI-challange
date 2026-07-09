@@ -1,0 +1,64 @@
+"use client";
+
+import type { CSSProperties, ReactNode } from "react";
+import { useLayoutEffect, useRef, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
+import {
+  getDashboardScaleServerSnapshot,
+  getInitialDashboardScale,
+  subscribeDashboardScale
+} from "@/lib/dashboardScale";
+
+export function ScaledDashboardContent({ children }: { children: ReactNode }) {
+  const shellRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
+  const dashboardScale = useSyncExternalStore(
+    subscribeDashboardScale,
+    getInitialDashboardScale,
+    getDashboardScaleServerSnapshot
+  );
+  const shouldScale = pathname !== "/settings";
+
+  useLayoutEffect(() => {
+    if (!shouldScale) return;
+
+    const shell = shellRef.current;
+    const canvas = canvasRef.current;
+    if (!shell || !canvas) return;
+
+    const updateShellHeight = () => {
+      const visualContentHeight = Math.ceil(canvas.scrollHeight * dashboardScale);
+      const availableHeight = shell.parentElement?.clientHeight ?? window.innerHeight;
+      shell.style.height = `${Math.max(visualContentHeight, availableHeight)}px`;
+    };
+
+    updateShellHeight();
+    const observer = new ResizeObserver(updateShellHeight);
+    observer.observe(canvas);
+    window.addEventListener("resize", updateShellHeight);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateShellHeight);
+    };
+  }, [dashboardScale, shouldScale]);
+
+  if (!shouldScale) {
+    return <div className="content-scroll-area">{children}</div>;
+  }
+
+  return (
+    <div className="content-scroll-area">
+      <div ref={shellRef} className="scaled-dashboard-shell">
+        <div
+          ref={canvasRef}
+          className="scaled-dashboard-wrapper"
+          style={{ "--dashboard-scale": dashboardScale } as CSSProperties}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}

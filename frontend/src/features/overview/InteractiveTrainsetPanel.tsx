@@ -14,7 +14,7 @@ export function InteractiveTrainsetPanel({ carInsights }: { carInsights: Insight
   const selectedInsight = carInsights.find(c => c.carNumber === selectedCarNum) || defaultCar;
 
   return (
-    <>
+    <div className="overview-left-stack">
       <TrainComposition
         totalCars={carInsights.length}
         selectedCar={selectedCarNum}
@@ -22,6 +22,6 @@ export function InteractiveTrainsetPanel({ carInsights }: { carInsights: Insight
         carsInsights={carInsights}
       />
       <PriorityInsightCard insight={selectedInsight} />
-    </>
+    </div>
   );
 }

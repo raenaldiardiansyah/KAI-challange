@@ -1,0 +1,51 @@
+import Link from "next/link";
+import { Card } from "@/components/ui/Card";
+import { MetricDelta } from "@/components/ui/MetricDelta";
+import type { Insight } from "@/types/insight";
+import type { MaintenanceRisk } from "@/types/maintenance";
+
+type PredictiveMaintenancePanelProps = {
+  risks: MaintenanceRisk[];
+  insight: Insight;
+};
+
+export function PredictiveMaintenancePanel({ risks, insight }: PredictiveMaintenancePanelProps) {
+  return (
+    <Card
+      title="Insight LLM Prediktif"
+      eyebrow="Preview tindakan berikutnya"
+      action={<Link className="button button-secondary table-mini-button" href="/predictive-maintenance">Lihat prediktif</Link>}
+    >
+      <div className="overview-llm-preview">
+        {risks.length > 0 ? (
+          <div className="overview-priority-count">
+            Menganalisis {risks.length} rekomendasi prediktif aktif
+          </div>
+        ) : null}
+
+        <div className="overview-llm-card">
+          <div>
+            <strong>C{insight.carNumber} {insight.subsystem} - {insight.trainsetName}</strong>
+            <p>{insight.naturalInsight}</p>
+          </div>
+
+          <p className="overview-llm-recommendation">{insight.recommendation}</p>
+
+          <div className="overview-llm-metrics" aria-label="Metrik LLM prediktif">
+            <span>
+              Akurasi
+              <strong>{insight.confidence}%</strong>
+              <MetricDelta value={insight.confidence} compact />
+            </span>
+            <span>
+              Kesehatan
+              <strong>{insight.healthScore}%</strong>
+              <MetricDelta value={insight.healthScore} compact />
+            </span>
+            <span>{insight.trainsetId} - C{insight.carNumber}</span>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}

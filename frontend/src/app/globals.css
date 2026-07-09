@@ -3570,3 +3570,680 @@ pre {
     width: 100%;
   }
 }
+
+/* Restore layout CSS that was in globals.css at 13:59 */
+.metric-card {
+  flex-direction: row;
+}
+
+.map-route-list {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.overview-alarm-chart-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.overview-alarm-chart-summary > div {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.overview-alarm-status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+.overview-alarm-status-grid > div {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Safe height extension for the bottom components */
+.overview-alarm-wide > .card,
+.overview-followup-grid > .card {
+  min-height: 400px;
+}
+
+/* Fix chart placeholder */
+.chart-placeholder {
+  display: flex;
+  gap: 24px;
+  margin: 16px 0;
+}
+
+/* Fix LLM Prediktif Carousel */
+.overview-llm-card {
+  padding: 0 24px;
+}
+
+/* Restore Active Alarm Bars CSS */
+.overview-alarm-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+}
+.overview-alarm-bar-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 30px;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+.overview-alarm-bar-track {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+.overview-alarm-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+}
+.overview-alarm-bar-fill.danger { background: #ef4444; }
+.overview-alarm-bar-fill.warning { background: #f59e0b; }
+.overview-alarm-bar-fill.info { background: #3b82f6; }
+
+/* Dashboard Scaling Styles */
+.content-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+.scaled-dashboard-shell {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.scaled-dashboard-wrapper {
+  transform: scale(var(--dashboard-scale, 1));
+  width: calc(100% / var(--dashboard-scale, 1));
+  transform-origin: top left;
+}
+
+/* Active Alarm Table Compact Styling */
+.overview-alarm-status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.overview-alarm-status-grid > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.overview-alarm-status-grid strong {
+  font-size: 16px;
+  color: var(--text-strong);
+}
+
+.overview-alarm-status-grid span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+
+/* Route Status Colors & Final Overview Fixes */
+.overview-top-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch !important;
+}
+
+.overview-left-stack {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+}
+
+.overview-composition-card {
+  height: auto !important;
+  min-height: 92px !important;
+  padding: 14px 16px !important;
+}
+
+.overview-composition-header {
+  margin-bottom: 8px !important;
+}
+
+.overview-car-grid {
+  display: grid !important;
+  grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.overview-car-item {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 10px !important;
+  font-size: 14px !important;
+}
+
+.overview-priority-card {
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 16px 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.overview-priority-content {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.overview-priority-title {
+  font-size: 18px !important;
+  line-height: 1.25 !important;
+  font-weight: 700 !important;
+}
+
+.overview-priority-description {
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+}
+
+.overview-priority-actions {
+  display: flex !important;
+  gap: 8px !important;
+  margin-top: 8px !important;
+}
+
+.summary-grid-6 {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.summary-card {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 56px !important;
+  padding: 10px 12px !important;
+}
+
+.summary-card-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.summary-card-delta {
+  margin-left: auto !important;
+  white-space: nowrap !important;
+}
+
+.priority-route-card.warning {
+  border-left: 3px solid #f59e0b !important;
+  background: #fffbeb !important;
+}
+
+.priority-route-card.alarm {
+  border-left: 3px solid #ef4444 !important;
+  background: #fef2f2 !important;
+}
+
+.priority-route-card.data-limited {
+  border-left: 3px solid #64748b !important;
+  background: #f8fafc !important;
+}
+
+.priority-route-card.watch {
+  border-left: 3px solid #3b82f6 !important;
+  background: #eff6ff !important;
+}
+
+.llm-insight-card {
+  height: 100% !important;
+  min-height: 190px !important;
+  padding: 16px 18px !important;
+}
+
+.llm-insight-body {
+  height: 100% !important;
+  border-left: 3px solid #2563eb !important;
+  background: #f8fafc !important;
+  border-radius: 10px !important;
+  padding: 14px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.llm-insight-recommendation {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+}
+
+.llm-insight-metrics {
+  margin-top: auto !important;
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.overview-bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.overview-bottom-grid > * {
+  height: 100%;
+}
+
+.summary-card-container {
+  padding: 0 !important;
+}
+
+/* Remove stray min-height 400px hack */
+.overview-alarm-wide > .card,
+.overview-followup-grid > .card {
+  min-height: 0 !important;
+}
+
+/* ===== Overview Density Scroll ===== */
+.overview-compact-scroll {
+  overflow: hidden !important;
+}
+
+.overview-compact-fit {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.overview-compact-fit .page-grid {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: minmax(0, 1.05fr) auto minmax(0, 0.95fr);
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+/* ===== Dashboard Density Mode: Normal (100%) ===== */
+/* No overrides needed — uses existing base styles */
+
+/* ===== Dashboard Density Mode: Balanced (75%) ===== */
+.dashboard-density-balanced .page-grid {
+  gap: 12px;
+  padding: 16px 20px 24px;
+}
+
+.dashboard-density-balanced .overview-top-grid {
+  gap: 10px;
+}
+
+.dashboard-density-balanced .overview-left-stack {
+  gap: 8px;
+}
+
+.dashboard-density-balanced .overview-composition-card {
+  min-height: 86px !important;
+  padding: 12px 14px !important;
+}
+
+.dashboard-density-balanced .overview-car-item {
+  height: 36px !important;
+  min-height: 36px !important;
+  font-size: 13px !important;
+}
+
+.dashboard-density-balanced .overview-priority-card {
+  padding: 14px 16px !important;
+}
+
+.dashboard-density-balanced .overview-priority-title {
+  font-size: 16px !important;
+}
+
+.dashboard-density-balanced .overview-priority-description {
+  font-size: 13px !important;
+}
+
+.dashboard-density-balanced .summary-grid-6 {
+  gap: 8px !important;
+}
+
+.dashboard-density-balanced .summary-card {
+  min-height: 50px !important;
+  padding: 8px 10px !important;
+}
+
+.dashboard-density-balanced .summary-card-value {
+  font-size: 18px !important;
+}
+
+.dashboard-density-balanced .summary-card-label {
+  font-size: 11px !important;
+}
+
+.dashboard-density-balanced .overview-bottom-grid {
+  gap: 10px;
+}
+
+.dashboard-density-balanced .llm-insight-card {
+  min-height: 170px !important;
+  padding: 14px 16px !important;
+}
+
+.dashboard-density-balanced .llm-insight-title {
+  font-size: 13px !important;
+}
+
+.dashboard-density-balanced .llm-insight-text {
+  font-size: 12px !important;
+}
+
+.dashboard-density-balanced .card-eyebrow {
+  font-size: 10px !important;
+}
+
+.dashboard-density-balanced .card-title {
+  font-size: 14px !important;
+}
+
+
+/* ===== Dashboard Density Mode: Compact Fit (50%) ===== */
+
+/* Top Section */
+.overview-compact-fit .overview-top-grid {
+  height: 100%;
+  min-height: 0;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.overview-compact-fit .overview-left-stack {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.overview-compact-fit .overview-composition-card {
+  min-height: 80px;
+  padding: 10px 12px;
+}
+
+.overview-compact-fit .overview-car-item {
+  height: 34px;
+  min-height: 34px;
+  font-size: 12px;
+}
+
+.overview-compact-fit .overview-priority-card {
+  height: 100%;
+  min-height: 0;
+  padding: 12px 14px;
+}
+
+.overview-compact-fit .overview-priority-content {
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Map Section */
+.overview-compact-fit .overview-map-card {
+  height: 100%;
+  min-height: 0;
+}
+
+.overview-compact-fit .map-preview,
+.overview-compact-fit .map-container,
+.overview-compact-fit .overview-map-image {
+  height: 170px;
+  max-height: 170px;
+}
+
+.overview-compact-fit .priority-route-card {
+  min-height: 64px;
+  padding: 8px 10px;
+}
+
+.overview-compact-fit .priority-route-card p {
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.overview-compact-fit .priority-route-actions {
+  margin-top: 6px;
+}
+
+/* Summary Cards */
+.overview-compact-fit .summary-grid-6 {
+  gap: 8px;
+}
+
+.overview-compact-fit .summary-card {
+  min-height: 44px;
+  padding: 8px 10px;
+}
+
+.overview-compact-fit .summary-card-value {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.overview-compact-fit .summary-card-label {
+  font-size: 11px;
+  line-height: 1.1;
+}
+
+.overview-compact-fit .summary-card-delta {
+  font-size: 10px;
+}
+
+/* Bottom Section */
+.overview-compact-fit .overview-bottom-grid {
+  height: 100%;
+  min-height: 0;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.overview-compact-fit .overview-bottom-grid > * {
+  height: 100%;
+  min-height: 0;
+}
+
+/* Alarm Chart */
+.overview-compact-fit .alarm-chart-card {
+  height: 100%;
+  min-height: 0;
+  padding: 12px 14px;
+}
+
+.overview-compact-fit .alarm-summary-grid {
+  gap: 8px;
+}
+
+.overview-compact-fit .alarm-summary-card {
+  min-height: 42px;
+  padding: 8px 10px;
+}
+
+.overview-compact-fit .alarm-bar-row {
+  margin: 4px 0;
+}
+
+.overview-compact-fit .alarm-status-grid {
+  gap: 8px;
+}
+
+.overview-compact-fit .alarm-status-card {
+  min-height: 40px;
+  padding: 8px 10px;
+}
+
+.overview-compact-fit .overview-alarm-chart-summary {
+  gap: 12px !important;
+}
+
+.overview-compact-fit .overview-alarm-chart-summary strong {
+  font-size: 18px !important;
+}
+
+.overview-compact-fit .overview-alarm-chart-summary span {
+  font-size: 10px !important;
+}
+
+.overview-compact-fit .overview-alarm-status-grid {
+  gap: 8px !important;
+  margin-top: 10px !important;
+  padding-top: 10px !important;
+}
+
+.overview-compact-fit .overview-alarm-status-grid strong {
+  font-size: 14px !important;
+}
+
+.overview-compact-fit .overview-alarm-status-grid span {
+  font-size: 10px !important;
+}
+
+
+/* LLM Insight */
+.overview-compact-fit .llm-insight-card {
+  height: 100%;
+  min-height: 0;
+  padding: 12px 14px;
+}
+
+.overview-compact-fit .llm-insight-body {
+  height: 100%;
+  min-height: 0;
+  padding: 12px 14px;
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.overview-compact-fit .llm-insight-title {
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.overview-compact-fit .llm-insight-text {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.overview-compact-fit .llm-insight-recommendation {
+  margin-top: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.overview-compact-fit .llm-insight-metrics {
+  font-size: 11px;
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+/* Helpers */
+.overview-compact-fit .card-eyebrow {
+  font-size: 9px !important;
+}
+
+.overview-compact-fit .card-title {
+  font-size: 13px !important;
+}
+
+.overview-compact-fit .card-header {
+  margin-bottom: 8px !important;
+}
+
+.overview-compact-fit .map-legend-row {
+  font-size: 10px !important;
+  gap: 10px !important;
+}
+
+.overview-compact-fit .map-route-legend {
+  font-size: 11px !important;
+}
+
+.overview-compact-fit .map-route-item {
+  padding: 6px 8px !important;
+}
+
+.overview-compact-fit .map-route-pagination button {
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+}
+
+.overview-compact-fit .table-mini-button {
+  font-size: 10px !important;
+  padding: 3px 8px !important;
+}
+
+.overview-compact-fit .map-preview-cta {
+  font-size: 12px;
+  height: 32px;
+  padding: 0 12px;
+}
+
+.overview-compact-fit .summary-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.overview-compact-fit .summary-card-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.overview-compact-fit .summary-card-value,
+.overview-compact-fit .summary-card-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.overview-compact-fit .summary-card-delta {
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.overview-compact-fit .overview-priority-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.overview-compact-fit .overview-priority-actions {
+  margin-top: 12px;
+}

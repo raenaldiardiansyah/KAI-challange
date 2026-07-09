@@ -1,0 +1,51 @@
+
+const COLLAPSED_WIDTH = 96;
+const EXPANDED_DEFAULT_WIDTH = 260;
+const MIN_EXPANDED_WIDTH = 240;
+const MAX_WIDTH = 320;
+const SNAP_THRESHOLD = 180;
+const ENABLE_SIDEBAR_NAV_SCROLL = true;
+
+export function Sidebar() {
+  const pathname = usePathname();
+  // Intentionally try to get width immediately to reduce layout shift if possible,
+  // but rely on useEffect to safely update it to avoid hydration mismatch.
+  const [width, setWidth] = useState(COLLAPSED_WIDTH);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    // Delay state hydration so the first client render stays stable.
+    const timeout = setTimeout(() => {
+      const savedWidth = localStorage.getItem("sidebarWidth");
+      if (savedWidth) {
+        setWidth(parseInt(savedWidth, 10));
+      }
+      setIsMounted(true);
+    }, 50);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      localStorage.setItem("sidebarWidth", width.toString());
+    }
+  }, [width, isMounted]);
+
+  const isCollapsed = width <= SNAP_THRESHOLD;
+
+  const handleToggle = () => {
+    if (isCollapsed) {
+      setWidth(EXPANDED_DEFAULT_WIDTH);
+    } else {
+      setWidth(COLLAPSED_WIDTH);
+    }
+  };
+
+  const startResizing = useCallback((mouseDownEvent: React.MouseEvent) => {
+    mouseDownEvent.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  useEffect(() => {
