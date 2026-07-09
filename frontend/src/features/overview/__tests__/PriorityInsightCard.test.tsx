@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { PriorityInsightCard } from "../PriorityInsightCard";
 import { insightDummy } from "@/dummy/insightDummy";
 
@@ -19,19 +18,17 @@ describe("PriorityInsightCard", () => {
     expect(screen.getAllByText(/Car 5/)[0]).toBeInTheDocument();
   });
 
-  it("shows confidence '86%' and healthScore '42%'", () => {
+  it("shows the compact risk title and severity badge", () => {
     render(<PriorityInsightCard insight={insight} />);
-    expect(screen.getByText("86%")).toBeInTheDocument();
-    expect(screen.getByText("42%")).toBeInTheDocument();
+
+    expect(screen.getByRole("heading", { name: /c5 brake system - risiko tinggi/i })).toBeInTheDocument();
+    expect(screen.getByText("Tinggi")).toBeInTheDocument();
   });
 
-  it("shows the trainset and car info in a bubble chip", () => {
+  it("shows the recommendation preview", () => {
     render(<PriorityInsightCard insight={insight} />);
-    expect(
-      screen.getAllByText((_content, el) => {
-        return el?.textContent?.includes("C5") ?? false;
-      })[0]
-    ).toBeInTheDocument();
+
+    expect(screen.getByText(insight.recommendation)).toBeInTheDocument();
   });
 
   it("shows Warning icon when severity is High", () => {
@@ -39,14 +36,14 @@ describe("PriorityInsightCard", () => {
     expect(screen.getByTestId("warning-icon")).toBeInTheDocument();
   });
 
-  it("button 'Tinjau Bukti' calls router.push with /car-detail?car=5", async () => {
-    const user = userEvent.setup();
-    const pushMock = (globalThis as any).__mockRouterPush;
-
+  it("routes action links to their target pages", () => {
     render(<PriorityInsightCard insight={insight} />);
-    const button = screen.getByRole("button", { name: /Tinjau Bukti/i });
-    await user.click(button);
 
-    expect(pushMock).toHaveBeenCalledWith("/car-detail?car=5");
+    expect(screen.getByRole("link", { name: /lihat insight/i })).toHaveAttribute("href", "/insight-analytic");
+    expect(screen.getByRole("link", { name: /tinjau bukti/i })).toHaveAttribute(
+      "href",
+      "/car-detail?trainset=TS-001&car=5&subsystem=Brake+System"
+    );
+    expect(screen.getByRole("link", { name: /buat spk/i })).toHaveAttribute("href", "/work-order");
   });
 });

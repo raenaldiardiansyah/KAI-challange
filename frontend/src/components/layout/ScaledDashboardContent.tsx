@@ -72,14 +72,20 @@ export function ScaledDashboardContent({ children }: { children: ReactNode }) {
     const densityClass = getDensityClass(dashboardScale, isOverview);
     const isOverviewCompact = isOverview && dashboardScale === 0.5;
 
+    if (isOverviewCompact) {
+      return (
+        <div className="content-scroll-area overview-presentation-scroll" data-overview-compact="true">
+          <div className="overview-presentation-viewport">
+            <div className="overview-presentation-canvas">
+              {children}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div 
-        className={
-          isOverviewCompact
-            ? "content-scroll-area overview-compact-scroll"
-            : "content-scroll-area"
-        }
-      >
+      <div className="content-scroll-area">
         <div className={densityClass}>
           {children}
         </div>

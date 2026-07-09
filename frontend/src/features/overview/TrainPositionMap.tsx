@@ -52,7 +52,7 @@ export function TrainPositionMap({ points }: { points: TrainMapPoint[] }) {
   };
 
   return (
-    <Card title="Mini Map Prioritas" eyebrow="Armada yang perlu perhatian">
+    <Card title="Mini Map Prioritas" eyebrow="Armada yang perlu perhatian" className="overview-map-card">
       {priorityPoints.length > 0 ? (
         <>
           <Link className="map-preview-link" href="/live-monitoring" aria-label="Buka Pantauan Langsung">

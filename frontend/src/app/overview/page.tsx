@@ -10,11 +10,9 @@ export default async function OverviewPage() {
 
   return (
     <>
-      <div className="page-grid overview-compact-layout">
+      <div className="page-grid overview-compact-layout overview-page">
         <section className="overview-top-grid">
-          <div>
-            <InteractiveTrainsetPanel carInsights={data.carInsights} />
-          </div>
+          <InteractiveTrainsetPanel carInsights={data.carInsights} />
           <TrainPositionMap points={data.mapPoints} />
         </section>
 
