@@ -28,19 +28,13 @@ export function SubsystemHeatmap({ trainsetId, trainsetName, totalCars, carsInsi
     return `/car-detail?${params.toString()}`;
   };
   
-  // Create dummy statuses for heatmap based on the insights provided
-  // In a real app, this would come from a structured subsystem status matrix per car
   const getSubsystemStatus = (carNum: number, sys: string) => {
     const insight = carsInsights.find(c => c.carNumber === carNum);
     if (insight && insight.subsystem === sys && insight.severity !== "Normal") {
-      return insight.severity; // High, Medium, dll
+      return insight.severity;
     }
     
-    if (carNum === 5 && sys === "Brake System") return "Critical"; // Baru/Kritis (Merah pekat)
-    if (carNum === 7 && sys === "Door") return "High"; // Merah standar
-    if (carNum === 2 && sys === "Genset") return "Medium"; // Merah memudar
-    if (carNum === 3 && sys === "HVAC") return "Resolved"; // Selesai (Sangat pudar)
-    return "Normal"; // Kosong
+    return "Normal";
   };
 
   const getColor = (status: string) => {

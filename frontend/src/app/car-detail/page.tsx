@@ -1,5 +1,5 @@
-import { CarDetailHeader } from "@/features/car-detail/CarDetailHeader";
-import { CarHealthSummary } from "@/features/car-detail/CarHealthSummary";
+import { CarIdentityHealthSummary } from "@/features/car-detail/CarIdentityHealthSummary";
+import { CarLlmSummary } from "@/features/car-detail/CarLlmSummary";
 import { CarSelectorFilter } from "@/features/car-detail/CarSelectorFilter";
 import { CarDetailInvestigationTabs } from "@/features/car-detail/CarDetailInvestigationTabs";
 import { getCarDetails } from "@/services/carDetailService";
@@ -100,23 +100,28 @@ export default async function CarDetailPage({ searchParams }: { searchParams?: P
   return (
     <>
       <div className="page-grid">
-        <CarSelectorFilter 
-          defaultCar={targetCarNumber.toString()} 
-          defaultTrainset={selectedTrainsetId}
-          defaultSubsystem={selectedSubsystem}
-          trainsets={trainsets.map(t => ({ id: t.id, name: t.name }))}
-          issueTrainsets={issueTrainsets}
-          issueCarsByTrainset={issueCarsByTrainset}
-          totalCarsByTrainset={Object.fromEntries(trainsets.map((trainset) => [trainset.id, trainset.totalCars]))}
-          availableSubsystems={car.subsystems.map((subsystem) => subsystem.subsystem)}
+        <CarDetailInvestigationTabs
+          car={visibleCar}
+          telemetry={selectedTelemetry}
+          filterContent={
+            <CarSelectorFilter
+              defaultCar={targetCarNumber.toString()}
+              defaultTrainset={selectedTrainsetId}
+              defaultSubsystem={selectedSubsystem}
+              trainsets={trainsets.map(t => ({ id: t.id, name: t.name }))}
+              issueTrainsets={issueTrainsets}
+              issueCarsByTrainset={issueCarsByTrainset}
+              totalCarsByTrainset={Object.fromEntries(trainsets.map((trainset) => [trainset.id, trainset.totalCars]))}
+              availableSubsystems={car.subsystems.map((subsystem) => subsystem.subsystem)}
+            />
+          }
+          headerContent={
+            <div className="car-detail-summary-grid">
+              <CarIdentityHealthSummary car={visibleCar} />
+              <CarLlmSummary car={visibleCar} insight={selectedInsight} />
+            </div>
+          }
         />
-        
-        <div className="car-detail-summary-grid">
-          <CarDetailHeader car={visibleCar} />
-          <CarHealthSummary car={visibleCar} />
-        </div>
-
-        <CarDetailInvestigationTabs car={visibleCar} telemetry={selectedTelemetry} />
       </div>
     </>
   );

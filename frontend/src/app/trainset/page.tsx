@@ -6,16 +6,65 @@ import { HealthByCarChart } from "@/features/trainset/HealthByCarChart";
 import { SubsystemHeatmap } from "@/features/trainset/SubsystemHeatmap";
 import { getOverviewData } from "@/services/overviewService";
 import { getTrainsets } from "@/services/trainsetService";
+import type { Insight } from "@/types/insight";
+import type { Trainset } from "@/types/trainset";
 
-export default async function TrainsetPage() {
+const TRAINSET_PAGE_SIZE = 3;
+
+function buildTrainsetCarInsights(trainset: Trainset, allInsights: Insight[]) {
+  const selectedIssues = allInsights.filter((insight) => insight.trainsetId === trainset.id);
+  const normalInsights = allInsights.filter((insight) => insight.trainsetId === "ALL");
+
+  return Array.from({ length: trainset.totalCars }, (_, index) => {
+    const carNumber = index + 1;
+    const selectedIssue = selectedIssues.find((insight) => insight.carNumber === carNumber);
+    const normalInsight = normalInsights.find((insight) => insight.carNumber === carNumber);
+
+    if (selectedIssue) return selectedIssue;
+
+    if (normalInsight) {
+      return {
+        ...normalInsight,
+        id: `${trainset.id}-${normalInsight.id}`,
+        trainsetId: trainset.id,
+        trainsetName: trainset.name
+      };
+    }
+
+    return undefined;
+  }).filter((insight): insight is Insight => Boolean(insight));
+}
+
+export default async function TrainsetPage({ searchParams }: { searchParams?: Promise<{ trainset?: string; trainsetPage?: string }> }) {
+  const params = await searchParams;
   const [trainsets, overview] = await Promise.all([getTrainsets(), getOverviewData()]);
-  const selectedTrainset = trainsets[0];
-  const carInsights = overview.carInsights;
+  const selectedTrainset = trainsets.find((trainset) => trainset.id === params?.trainset) ?? trainsets[0];
+  const totalTrainsetPages = Math.max(1, Math.ceil(trainsets.length / TRAINSET_PAGE_SIZE));
+  const selectedIndex = Math.max(0, trainsets.findIndex((trainset) => trainset.id === selectedTrainset.id));
+  const pageFromQuery = params?.trainsetPage ? Number.parseInt(params.trainsetPage, 10) : NaN;
+  const defaultPage = Math.floor(selectedIndex / TRAINSET_PAGE_SIZE) + 1;
+  const currentTrainsetPage = Number.isFinite(pageFromQuery)
+    ? Math.min(Math.max(pageFromQuery, 1), totalTrainsetPages)
+    : defaultPage;
+  const visibleTrainsets = trainsets.slice(
+    (currentTrainsetPage - 1) * TRAINSET_PAGE_SIZE,
+    currentTrainsetPage * TRAINSET_PAGE_SIZE
+  );
+  const carInsights = buildTrainsetCarInsights(selectedTrainset, overview.carInsights);
 
   return (
     <div className="page-grid trainset-master-layout">
       <aside className="master-list-panel">
-        <TrainsetList trainsets={trainsets} />
+        <TrainsetList
+          trainsets={visibleTrainsets}
+          selectedTrainsetId={selectedTrainset.id}
+          pagination={{
+            currentPage: currentTrainsetPage,
+            pageSize: TRAINSET_PAGE_SIZE,
+            totalItems: trainsets.length,
+            totalPages: totalTrainsetPages
+          }}
+        />
       </aside>
       <section className="stack detail-workspace">
         <TrainsetDetailSummary trainset={selectedTrainset} />
