@@ -34,15 +34,16 @@ describe("AlarmTable", () => {
     expect(rows).toHaveLength(20);
   });
 
-  it("clicking acknowledge icon on an Open alarm calls window.alert", async () => {
+  it("clicking acknowledge icon on an Open alarm calls onAcknowledge", async () => {
     const user = userEvent.setup();
-    render(<AlarmTable alarms={alarmDummy} />);
+    const onAcknowledge = vi.fn();
+    render(<AlarmTable alarms={alarmDummy} onAcknowledge={onAcknowledge} />);
 
     // ALM-001 is the first Open alarm
     const ackButtons = screen.getAllByRole("button", { name: /sudah di acknowledge/i });
     await user.click(ackButtons[0]);
 
-    expect(globalThis.alert).toHaveBeenCalled();
+    expect(onAcknowledge).toHaveBeenCalledWith(alarmDummy[0].id);
   });
 
   it("clicking 'Evidence' calls router.push to /car-detail", async () => {
@@ -66,7 +67,9 @@ describe("AlarmTable", () => {
     const spkButtons = screen.getAllByRole("button", { name: /buat spk/i });
     await user.click(spkButtons[0]);
 
-    expect(pushMock).toHaveBeenCalledWith("/work-order");
+    expect(pushMock).toHaveBeenCalledWith(
+      expect.stringContaining("/work-order")
+    );
   });
 
   it("clicking a row calls onSelectAlarm", async () => {

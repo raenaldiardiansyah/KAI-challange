@@ -3,16 +3,22 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MaintenanceTable } from "../MaintenanceTable";
 import { maintenanceDummy } from "@/dummy/maintenanceDummy";
+import { buildRiskView } from "../riskViewModel";
 
 describe("MaintenanceTable", () => {
   const onSelectRisk = vi.fn();
+  const onOpenDetail = vi.fn();
+  const onOpenEvidence = vi.fn();
+  const risks = maintenanceDummy.map(buildRiskView);
 
   function renderTable(selectedId?: string) {
     return render(
       <MaintenanceTable
-        risks={maintenanceDummy}
+        risks={risks}
         selectedId={selectedId}
         onSelectRisk={onSelectRisk}
+        onOpenDetail={onOpenDetail}
+        onOpenEvidence={onOpenEvidence}
       />
     );
   }
@@ -28,45 +34,51 @@ describe("MaintenanceTable", () => {
 
     const tbody = screen.getAllByRole("rowgroup")[1];
     const rows = within(tbody).getAllByRole("row");
-    expect(rows).toHaveLength(maintenanceDummy.length);
+    expect(rows).toHaveLength(risks.length);
   });
 
   it("shows asset info (TS-001, Gerbong 5)", () => {
     renderTable();
 
-    expect(screen.getByText(/TS-001 Gerbong 5/)).toBeInTheDocument();
-    expect(screen.getByText(/TS-002 Gerbong 2/)).toBeInTheDocument();
+    expect(screen.getByText("TS-001")).toBeInTheDocument();
+    expect(screen.getByText("Gerbong 5")).toBeInTheDocument();
+    expect(screen.getByText("TS-002")).toBeInTheDocument();
+    expect(screen.getByText("Gerbong 2")).toBeInTheDocument();
   });
 
   it("shows severity badge", () => {
     renderTable();
 
-    expect(screen.getByText("High")).toBeInTheDocument();
-    expect(screen.getByText("Medium")).toBeInTheDocument();
+    expect(screen.getByText("84%")).toBeInTheDocument();
+    expect(screen.getByText("61%")).toBeInTheDocument();
   });
 
-  it("'Lihat Detail' button calls onSelectRisk", async () => {
+  it("'Detail' button opens detail panel", async () => {
     const user = userEvent.setup();
     renderTable();
 
-    const detailButtons = screen.getAllByRole("button", { name: /lihat detail/i });
+    const detailButtons = screen.getAllByRole("button", { name: /^detail$/i });
     await user.click(detailButtons[0]);
 
-    expect(onSelectRisk).toHaveBeenCalledWith("PM-001");
+    expect(onOpenDetail).toHaveBeenCalledWith("PM-001");
   });
 
-  it("'Lihat Evidence' link has href /car-detail", () => {
+  it("'Lihat evidence' menu action opens evidence dialog", async () => {
+    const user = userEvent.setup();
     renderTable();
 
-    const evidenceLinks = screen.getAllByRole("link", { name: /lihat evidence/i });
-    expect(evidenceLinks[0]).toHaveAttribute("href", "/car-detail");
+    const menuButtons = screen.getAllByRole("button", { name: /tindakan lainnya/i });
+    await user.click(menuButtons[0]);
+    await user.click(screen.getByRole("button", { name: /lihat evidence/i }));
+
+    expect(onOpenEvidence).toHaveBeenCalledWith("PM-001");
   });
 
-  it("'Buat SPK' link has href /work-order", () => {
+  it("'Buat SPK' link keeps work-order route", () => {
     renderTable();
 
     const spkLinks = screen.getAllByRole("link", { name: /buat spk/i });
-    expect(spkLinks[0]).toHaveAttribute("href", "/work-order");
+    expect(spkLinks[0]).toHaveAttribute("href", expect.stringContaining("/work-order"));
   });
 
   it("selected row has 'selected' class", () => {

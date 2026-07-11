@@ -54,13 +54,14 @@ describe("Sidebar", () => {
     });
   });
 
-  it("labels are correct (Ringkasan, Armada, Gerbong, dll.)", () => {
+  it("labels are correct in collapsed mode and preserve full label title", () => {
     render(<Sidebar />);
     
     routes.forEach((route) => {
-      // For links we should check if they contain the text
-      const link = screen.getByRole("link", { name: new RegExp(route.label, "i") });
+      const visibleLabel = route.shortLabel ?? route.label;
+      const link = screen.getByRole("link", { name: new RegExp(visibleLabel, "i") });
       expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute("title", route.label);
     });
   });
 
@@ -69,7 +70,7 @@ describe("Sidebar", () => {
     
     // In setup.ts, usePathname is mocked to return '/overview'
     // First route in routes constant is '/overview'
-    const overviewLink = screen.getByRole("link", { name: /ringkasan/i });
+    const overviewLink = screen.getByRole("link", { name: /ringkas/i });
     expect(overviewLink).toHaveClass("active");
     
     // Other links should not be active

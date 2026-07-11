@@ -50,6 +50,7 @@ export function ActiveAlarmTable({ alarms }: { alarms: Alarm[] }) {
       title="Grafik Alarm"
       eyebrow="Ringkasan tindakan cepat"
       action={<Link className="button button-secondary table-mini-button" href="/alarm-center">Lihat semua alarm</Link>}
+      className="alarm-chart-card"
     >
       <div className="overview-alarm-chart">
         {alarms.length > 0 ? (

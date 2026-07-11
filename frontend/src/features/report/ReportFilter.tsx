@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import type { ReportFilterValues, ReportPeriod } from "@/types/reportFilter";
@@ -13,6 +14,7 @@ type ReportFilterProps = {
 };
 
 export function ReportFilter({ values, onChange, trainsets }: ReportFilterProps) {
+  const [status, setStatus] = useState("");
   const update = (patch: Partial<ReportFilterValues>) =>
     onChange({ ...values, ...patch });
 
@@ -78,9 +80,14 @@ export function ReportFilter({ values, onChange, trainsets }: ReportFilterProps)
           ))}
         </Select>
 
-        <Button variant="secondary" style={{ marginLeft: "auto" }}>
+        <Button
+          variant="secondary"
+          style={{ marginLeft: "auto" }}
+          onClick={() => setStatus("Preview laporan diperbarui dari filter aktif. Export PDF/Excel menunggu integrasi backend.")}
+        >
           Generate Report
         </Button>
+        {status ? <span className="report-export-status">{status}</span> : null}
       </div>
     </div>
   );

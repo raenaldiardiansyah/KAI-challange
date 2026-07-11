@@ -52,12 +52,11 @@ export function TrainPositionMap({ points }: { points: TrainMapPoint[] }) {
   };
 
   return (
-    <Card title="Mini Map Prioritas" eyebrow="Armada yang perlu perhatian">
+    <Card title="Mini Map Prioritas" eyebrow="Armada yang perlu perhatian" className="overview-map-card">
       {priorityPoints.length > 0 ? (
         <>
           <Link className="map-preview-link" href="/live-monitoring" aria-label="Buka Pantauan Langsung">
             <MapLibreTrainMap points={priorityPoints} variant="mini" />
-            <span className="map-preview-cta">Buka Pantauan Langsung</span>
           </Link>
           <div className="map-legend-row" aria-label="Legenda status peta">
             <span><i className="legend-dot legend-warning" /> Waspada</span>
@@ -70,7 +69,6 @@ export function TrainPositionMap({ points }: { points: TrainMapPoint[] }) {
         <div className="overview-map-empty">
           <strong>Tidak ada armada prioritas</strong>
           <span>Semua armada aktif berada dalam status normal. Pantauan penuh tetap tersedia di Live Monitoring.</span>
-          <Link className="button button-secondary" href="/live-monitoring">Buka Pantauan Langsung</Link>
         </div>
       )}
       <div className="map-route-legend">
@@ -81,7 +79,7 @@ export function TrainPositionMap({ points }: { points: TrainMapPoint[] }) {
         <div className="map-route-list">
           {visibleRoutes.map((point) => (
             <Link 
-              href={`/trainset?id=${point.trainsetId}`}
+              href={`/trainset?trainset=${encodeURIComponent(point.trainsetId)}`}
               className={`map-route-item ${getRouteToneClass(point.status)}`} 
               key={point.trainsetId}
               style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column' }}

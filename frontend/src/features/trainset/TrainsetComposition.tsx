@@ -40,7 +40,9 @@ export function TrainsetComposition({ trainsetId, totalCars, carsInsights }: Tra
             car: String(car)
           });
 
-          if (insight?.subsystem) params.set("subsystem", insight.subsystem);
+          if (insight?.subsystem && insight.severity !== "Normal" && insight.subsystem !== "All Systems") {
+            params.set("subsystem", insight.subsystem);
+          }
 
           return (
             <Link

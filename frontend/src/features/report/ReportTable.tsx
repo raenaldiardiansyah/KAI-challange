@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Table } from "@/components/ui/Table";
@@ -14,6 +14,7 @@ interface ReportTableProps {
 }
 
 export function ReportTable({ filter, reports }: ReportTableProps) {
+  const [exportStatus, setExportStatus] = useState("");
   const filteredData = useMemo(() => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -45,7 +46,11 @@ export function ReportTable({ filter, reports }: ReportTableProps) {
   }, [filter.period, reports]);
 
   return (
-    <Card title="Arsip Laporan" eyebrow="Unduh Laporan Format Dokumen">
+    <Card
+      title="Arsip Laporan"
+      eyebrow="Unduh Laporan Format Dokumen"
+      action={exportStatus ? <span className="report-export-status">{exportStatus}</span> : null}
+    >
       <Table>
         <thead>
           <tr>
@@ -78,10 +83,20 @@ export function ReportTable({ filter, reports }: ReportTableProps) {
               </td>
               <td>
                 <div style={{ display: "flex", gap: "8px", flexDirection: "column" }}>
-                  <Button variant="ghost" className="table-mini-button" icon={<DownloadSimple size={12} />}>
+                  <Button
+                    variant="ghost"
+                    className="table-mini-button"
+                    icon={<DownloadSimple size={12} />}
+                    onClick={() => setExportStatus(`${row.id}: PDF menunggu integrasi backend produksi.`)}
+                  >
                     Simulasi PDF (Belum terhubung backend)
                   </Button>
-                  <Button variant="secondary" className="table-mini-button" icon={<DownloadSimple size={12} />}>
+                  <Button
+                    variant="secondary"
+                    className="table-mini-button"
+                    icon={<DownloadSimple size={12} />}
+                    onClick={() => setExportStatus(`${row.id}: Excel menunggu integrasi backend produksi.`)}
+                  >
                     Simulasi Excel (Belum terhubung backend)
                   </Button>
                 </div>

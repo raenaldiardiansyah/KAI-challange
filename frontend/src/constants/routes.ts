@@ -20,14 +20,14 @@ export type Route = {
 };
 
 export const routes: Route[] = [
-  { href: "/overview", label: "Ringkasan", shortLabel: "Ringkasan", icon: ChartDonut },
+  { href: "/overview", label: "Ringkasan", shortLabel: "Ringkas", icon: ChartDonut },
   { href: "/trainset", label: "Armada", shortLabel: "Armada", icon: Train },
   { href: "/car-detail", label: "Gerbong", shortLabel: "Gerbong", icon: TrainRegional },
   { href: "/insight-analytic", label: "Insight", shortLabel: "Insight", icon: Lightbulb },
-  { href: "/predictive-maintenance", label: "Prediktif", shortLabel: "Prediktif", icon: Wrench },
-  { href: "/live-monitoring", label: "Pantauan", shortLabel: "Pantauan", icon: Broadcast },
+  { href: "/predictive-maintenance", label: "Prediktif", shortLabel: "Predik", icon: Wrench },
+  { href: "/live-monitoring", label: "Pantauan", shortLabel: "Pantau", icon: Broadcast },
   { href: "/alarm-center", label: "Alarm", shortLabel: "Alarm", icon: Warning },
   { href: "/work-order", label: "SPK", shortLabel: "SPK", icon: ClipboardText },
   { href: "/report-analytics", label: "Laporan", shortLabel: "Laporan", icon: FileText },
-  { href: "/settings", label: "Pengaturan", shortLabel: "Pengaturan", icon: GearSix },
+  { href: "/settings", label: "Pengaturan", shortLabel: "Atur", icon: GearSix },
 ];

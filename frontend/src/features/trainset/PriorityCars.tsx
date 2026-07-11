@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/Card";
 import { MetricDelta } from "@/components/ui/MetricDelta";
 import type { Insight } from "@/types/insight";
+import Link from "next/link";
 
 export function PriorityCars({ carsInsights }: { carsInsights: Insight[] }) {
   // Sort by severity (High first, then Medium, then Normal) and health score (lowest first)
@@ -18,24 +19,28 @@ export function PriorityCars({ carsInsights }: { carsInsights: Insight[] }) {
 
   return (
     <Card title="Gerbong Prioritas" eyebrow="Top 3 berisiko">
-      <div className="stack">
+      <div className="stack trainset-priority-stack">
         {topCars.map((car) => (
-          <div className="train-row" key={car.id} style={{ gridTemplateColumns: "auto 1fr auto" }}>
-            <div style={{ background: car.severity === "High" ? "#fee2e2" : "#f1f5f9", padding: "8px 12px", borderRadius: "6px", fontWeight: "bold", color: car.severity === "High" ? "#b91c1c" : "#334155" }}>
+          <Link
+            className={`train-row trainset-priority-row severity-${car.severity.toLowerCase()}`}
+            href={`/car-detail?trainset=${encodeURIComponent(car.trainsetId)}&car=${car.carNumber}&subsystem=${encodeURIComponent(car.subsystem)}`}
+            key={car.id}
+          >
+            <div className="trainset-priority-car">
               C{car.carNumber}
             </div>
-            <div>
+            <div className="trainset-priority-copy">
               <strong>{car.subsystem}</strong>
-              <p style={{ fontSize: "12px" }}>{car.diagnosis}</p>
+              <p>{car.diagnosis}</p>
             </div>
-            <div style={{ textAlign: "right" }}>
+            <div className="trainset-priority-health">
               <div className="percent-with-delta trainset-percent-row trainset-percent-row-end">
-                <strong className="percent-value" style={{ color: car.healthScore < 60 ? "#b42318" : "#047857" }}>{car.healthScore}%</strong>
+                <strong className="percent-value">{car.healthScore}%</strong>
                 <MetricDelta value={car.healthScore} compact />
               </div>
-              <p style={{ fontSize: "12px" }}>Kesehatan</p>
+              <p>Kesehatan</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </Card>
