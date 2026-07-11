@@ -79,7 +79,7 @@ export function TrainPositionMap({ points }: { points: TrainMapPoint[] }) {
         <div className="map-route-list">
           {visibleRoutes.map((point) => (
             <Link 
-              href={`/trainset?id=${point.trainsetId}`}
+              href={`/trainset?trainset=${encodeURIComponent(point.trainsetId)}`}
               className={`map-route-item ${getRouteToneClass(point.status)}`} 
               key={point.trainsetId}
               style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column' }}

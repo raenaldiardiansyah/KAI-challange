@@ -15,6 +15,8 @@ const evidenceLabels: Record<string, { label: string; unit?: string }> = {
 
 export function InsightSummaryCard({ insight }: { insight: Insight }) {
   const visibleEvidence = Object.entries(insight.evidence).slice(0, 5);
+  const workOrderUrl = `/work-order?trainset=${encodeURIComponent(insight.trainsetId)}&car=${insight.carNumber}&subsystem=${encodeURIComponent(insight.subsystem)}&source=insight-analytic`;
+  const evidenceUrl = `/car-detail?trainset=${encodeURIComponent(insight.trainsetId)}&car=${insight.carNumber}&subsystem=${encodeURIComponent(insight.subsystem)}&tab=data-sensor`;
 
   return (
     <Card className="insight-hero-card">
@@ -39,10 +41,10 @@ export function InsightSummaryCard({ insight }: { insight: Insight }) {
 
           <div className="insight-hero-actions">
             <Button asChild>
-              <Link href="/work-order">Buat Draft SPK</Link>
+              <Link href={workOrderUrl}>Buat Draft SPK</Link>
             </Button>
             <Button asChild variant="secondary">
-              <Link href="/car-detail?trainset=TS-001&car=5&subsystem=Brake+System">Tinjau Bukti</Link>
+              <Link href={evidenceUrl}>Tinjau Bukti</Link>
             </Button>
           </div>
         </div>

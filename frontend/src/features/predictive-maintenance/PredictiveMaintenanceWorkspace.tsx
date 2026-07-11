@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useRouter } from "next/navigation";
 import { MaintenanceTable } from "./MaintenanceTable";
 import { RiskRanking } from "./RiskRanking";
 import { RiskSummary } from "./RiskSummary";
@@ -27,6 +28,9 @@ import {
 } from "./riskViewModel";
 
 const horizons = ["7 Hari", "14 Hari", "30 Hari"] as const;
+type PredictiveTtwFilter = "all" | "under24" | "oneToThree";
+type PredictiveQualityFilter = "all" | "complete" | "limited";
+type PredictiveStatusFilter = "all" | PredictiveRiskView["status"];
 
 function getPortalRoot() {
   return typeof document === "undefined" ? null : document.body;
@@ -42,10 +46,17 @@ function RiskMetric({ label, value }: { label: string; value: string }) {
 }
 
 export function PredictiveMaintenanceWorkspace({ risks }: { risks: MaintenanceRisk[] }) {
+  const router = useRouter();
   const riskViews = useMemo(() => risks.map(buildRiskView), [risks]);
   const [selectedId, setSelectedId] = useState(riskViews[0]?.id ?? "");
   const [activeFilter, setActiveFilter] = useState<RiskFilter>("all");
   const [query, setQuery] = useState("");
+  const [trainsetFilter, setTrainsetFilter] = useState("all");
+  const [carFilter, setCarFilter] = useState("all");
+  const [subsystemFilter, setSubsystemFilter] = useState("all");
+  const [ttwFilter, setTtwFilter] = useState<PredictiveTtwFilter>("all");
+  const [qualityFilter, setQualityFilter] = useState<PredictiveQualityFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<PredictiveStatusFilter>("all");
   const [horizon, setHorizon] = useState<(typeof horizons)[number]>("7 Hari");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -53,11 +64,49 @@ export function PredictiveMaintenanceWorkspace({ risks }: { risks: MaintenanceRi
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [isSpkOpen, setIsSpkOpen] = useState(false);
   const [isAllQueueOpen, setIsAllQueueOpen] = useState(false);
+  const [scheduleStatus, setScheduleStatus] = useState("");
+  const [spkDraftStatus, setSpkDraftStatus] = useState("");
   const portalRoot = getPortalRoot();
 
-  const filteredRisks = filterRiskViews(riskViews, activeFilter, query);
+  const trainsetOptions = useMemo(() => Array.from(new Set(riskViews.map((risk) => risk.trainsetId))), [riskViews]);
+  const carOptions = useMemo(() => Array.from(new Set(riskViews.map((risk) => String(risk.carNumber)))).sort((a, b) => Number(a) - Number(b)), [riskViews]);
+  const subsystemOptions = useMemo(() => Array.from(new Set(riskViews.map((risk) => risk.subsystem))), [riskViews]);
+
+  const filteredRisks = useMemo(() => {
+    return filterRiskViews(riskViews, activeFilter, query).filter((risk) => {
+      const ttwHours = risk.timeToWarning.includes("hari")
+        ? Number.parseInt(risk.timeToWarning, 10) * 24
+        : Number.parseInt(risk.timeToWarning, 10);
+      const matchesTtw = ttwFilter === "all"
+        || (ttwFilter === "under24" ? ttwHours < 24 : ttwHours >= 24 && ttwHours <= 72);
+      const matchesQuality = qualityFilter === "all"
+        || (qualityFilter === "complete" ? risk.missingTelemetry < 12 : risk.missingTelemetry >= 12);
+
+      return (
+        (trainsetFilter === "all" || risk.trainsetId === trainsetFilter) &&
+        (carFilter === "all" || String(risk.carNumber) === carFilter) &&
+        (subsystemFilter === "all" || risk.subsystem === subsystemFilter) &&
+        matchesTtw &&
+        matchesQuality &&
+        (statusFilter === "all" || risk.status === statusFilter)
+      );
+    });
+  }, [activeFilter, carFilter, qualityFilter, query, riskViews, statusFilter, subsystemFilter, trainsetFilter, ttwFilter]);
   const selectedRisk = filteredRisks.find((risk) => risk.id === selectedId) ?? filteredRisks[0] ?? riskViews.find((risk) => risk.id === selectedId) ?? riskViews[0];
-  const activeFilterCount = (activeFilter === "all" ? 0 : 1) + (query.trim() ? 1 : 0);
+  const activeFilterCount = [
+    activeFilter !== "all",
+    trainsetFilter !== "all",
+    carFilter !== "all",
+    subsystemFilter !== "all",
+    ttwFilter !== "all",
+    qualityFilter !== "all",
+    statusFilter !== "all",
+    query.trim().length > 0
+  ].filter(Boolean).length;
+
+  const workOrderUrl = selectedRisk
+    ? `/work-order?trainset=${encodeURIComponent(selectedRisk.trainsetId)}&car=${selectedRisk.carNumber}&subsystem=${encodeURIComponent(selectedRisk.subsystem)}&source=predictive-maintenance`
+    : "/work-order";
 
   const selectRisk = (id: string) => {
     setSelectedId(id);
@@ -77,6 +126,12 @@ export function PredictiveMaintenanceWorkspace({ risks }: { risks: MaintenanceRi
 
   const resetFilters = () => {
     setActiveFilter("all");
+    setTrainsetFilter("all");
+    setCarFilter("all");
+    setSubsystemFilter("all");
+    setTtwFilter("all");
+    setQualityFilter("all");
+    setStatusFilter("all");
     setQuery("");
   };
 
@@ -185,13 +240,13 @@ export function PredictiveMaintenanceWorkspace({ risks }: { risks: MaintenanceRi
               <button type="button" onClick={() => setIsFilterOpen(false)}><X size={18} /></button>
             </div>
             <div className="predictive-filter-form">
-              <label>Trainset<select><option>Semua trainset</option><option>TS-001</option><option>TS-002</option></select></label>
-              <label>Gerbong<select><option>Semua gerbong</option><option>Gerbong 5</option><option>Gerbong 2</option></select></label>
-              <label>Subsistem<select><option>Semua subsistem</option><option>Brake System</option><option>Genset</option></select></label>
+              <label>Trainset<select value={trainsetFilter} onChange={(event) => setTrainsetFilter(event.target.value)}><option value="all">Semua trainset</option>{trainsetOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+              <label>Gerbong<select value={carFilter} onChange={(event) => setCarFilter(event.target.value)}><option value="all">Semua gerbong</option>{carOptions.map((item) => <option key={item} value={item}>Gerbong {item}</option>)}</select></label>
+              <label>Subsistem<select value={subsystemFilter} onChange={(event) => setSubsystemFilter(event.target.value)}><option value="all">Semua subsistem</option>{subsystemOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
               <label>Tingkat risiko<select value={activeFilter} onChange={(event) => setActiveFilter(event.target.value as RiskFilter)}><option value="all">Semua</option><option value="high">Risiko tinggi</option><option value="medium">Risiko sedang</option><option value="watch">Pantau</option><option value="limited">Data terbatas</option></select></label>
-              <label>Rentang TTW<select><option>Semua TTW</option><option>&lt; 24 jam</option><option>1-3 hari</option></select></label>
-              <label>Kualitas data<select><option>Semua kualitas</option><option>Lengkap</option><option>Data terbatas</option></select></label>
-              <label>Status SPK<select><option>Semua status</option><option>Siap SPK</option><option>Perlu validasi</option></select></label>
+              <label>Rentang TTW<select value={ttwFilter} onChange={(event) => setTtwFilter(event.target.value as PredictiveTtwFilter)}><option value="all">Semua TTW</option><option value="under24">&lt; 24 jam</option><option value="oneToThree">1-3 hari</option></select></label>
+              <label>Kualitas data<select value={qualityFilter} onChange={(event) => setQualityFilter(event.target.value as PredictiveQualityFilter)}><option value="all">Semua kualitas</option><option value="complete">Lengkap</option><option value="limited">Data terbatas</option></select></label>
+              <label>Status SPK<select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as PredictiveStatusFilter)}><option value="all">Semua status</option><option value="Siap SPK">Siap SPK</option><option value="Perlu validasi">Perlu validasi</option><option value="Pantau">Pantau</option></select></label>
               <label>Rentang tanggal<input type="date" /></label>
             </div>
             <div className="predictive-modal-footer">
@@ -262,7 +317,8 @@ export function PredictiveMaintenanceWorkspace({ risks }: { risks: MaintenanceRi
               <label>Durasi<select><option>2 jam</option><option>4 jam</option></select></label>
               <label>Teknisi<select><option>Tim Brake & Pneumatic</option><option>Tim Electrical</option></select></label>
             </div>
-            <div className="predictive-modal-footer"><Button variant="ghost" onClick={() => setIsScheduleOpen(false)}>Batal</Button><Button onClick={() => setIsScheduleOpen(false)}>Simpan Jadwal</Button></div>
+            <div className="predictive-modal-footer"><Button variant="ghost" onClick={() => setIsScheduleOpen(false)}>Batal</Button><Button onClick={() => setScheduleStatus("Jadwal inspeksi tersimpan di state lokal untuk simulasi.")}>Simpan Jadwal</Button></div>
+            {scheduleStatus ? <p className="chart-caption">{scheduleStatus}</p> : null}
           </section>
         </div>,
         portalRoot
@@ -281,7 +337,11 @@ export function PredictiveMaintenanceWorkspace({ risks }: { risks: MaintenanceRi
               <label>Rekomendasi<textarea readOnly value={selectedRisk.recommendation} /></label>
               <label>Catatan operator<textarea placeholder="Tambahkan catatan inspeksi" /></label>
             </div>
-            <div className="predictive-modal-footer"><Button variant="ghost" onClick={() => setIsSpkOpen(false)}>Simpan Draft</Button><Button onClick={() => setIsSpkOpen(false)}>Buat SPK</Button></div>
+            <div className="predictive-modal-footer">
+              <Button variant="ghost" onClick={() => setSpkDraftStatus("Draft SPK tersimpan di state lokal. Gunakan Buat SPK untuk membuka halaman SPK.")}>Simpan Draft</Button>
+              <Button onClick={() => router.push(workOrderUrl)}>Buat SPK</Button>
+            </div>
+            {spkDraftStatus ? <p className="chart-caption">{spkDraftStatus}</p> : null}
           </section>
         </div>,
         portalRoot

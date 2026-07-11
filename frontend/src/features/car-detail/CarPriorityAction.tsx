@@ -71,32 +71,34 @@ export function CarPriorityAction({ car, onViewSensor }: CarPriorityActionProps)
         ) : null}
       </Card>
 
-      <Card title="Checklist Pemeriksaan" eyebrow="Instruksi teknisi">
-        <div className="car-action-checklist-large">
-          {checklist.map((item) => (
-            <label key={item}>
-              <input
-                checked={Boolean(checkedItems[item])}
-                onChange={(event) => setCheckedItems((current) => ({ ...current, [item]: event.target.checked }))}
-                type="checkbox"
-              />
-              <span>
-                <strong>{item}</strong>
-                <small>Klik checklist untuk menandai progres pemeriksaan.</small>
-              </span>
-            </label>
-          ))}
-        </div>
-      </Card>
+      <div className="car-action-followup-split">
+        <Card title="Checklist Pemeriksaan" eyebrow="Instruksi teknisi">
+          <div className="car-action-checklist-large">
+            {checklist.map((item) => (
+              <label key={item}>
+                <input
+                  checked={Boolean(checkedItems[item])}
+                  onChange={(event) => setCheckedItems((current) => ({ ...current, [item]: event.target.checked }))}
+                  type="checkbox"
+                />
+                <span>
+                  <strong>{item}</strong>
+                  <small>Klik checklist untuk menandai progres pemeriksaan.</small>
+                </span>
+              </label>
+            ))}
+          </div>
+        </Card>
 
-      <Card title="Progres SPK" eyebrow="Status tindak lanjut">
-        <div className="car-workorder-progress">
-          <span className="active">Rekomendasi dibuat</span>
-          <span className={processed ? "active" : ""}>Diproses teknisi</span>
-          <span>SPK diterbitkan</span>
-          <span>Validasi sensor</span>
-        </div>
-      </Card>
+        <Card title="Progres SPK" eyebrow="Status tindak lanjut">
+          <div className="car-workorder-progress">
+            <span className="active">Rekomendasi dibuat</span>
+            <span className={processed ? "active" : ""}>Diproses teknisi</span>
+            <span>SPK diterbitkan</span>
+            <span>Validasi sensor</span>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }

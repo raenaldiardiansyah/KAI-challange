@@ -172,10 +172,10 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
             }}
           >
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData} margin={{ top: 10, right: 20, left: -8, bottom: 4 }}>
-                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#cbd5e1" strokeWidth={1.2} />
-                <XAxis dataKey="time" tick={{ fontSize: 14, fontWeight: 800, fill: "#475569" }} tickLine={false} axisLine={{ stroke: "#cbd5e1" }} />
-                <YAxis yAxisId="health" domain={[0, 100]} tick={{ fontSize: 14, fontWeight: 800, fill: "#475569" }} tickLine={false} axisLine={{ stroke: "#cbd5e1" }} />
+              <LineChart data={trendData} margin={{ top: 8, right: 14, left: -10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#cbd5e1" strokeWidth={1.3} />
+                <XAxis dataKey="time" tick={{ fontSize: 13, fontWeight: 800, fill: "#475569" }} tickLine={false} axisLine={{ stroke: "#cbd5e1" }} />
+                <YAxis yAxisId="health" domain={[0, 100]} tick={{ fontSize: 13, fontWeight: 800, fill: "#475569" }} tickLine={false} axisLine={{ stroke: "#cbd5e1" }} />
                 <YAxis yAxisId="sensor" orientation="right" domain={[0, 5]} hide />
                 <Tooltip contentStyle={{ borderRadius: "10px", border: "1px solid #bfdbfe", fontSize: "14px", fontWeight: 800 }} />
                 <Line
@@ -186,7 +186,7 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
                   name="Kesehatan"
                   stroke="#2563eb"
                   strokeOpacity={summaryMode !== "trend" || activeTrendMetric === "health" ? 1 : 0.28}
-                  strokeWidth={summaryMode === "trend" && activeTrendMetric === "health" ? 5 : 4}
+                  strokeWidth={summaryMode === "trend" && activeTrendMetric === "health" ? 5 : 4.2}
                   dot={false}
                 />
                 <Line
@@ -197,7 +197,7 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
                   name="Brake Cylinder"
                   stroke="#ef4444"
                   strokeOpacity={summaryMode !== "trend" || activeTrendMetric === "brakeCylinder" ? 1 : 0.28}
-                  strokeWidth={summaryMode === "trend" && activeTrendMetric === "brakeCylinder" ? 5 : 3.2}
+                  strokeWidth={summaryMode === "trend" && activeTrendMetric === "brakeCylinder" ? 4.8 : 3.5}
                   dot={false}
                 />
                 <Line
@@ -208,7 +208,7 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
                   name="Brake Pipe"
                   stroke="#10b981"
                   strokeOpacity={summaryMode !== "trend" || activeTrendMetric === "brakePipe" ? 1 : 0.28}
-                  strokeWidth={summaryMode === "trend" && activeTrendMetric === "brakePipe" ? 5 : 3.2}
+                  strokeWidth={summaryMode === "trend" && activeTrendMetric === "brakePipe" ? 4.8 : 3.5}
                   dot={false}
                 />
               </LineChart>

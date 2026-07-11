@@ -14,6 +14,7 @@ type ValidationStatus = "Belum divalidasi" | "Insight Sesuai" | "Perlu Koreksi" 
 type AnalysisTab = "confidence" | "impact" | "validation";
 type LeftPanelTab = "evidence" | "root";
 type ProcessTab = "sensor" | "rule" | "event" | "json" | "natural" | "history";
+type CarRangeFilter = "all" | "C1-C3" | "C4-C7" | "C8-C10";
 
 const confidenceBreakdown = [
   { label: "Kualitas sensor", value: 94 },
@@ -125,6 +126,13 @@ function getValidationMap(insights: Insight[], defaultValue: ValidationStatus) {
   return Object.fromEntries(insights.map((insight) => [insight.id, defaultValue])) as Record<string, ValidationStatus>;
 }
 
+function matchesCarRange(carNumber: number, range: CarRangeFilter) {
+  if (range === "all") return true;
+  if (range === "C1-C3") return carNumber >= 1 && carNumber <= 3;
+  if (range === "C4-C7") return carNumber >= 4 && carNumber <= 7;
+  return carNumber >= 8 && carNumber <= 10;
+}
+
 export function InsightWorkspace({ insights }: { insights: Insight[] }) {
   const [selectedId, setSelectedId] = useState(insights[0]?.id ?? "");
   const [query, setQuery] = useState("");
@@ -132,6 +140,7 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
   const [subsystem, setSubsystem] = useState<"all" | SubsystemName>("all");
   const [trainset, setTrainset] = useState("all");
   const [validationFilter, setValidationFilter] = useState<"all" | ValidationStatus>("all");
+  const [carRange, setCarRange] = useState<CarRangeFilter>("all");
   const [confidenceMin, setConfidenceMin] = useState(0);
   const [timeRange, setTimeRange] = useState("Hari ini");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -154,6 +163,7 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
 
   const activeInsight = insights.find((insight) => insight.id === selectedId) ?? insights[0];
   const reasonSteps = useMemo(() => buildReasonSteps(activeInsight), [activeInsight]);
+  const workOrderUrl = `/work-order?trainset=${encodeURIComponent(activeInsight.trainsetId)}&car=${activeInsight.carNumber}&subsystem=${encodeURIComponent(activeInsight.subsystem)}&source=insight-analytic`;
 
   const filteredInsights = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -172,16 +182,18 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
         (severity === "all" || insight.severity === severity) &&
         (subsystem === "all" || insight.subsystem === subsystem) &&
         (trainset === "all" || insight.trainsetId === trainset) &&
+        matchesCarRange(insight.carNumber, carRange) &&
         (validationFilter === "all" || validation === validationFilter) &&
         insight.confidence >= confidenceMin
       );
     });
-  }, [confidenceMin, insights, query, severity, subsystem, trainset, validationFilter, validations]);
+  }, [carRange, confidenceMin, insights, query, severity, subsystem, trainset, validationFilter, validations]);
 
   const activeFilterCount = [
     severity !== "all",
     subsystem !== "all",
     trainset !== "all",
+    carRange !== "all",
     validationFilter !== "all",
     confidenceMin > 0,
     timeRange !== "Hari ini",
@@ -201,6 +213,7 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
     setSeverity("all");
     setSubsystem("all");
     setTrainset("all");
+    setCarRange("all");
     setValidationFilter("all");
     setConfidenceMin(0);
     setTimeRange("Hari ini");
@@ -460,6 +473,7 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
         timeRange={timeRange}
         trainset={trainset}
         validationFilter={validationFilter}
+        carRange={carRange}
         insights={insights}
         onClose={() => setIsFilterOpen(false)}
         onConfidenceChange={setConfidenceMin}
@@ -468,6 +482,7 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
         onSubsystemChange={setSubsystem}
         onTimeRangeChange={setTimeRange}
         onTrainsetChange={setTrainset}
+        onCarRangeChange={setCarRange}
         onValidationChange={setValidationFilter}
       />
 
@@ -494,7 +509,7 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
           <InfoBlock label="Diagnosis" value={activeInsight.event} />
           <InfoBlock label="Rekomendasi" value={activeInsight.recommendation} />
           <Button asChild>
-            <Link href="/work-order">Lanjut ke SPK</Link>
+            <Link href={workOrderUrl}>Lanjut ke SPK</Link>
           </Button>
         </div>
       </Modal>
@@ -503,11 +518,13 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
 }
 
 function FilterSheet({
+  carRange,
   confidenceMin,
   insights,
   isOpen,
   onClose,
   onConfidenceChange,
+  onCarRangeChange,
   onReset,
   onSeverityChange,
   onSubsystemChange,
@@ -520,11 +537,13 @@ function FilterSheet({
   trainset,
   validationFilter,
 }: {
+  carRange: CarRangeFilter;
   confidenceMin: number;
   insights: Insight[];
   isOpen: boolean;
   onClose: () => void;
   onConfidenceChange: (value: number) => void;
+  onCarRangeChange: (value: CarRangeFilter) => void;
   onReset: () => void;
   onSeverityChange: (value: "all" | Severity) => void;
   onSubsystemChange: (value: "all" | SubsystemName) => void;
@@ -553,7 +572,7 @@ function FilterSheet({
           <button aria-label="Tutup filter" onClick={onClose} type="button"><X size={18} /></button>
         </div>
         <FilterSelect label="Trainset" value={trainset} onChange={onTrainsetChange} options={["all", ...trainsets]} />
-        <FilterSelect label="Gerbong" value="Semua gerbong" onChange={() => undefined} options={["Semua gerbong", "C1-C3", "C4-C7", "C8-C10"]} />
+        <FilterSelect label="Gerbong" value={carRange} onChange={(value) => onCarRangeChange(value as CarRangeFilter)} options={["all", "C1-C3", "C4-C7", "C8-C10"]} />
         <FilterSelect label="Subsystem" value={subsystem} onChange={(value) => onSubsystemChange(value as "all" | SubsystemName)} options={["all", ...subsystems]} />
         <FilterSelect label="Severity" value={severity} onChange={(value) => onSeverityChange(value as "all" | Severity)} options={["all", "Critical", "High", "Medium", "Low", "Normal"]} />
         <FilterSelect label="Status validasi" value={validationFilter} onChange={(value) => onValidationChange(value as "all" | ValidationStatus)} options={["all", "Belum divalidasi", "Insight Sesuai", "Perlu Koreksi", "False Positive"]} />

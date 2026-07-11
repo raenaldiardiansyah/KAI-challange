@@ -44,6 +44,9 @@ describe("PriorityInsightCard", () => {
       "href",
       "/car-detail?trainset=TS-001&car=5&subsystem=Brake+System"
     );
-    expect(screen.getByRole("link", { name: /buat spk/i })).toHaveAttribute("href", "/work-order");
+    expect(screen.getByRole("link", { name: /buat spk/i })).toHaveAttribute(
+      "href",
+      "/work-order?trainset=TS-001&car=5&subsystem=Brake+System&source=overview"
+    );
   });
 });

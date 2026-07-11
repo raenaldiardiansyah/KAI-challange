@@ -3719,10 +3719,22 @@ th {
   font-size: 12px;
 }
 
+.car-action-followup-split {
+  align-items: stretch;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.85fr);
+  min-width: 0;
+}
+
+.car-action-followup-split > .card {
+  min-width: 0;
+}
+
 .car-workorder-progress {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .car-workorder-progress span {
@@ -3730,16 +3742,25 @@ th {
   border: 1px solid #dbe4ee;
   border-radius: 8px;
   color: #64748b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 900;
-  padding: 12px;
-  text-align: center;
+  line-height: 1.25;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 13px 14px;
+  text-align: left;
 }
 
 .car-workorder-progress span.active {
   background: #eff6ff;
   border-color: #93c5fd;
   color: #1d4ed8;
+}
+
+@media (max-width: 1100px) {
+  .car-action-followup-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .overview-layout,
@@ -12652,4 +12673,456 @@ pre {
 .car-llm-summary-metrics strong,
 .car-llm-recommendation strong {
   font-size: 17px !important;
+}
+
+/* ===== Car detail stable layout: internal resize only, no outer shrink ===== */
+.car-detail-tabs {
+  min-height: calc((100vh - 86px) / var(--dashboard-scale, 1)) !important;
+}
+
+.car-detail-tabs > .tab-panel,
+.car-operational-overview {
+  display: grid !important;
+  min-height: 0 !important;
+}
+
+.car-operational-overview {
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  height: 100% !important;
+}
+
+.car-operational-top-grid {
+  align-items: stretch !important;
+  height: 100% !important;
+  min-height: clamp(660px, calc((100vh - 390px) / var(--dashboard-scale, 1)), 815px) !important;
+}
+
+.car-trend-card,
+.car-action-panel,
+.car-trend-detail-panel {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.car-trend-card {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.car-trend-frame {
+  flex: 1 1 auto !important;
+  min-height: clamp(380px, calc((100vh - 670px) / var(--dashboard-scale, 1)), 465px) !important;
+}
+
+.car-trend-card .card-header h2,
+.car-action-panel .card-header h2,
+.car-trend-detail-panel .card-header h2 {
+  font-size: 30px !important;
+  line-height: 1.08 !important;
+}
+
+.car-trend-card .eyebrow,
+.car-action-panel .eyebrow,
+.car-trend-detail-panel .eyebrow {
+  font-size: 16px !important;
+}
+
+.car-trend-kpis span {
+  font-size: 14px !important;
+  min-height: 82px !important;
+}
+
+.car-trend-kpis strong {
+  font-size: 28px !important;
+}
+
+.car-trend-analysis-cards.compact-row .car-trend-analysis-card strong {
+  font-size: 21px !important;
+}
+
+.car-trend-analysis-cards.compact-row .car-trend-analysis-card small {
+  font-size: 14px !important;
+}
+
+.car-action-panel {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.car-action-panel .car-action-copy strong {
+  font-size: 25px !important;
+}
+
+.car-action-panel .car-action-copy p {
+  font-size: 17px !important;
+}
+
+.car-action-panel .car-action-checklist {
+  display: grid !important;
+  flex: 1 1 auto !important;
+  grid-auto-rows: minmax(0, 1fr) !important;
+  min-height: 0 !important;
+}
+
+.car-action-panel .car-action-checklist span {
+  align-items: center !important;
+  display: flex !important;
+  font-size: 20px !important;
+  font-weight: 850 !important;
+  justify-content: flex-start !important;
+}
+
+.car-action-panel .action-row {
+  flex: 0 0 auto !important;
+  margin-top: auto !important;
+}
+
+.car-action-panel .action-row .button {
+  font-size: 16px !important;
+}
+
+/* ===== Car detail final visual balance: hierarchy and internal density ===== */
+.car-operational-top-grid {
+  grid-template-columns: minmax(0, 2.1fr) minmax(360px, 1fr) !important;
+}
+
+.car-trend-card .card-header h2,
+.car-trend-detail-panel .card-header h2 {
+  font-size: 22px !important;
+  line-height: 1.12 !important;
+}
+
+.car-action-panel .card-header h2 {
+  font-size: 25px !important;
+  line-height: 1.12 !important;
+}
+
+.car-trend-card .eyebrow,
+.car-trend-detail-panel .eyebrow,
+.car-action-panel .eyebrow {
+  font-size: 13px !important;
+  line-height: 1.15 !important;
+}
+
+.car-trend-kpis span {
+  font-size: 13px !important;
+  min-height: 76px !important;
+}
+
+.car-trend-kpis strong {
+  font-size: 22px !important;
+}
+
+.car-trend-analysis-cards.compact-row .car-trend-analysis-card {
+  min-height: 104px !important;
+}
+
+.car-trend-analysis-cards.compact-row .car-trend-analysis-card span {
+  font-size: 13px !important;
+}
+
+.car-trend-analysis-cards.compact-row .car-trend-analysis-card strong {
+  font-size: 21px !important;
+}
+
+.car-trend-analysis-cards.compact-row .car-trend-analysis-card small {
+  font-size: 14px !important;
+}
+
+.car-trend-detail-header strong {
+  font-size: 20px !important;
+}
+
+.car-trend-short-note {
+  font-size: 15px !important;
+}
+
+.car-trend-legend span {
+  font-size: 13px !important;
+}
+
+.car-trend-detail-grid span {
+  font-size: 13px !important;
+}
+
+.car-trend-detail-grid strong {
+  font-size: 22px !important;
+}
+
+.car-action-panel .car-action-copy strong {
+  font-size: 20px !important;
+  line-height: 1.2 !important;
+}
+
+.car-action-panel .car-action-copy p {
+  font-size: 15px !important;
+  line-height: 1.45 !important;
+}
+
+.car-action-panel .car-action-checklist span {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  line-height: 1.28 !important;
+}
+
+.car-action-panel .action-row .button {
+  font-size: 14px !important;
+}
+
+.car-summary-mode-tabs strong {
+  font-size: 15px !important;
+}
+
+.car-summary-mode-tabs span {
+  font-size: 12px !important;
+}
+
+.car-identity-health-card .card-header h2,
+.car-llm-summary-card .card-header h2 {
+  font-size: 22px !important;
+}
+
+.car-identity-health-card .eyebrow,
+.car-llm-summary-card .eyebrow,
+.car-llm-summary-content span,
+.car-llm-recommendation span,
+.car-identity-health-metrics small {
+  font-size: 13px !important;
+}
+
+.car-identity-health-gauge strong {
+  font-size: 44px !important;
+}
+
+.car-identity-health-metrics strong {
+  font-size: 22px !important;
+}
+
+.car-llm-summary-content strong {
+  font-size: 17px !important;
+}
+
+.car-llm-summary-content p,
+.car-llm-summary-metrics,
+.car-llm-summary-metrics strong,
+.car-llm-recommendation strong {
+  font-size: 15px !important;
+}
+
+/* ===== Car detail graph column: extend chart space to the right ===== */
+.car-operational-top-grid {
+  grid-template-columns: minmax(0, 2.55fr) minmax(320px, 0.85fr) !important;
+}
+
+/* ===== Car detail identity gauge: fill internal space without resizing card ===== */
+.car-identity-health-card {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.car-identity-health-card .card-header {
+  flex: 0 0 auto !important;
+}
+
+.car-identity-health-layout {
+  align-items: stretch !important;
+  display: grid !important;
+  flex: 1 1 auto !important;
+  grid-template-columns: minmax(230px, 0.3fr) minmax(0, 1fr) !important;
+  min-height: 0 !important;
+}
+
+.car-identity-health-gauge {
+  align-self: stretch !important;
+  display: grid !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  place-items: stretch !important;
+}
+
+.car-identity-health-gauge > .recharts-responsive-container {
+  align-self: stretch !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  width: 100% !important;
+}
+
+.car-identity-health-gauge > div:last-child {
+  gap: 8px !important;
+  top: 61% !important;
+  width: min(92%, 200px) !important;
+}
+
+.car-identity-health-gauge strong {
+  font-size: 46px !important;
+  letter-spacing: 0 !important;
+  line-height: 0.95 !important;
+}
+
+.car-identity-health-gauge .metric-delta {
+  font-size: 20px !important;
+  gap: 6px !important;
+  padding: 6px 12px !important;
+}
+
+.car-identity-health-gauge .metric-delta svg {
+  height: 18px !important;
+  width: 18px !important;
+}
+
+.car-identity-health-gauge .metric-delta strong {
+  font-size: 20px !important;
+  line-height: 1 !important;
+}
+
+.car-identity-health-content {
+  align-self: stretch !important;
+  display: grid !important;
+  min-height: 0 !important;
+}
+
+.car-identity-health-metrics {
+  align-self: stretch !important;
+  display: grid !important;
+}
+
+.inline-action-status {
+  align-items: center;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inline-action-status span,
+.report-export-status {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* ===== Car detail action tab: fill the small remaining bottom space ===== */
+.car-detail-tabs > .tab-panel:has(.car-action-tab) {
+  min-height: 0 !important;
+}
+
+.car-action-tab {
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  height: 100% !important;
+  min-height: clamp(625px, calc((100vh - 350px) / var(--dashboard-scale, 1)), 790px) !important;
+}
+
+.car-action-tab > .car-action-status-card {
+  min-height: 0 !important;
+}
+
+.car-action-followup-split {
+  align-items: stretch !important;
+  height: 100% !important;
+  min-height: clamp(315px, calc((100vh - 705px) / var(--dashboard-scale, 1)), 390px) !important;
+}
+
+.car-action-followup-split > .card {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+}
+
+.car-action-followup-split > .card > :last-child {
+  flex: 1 1 auto !important;
+}
+
+.car-action-checklist-large {
+  align-content: stretch !important;
+  display: grid !important;
+  grid-template-rows: repeat(4, minmax(0, 1fr)) !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.car-action-checklist-large label {
+  align-items: center !important;
+  min-height: 0 !important;
+}
+
+.car-workorder-progress {
+  align-content: stretch !important;
+  display: grid !important;
+  grid-template-rows: repeat(4, minmax(0, 1fr)) !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.car-workorder-progress span {
+  align-items: center !important;
+  display: flex !important;
+}
+
+/* ===== Car detail action tab typography: slightly larger and denser ===== */
+.car-action-tab .card-header .eyebrow {
+  font-size: 13px !important;
+}
+
+.car-action-tab .card-header h2 {
+  font-size: 22px !important;
+  line-height: 1.15 !important;
+}
+
+.car-action-status-grid span {
+  padding: 13px 15px !important;
+}
+
+.car-action-status-grid small {
+  font-size: 13px !important;
+}
+
+.car-action-status-grid strong {
+  font-size: 17px !important;
+}
+
+.car-action-recommendation {
+  padding: 16px 18px !important;
+}
+
+.car-action-recommendation strong {
+  font-size: 17px !important;
+  line-height: 1.25 !important;
+}
+
+.car-action-recommendation p {
+  font-size: 15px !important;
+  line-height: 1.45 !important;
+}
+
+.car-action-tab .action-row .button {
+  font-size: 15px !important;
+  min-height: 42px !important;
+  padding: 10px 16px !important;
+}
+
+.car-action-checklist-large label {
+  padding: 15px 16px !important;
+}
+
+.car-action-checklist-large input {
+  height: 15px !important;
+  width: 15px !important;
+}
+
+.car-action-checklist-large strong {
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+}
+
+.car-action-checklist-large small {
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+}
+
+.car-workorder-progress span {
+  font-size: 15px !important;
+  padding: 15px 16px !important;
 }

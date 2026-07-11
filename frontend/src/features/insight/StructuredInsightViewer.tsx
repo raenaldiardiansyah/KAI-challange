@@ -19,6 +19,7 @@ export function StructuredInsightViewer({ insight }: { insight: Insight }) {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Input Sensor");
 
   const sensorRows = Object.entries(insight.evidence);
+  const workOrderUrl = `/work-order?trainset=${encodeURIComponent(insight.trainsetId)}&car=${insight.carNumber}&subsystem=${encodeURIComponent(insight.subsystem)}&source=insight-analytic`;
 
   return (
     <>
@@ -129,7 +130,7 @@ export function StructuredInsightViewer({ insight }: { insight: Insight }) {
             <footer className="insight-process-dialog-footer">
               <Button variant="secondary" onClick={() => setActiveTab("Insight JSON")}>Lihat JSON</Button>
               <Button asChild>
-                <Link href="/work-order">Buat Draft SPK</Link>
+                <Link href={workOrderUrl}>Buat Draft SPK</Link>
               </Button>
               <Button variant="ghost" onClick={() => setOpen(false)}>Tutup</Button>
             </footer>
