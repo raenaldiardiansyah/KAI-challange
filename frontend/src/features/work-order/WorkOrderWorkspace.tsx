@@ -1,10 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Sheet } from "@/components/ui/Sheet";
+import { technicianContacts, workOrderEmailCopyRecipients } from "@/dummy/technicianDummy";
+import type { EmailNotificationRecord } from "@/types/emailNotification";
 import { WorkOrderForm, type WorkOrderDraft } from "./WorkOrderForm";
+import { TechnicianEmailDialog } from "./TechnicianEmailDialog";
 import { getStatusMeta, type SpkRow, type SpkStatus, WorkOrderTable } from "./WorkOrderTable";
 import type { Severity } from "@/types/common";
 import type { WorkOrder } from "@/types/workOrder";
@@ -111,7 +116,13 @@ export function WorkOrderWorkspace({ workOrders }: { workOrders: WorkOrder[] }) 
   const initialRows = useMemo(() => buildSpkRows(workOrders), [workOrders]);
   const [rows, setRows] = useState(initialRows);
   const [selectedId, setSelectedId] = useState(rows[0]?.id ?? "");
+  const [isDraftSheetOpen, setIsDraftSheetOpen] = useState(false);
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [emailDialogKey, setEmailDialogKey] = useState(0);
+  const [detailTab, setDetailTab] = useState<"summary" | "evidence" | "actions" | "history">("summary");
+  const [emailHistory, setEmailHistory] = useState<EmailNotificationRecord[]>([]);
   const selected = rows.find((row) => row.id === selectedId) ?? rows[0];
+  const selectedEmailHistory = emailHistory.filter((record) => record.workOrderId === selected.id);
 
   const summary = [
     { label: "SPK Terbuka", value: rows.filter((row) => row.status === "open").length, tone: "danger" },
@@ -155,6 +166,16 @@ export function WorkOrderWorkspace({ workOrders }: { workOrders: WorkOrder[] }) 
 
     setRows((currentRows) => [newRow, ...currentRows]);
     setSelectedId(nextId);
+    setIsDraftSheetOpen(false);
+  };
+
+  const handleEmailSent = (record: EmailNotificationRecord) => {
+    setEmailHistory((currentHistory) => [record, ...currentHistory]);
+  };
+
+  const handleOpenEmailDialog = () => {
+    setEmailDialogKey((currentKey) => currentKey + 1);
+    setIsEmailDialogOpen(true);
   };
 
   return (
@@ -165,6 +186,7 @@ export function WorkOrderWorkspace({ workOrders }: { workOrders: WorkOrder[] }) 
           <h1>SPK Maintenance</h1>
           <p>Ringkasan tindak lanjut maintenance dari alarm, insight, dan predictive risk.</p>
         </div>
+        <Button onClick={() => setIsDraftSheetOpen(true)}>Buat Draft SPK</Button>
       </header>
 
       <section className="spk-summary-grid">
@@ -178,10 +200,7 @@ export function WorkOrderWorkspace({ workOrders }: { workOrders: WorkOrder[] }) 
         ))}
       </section>
 
-      <section className="spk-workflow-layout">
-        <aside className="workflow-form-panel">
-          <WorkOrderForm onSave={handleSaveDraft} />
-        </aside>
+      <section className="spk-main-workspace">
         <section className="workflow-table-panel">
           <WorkOrderTable
             rows={rows}
@@ -191,91 +210,183 @@ export function WorkOrderWorkspace({ workOrders }: { workOrders: WorkOrder[] }) 
             onStatusChange={handleStatusChange}
           />
         </section>
-      </section>
 
-      <section className="spk-detail-panel">
-        <Card
-          title="Detail SPK Terpilih"
-          eyebrow={selected.id}
-          action={<span className="spk-status-pill" style={{ background: status.bg, color: status.color }}>{status.label}</span>}
-        >
-          <div className="spk-detail-layout">
-            <div className="spk-detail-grid">
-              <div>
-                <span>Sumber Indikasi</span>
-                <strong>{selected.source}</strong>
-                <small>{selected.eventCode}</small>
-              </div>
-              <div>
-                <span>Armada & Gerbong</span>
-                <strong>{selected.asset}</strong>
-                <small>{selected.subsystem}</small>
-              </div>
-              <div>
-                <span>Prioritas Operasional</span>
+        <aside className="spk-detail-panel">
+          <Card
+            title="Detail SPK Terpilih"
+            eyebrow={selected.id}
+            action={<span className="spk-status-pill" style={{ background: status.bg, color: status.color }}>{status.label}</span>}
+          >
+            <div className="spk-detail-layout">
+              <div className="spk-inspector-head">
+                <div>
+                  <h3>{selected.task}</h3>
+                  <p>{selected.asset} - {selected.subsystem}</p>
+                </div>
                 <Badge label={selected.priority} severity={selected.priority} />
-                <small>Bisa dioverride operator</small>
               </div>
-              <div>
-                <span>Status SPK</span>
-                <strong>{status.label}</strong>
-                <small>Progress dari proses operasional</small>
-              </div>
-              <div>
-                <span>Deadline</span>
-                <strong>{selected.deadline}</strong>
-                <small>PIC: {selected.assignee}</small>
-              </div>
-            </div>
 
-            <div className="spk-status-actions">
-              {selected.status === "open" ? (
-                <Button variant="secondary" onClick={() => handleStatusChange(selected.id, "in-progress")}>Mulai Dikerjakan</Button>
-              ) : null}
-              {selected.status === "in-progress" ? (
-                <Button variant="primary" onClick={() => handleStatusChange(selected.id, "completed")}>Tandai Selesai</Button>
-              ) : null}
-              {selected.status === "overdue" ? (
-                <>
-                  <Button variant="secondary" onClick={() => handleStatusChange(selected.id, "in-progress")}>Lanjutkan Dikerjakan</Button>
+              <div className="spk-status-actions">
+                <Button
+                  variant="secondary"
+                  icon={<EnvelopeSimple size={17} weight="bold" />}
+                  onClick={handleOpenEmailDialog}
+                >
+                  Kirim ke Teknisi
+                </Button>
+                {selected.status === "open" ? (
+                  <Button variant="secondary" onClick={() => handleStatusChange(selected.id, "in-progress")}>Mulai Dikerjakan</Button>
+                ) : null}
+                {selected.status === "in-progress" ? (
                   <Button variant="primary" onClick={() => handleStatusChange(selected.id, "completed")}>Tandai Selesai</Button>
+                ) : null}
+                {selected.status === "overdue" ? (
+                  <>
+                    <Button variant="secondary" onClick={() => handleStatusChange(selected.id, "in-progress")}>Lanjutkan Dikerjakan</Button>
+                    <Button variant="primary" onClick={() => handleStatusChange(selected.id, "completed")}>Tandai Selesai</Button>
+                  </>
+                ) : null}
+                {selected.status === "completed" ? <span>SPK selesai. Status dikunci sebagai riwayat operasional.</span> : null}
+              </div>
+
+              <div className="spk-detail-tabs" role="tablist" aria-label="Detail SPK">
+                {[
+                  { id: "summary", label: "Ringkasan" },
+                  { id: "evidence", label: "Evidence" },
+                  { id: "actions", label: "Tindakan" },
+                  { id: "history", label: "Riwayat" }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    className={detailTab === tab.id ? "active" : ""}
+                    role="tab"
+                    aria-selected={detailTab === tab.id}
+                    onClick={() => setDetailTab(tab.id as typeof detailTab)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {detailTab === "summary" ? (
+                <>
+                  <div className="spk-detail-grid">
+                    <div>
+                      <span>Sumber Indikasi</span>
+                      <strong>{selected.source}</strong>
+                      <small>{selected.eventCode}</small>
+                    </div>
+                    <div>
+                      <span>Armada & Gerbong</span>
+                      <strong>{selected.asset}</strong>
+                      <small>{selected.subsystem}</small>
+                    </div>
+                    <div>
+                      <span>Prioritas Operasional</span>
+                      <Badge label={selected.priority} severity={selected.priority} />
+                      <small>Bisa dioverride operator</small>
+                    </div>
+                    <div>
+                      <span>Status SPK</span>
+                      <strong>{status.label}</strong>
+                      <small>Progress operasional</small>
+                    </div>
+                    <div>
+                      <span>Deadline</span>
+                      <strong>{selected.deadline}</strong>
+                      <small>PIC: {selected.assignee}</small>
+                    </div>
+                  </div>
+                  <div className="spk-timeline" style={{ "--timeline-columns": timeline.length } as React.CSSProperties}>
+                    {timeline.map((item, index) => (
+                      <div key={item} className={index === timeline.length - 1 ? "timeline-step current" : "timeline-step"}>
+                        <span>{index + 1}</span>
+                        <strong>{item}</strong>
+                      </div>
+                    ))}
+                  </div>
                 </>
               ) : null}
-              {selected.status === "completed" ? <span>SPK selesai. Status dikunci sebagai riwayat operasional.</span> : null}
-            </div>
 
-            <div className="spk-evidence-panel">
-              <div>
-                <span className="eyebrow">Tugas</span>
-                <p>{selected.task}</p>
-              </div>
-              <div>
-                <span className="eyebrow">Evidence Sensor</span>
-                <ul>
-                  {selected.evidence.map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </div>
-              <div>
-                <span className="eyebrow">Ringkasan Bahasa Natural</span>
-                <p>{selected.recommendation}</p>
-              </div>
-              <div>
-                <span className="eyebrow">Catatan Tindakan</span>
-                <p>{selected.notes}</p>
-              </div>
-            </div>
-
-            <div className="spk-timeline" style={{ "--timeline-columns": timeline.length } as React.CSSProperties}>
-              {timeline.map((item, index) => (
-                <div key={item} className={index === timeline.length - 1 ? "timeline-step current" : "timeline-step"}>
-                  <span>{index + 1}</span>
-                  <strong>{item}</strong>
+              {detailTab === "evidence" ? (
+                <div className="spk-evidence-panel">
+                  <div>
+                    <span className="eyebrow">Evidence Sensor</span>
+                    <ul>
+                      {selected.evidence.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  </div>
+                  <div>
+                    <span className="eyebrow">Ringkasan Bahasa Natural</span>
+                    <p>{selected.recommendation}</p>
+                  </div>
+                  <div>
+                    <span className="eyebrow">Catatan Tindakan</span>
+                    <p>{selected.notes}</p>
+                  </div>
                 </div>
-              ))}
+              ) : null}
+
+              {detailTab === "actions" ? (
+                <div className="spk-notification-panel">
+                  <div>
+                    <span className="eyebrow">Notifikasi Teknisi</span>
+                    <strong>Email assignment SPK</strong>
+                    <p>Kirim ringkasan SPK, evidence, dan rekomendasi ke teknisi yang sesuai dengan subsistem.</p>
+                  </div>
+                  <div className="spk-notification-history">
+                    <span>Gunakan tombol Kirim ke Teknisi untuk membuka assignment console.</span>
+                  </div>
+                </div>
+              ) : null}
+
+              {detailTab === "history" ? (
+                <div className="spk-notification-panel">
+                  <div>
+                    <span className="eyebrow">Riwayat Penugasan</span>
+                    <strong>Email dan progress SPK</strong>
+                    <p>Riwayat hanya menampilkan event yang benar-benar terjadi di state frontend.</p>
+                  </div>
+                  <div className="spk-notification-history">
+                    {selectedEmailHistory.length > 0 ? (
+                      selectedEmailHistory.map((record) => (
+                        <div key={record.id} className="spk-notification-record">
+                          <span>{record.recipientName}</span>
+                          <strong>{record.recipientEmail}</strong>
+                          <small>{new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(new Date(record.sentAt))}</small>
+                        </div>
+                      ))
+                    ) : (
+                      <span>Belum ada email yang dikirim untuk SPK ini.</span>
+                    )}
+                  </div>
+                </div>
+              ) : null}
             </div>
-          </div>
-        </Card>
+          </Card>
+        </aside>
       </section>
+
+      <Sheet
+        open={isDraftSheetOpen}
+        title="Buat Draft SPK Baru"
+        description="Isi draft tanpa meninggalkan daftar SPK dan detail yang sedang dipilih."
+        className="spk-draft-sheet"
+        onClose={() => setIsDraftSheetOpen(false)}
+      >
+        <WorkOrderForm embedded onSave={handleSaveDraft} />
+      </Sheet>
+
+      <TechnicianEmailDialog
+        key={`${selected.id}-${emailDialogKey}`}
+        open={isEmailDialogOpen}
+        row={selected}
+        technicians={technicianContacts}
+        copyRecipients={workOrderEmailCopyRecipients}
+        onClose={() => setIsEmailDialogOpen(false)}
+        onSent={handleEmailSent}
+      />
     </div>
   );
 }

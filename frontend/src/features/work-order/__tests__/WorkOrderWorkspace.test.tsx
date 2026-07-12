@@ -1,13 +1,29 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { sendWorkOrderEmail } from "@/services/emailNotificationService";
 import { WorkOrderWorkspace } from "../WorkOrderWorkspace";
 import { workOrderDummy } from "@/dummy/workOrderDummy";
+
+vi.mock("@/services/emailNotificationService", () => ({
+  getEmailNotificationConfigStatus: () => ({
+    isConfigured: true,
+    serviceId: "service_test",
+    templateId: "template_test",
+  }),
+  sendWorkOrderEmail: vi.fn(),
+}));
 
 // WorkOrderTable uses DotsThreeVertical from phosphor-icons
 vi.mock("@phosphor-icons/react/dist/ssr", () => ({
   DotsThreeVertical: function MockDotsThreeVertical(props: any) {
     return <span data-testid="dots-icon" {...props} />;
+  },
+  EnvelopeSimple: function MockEnvelopeSimple(props: any) {
+    return <span data-testid="envelope-icon" {...props} />;
+  },
+  PaperPlaneTilt: function MockPaperPlaneTilt(props: any) {
+    return <span data-testid="paper-plane-icon" {...props} />;
   },
 }));
 
@@ -85,5 +101,48 @@ describe("WorkOrderWorkspace", () => {
     // getTimeline("open") returns ["Created", "Waiting Assignment"]
     expect(screen.getByText("Created")).toBeInTheDocument();
     expect(screen.getByText("Waiting Assignment")).toBeInTheDocument();
+  });
+
+  it("opens the technician email dialog from the detail panel", async () => {
+    const user = userEvent.setup();
+    render(<WorkOrderWorkspace workOrders={workOrderDummy} />);
+
+    await user.click(screen.getByRole("button", { name: /kirim ke teknisi/i }));
+
+    const dialog = screen.getByRole("dialog", { name: /kirim spk ke teknisi/i });
+    expect(dialog).toBeInTheDocument();
+    expect(within(dialog).getByText("Teknisi Brake & Pneumatic")).toBeInTheDocument();
+    expect(within(dialog).getByText("mr.plankton363@gmail.com")).toBeInTheDocument();
+    expect(within(dialog).getByText("Dikirim ke 4 penerima")).toBeInTheDocument();
+    expect(within(dialog).getByText(/raenaldi\.ardiansyah30@gmail\.com/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/faizahzahraaqilah@gmail\.com/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/albiang03@gmail\.com/i)).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: /kirim email/i })).toBeInTheDocument();
+  });
+
+  it("shows failed status when one email recipient fails", async () => {
+    const user = userEvent.setup();
+    vi.mocked(sendWorkOrderEmail).mockImplementation(async (payload) => {
+      if (payload.technicianEmail === "raenaldi.ardiansyah30@gmail.com") {
+        return {
+          success: false,
+          code: "SEND_FAILED",
+          message: "EmailJS gagal mengirim salinan operator."
+        };
+      }
+
+      return {
+        success: true,
+        sentAt: "2026-07-12T00:00:00.000Z",
+        recipient: payload.technicianEmail
+      };
+    });
+
+    render(<WorkOrderWorkspace workOrders={workOrderDummy} />);
+    await user.click(screen.getByRole("button", { name: /kirim ke teknisi/i }));
+    await user.click(screen.getByRole("button", { name: /kirim email/i }));
+
+    expect(await screen.findByText(/gagal: raenaldi\.ardiansyah30@gmail\.com/i)).toBeInTheDocument();
+    expect(screen.getByText(/berhasil: mr\.plankton363@gmail\.com/i)).toBeInTheDocument();
   });
 });

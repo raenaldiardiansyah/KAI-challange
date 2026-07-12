@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowsClockwise,
   ArrowsOut,
@@ -55,7 +55,22 @@ const priorityCarByTrainset: Record<string, { car: number; subsystem: string }> 
   "TS-003": { car: 7, subsystem: "Door" },
 };
 
+const movementProfile: Record<string, { lat: number; lng: number; phase: number }> = {
+  "TS-001": { lat: 0.0012, lng: 0.0026, phase: 0 },
+  "TS-002": { lat: -0.001, lng: 0.0022, phase: 1.7 },
+  "TS-003": { lat: 0.0014, lng: -0.0018, phase: 3.2 },
+};
+
+function formatLiveTime(date: Date) {
+  return date.toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
 export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWorkspaceProps) {
+  const [simulatedPoints, setSimulatedPoints] = useState(points);
   const [selectedId, setSelectedId] = useState<string | null>(points[0]?.trainsetId ?? null);
   const [connectionFilter, setConnectionFilter] = useState<ConnectionFilter>("all");
   const [healthFilter, setHealthFilter] = useState<HealthFilter>("All");
@@ -64,8 +79,32 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
   const [isFollowing, setIsFollowing] = useState(false);
   const [isDockExpanded, setIsDockExpanded] = useState(false);
   const [isPlaybackRunning, setIsPlaybackRunning] = useState(false);
+  const [focusRevision, setFocusRevision] = useState(0);
   const [zoomLevel, setZoomLevel] = useState(6);
   const [layer, setLayer] = useState<"rail" | "traffic">("rail");
+
+  useEffect(() => {
+    let movementTick = 0;
+    const timer = window.setInterval(() => {
+      movementTick += 1;
+
+      setSimulatedPoints((currentPoints) =>
+        currentPoints.map((point) => {
+          const profile = movementProfile[point.trainsetId] ?? { lat: 0.001, lng: 0.001, phase: 0 };
+          const wave = Math.sin((movementTick + profile.phase) / 3);
+
+          return {
+            ...point,
+            lat: Number((point.lat + profile.lat + wave * 0.00025).toFixed(6)),
+            lng: Number((point.lng + profile.lng + wave * 0.0003).toFixed(6)),
+            lastUpdate: formatLiveTime(new Date()),
+          };
+        })
+      );
+    }, 1600);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   const trainById = useMemo(() => new Map(trainsets.map((trainset) => [trainset.id, trainset])), [trainsets]);
 
@@ -73,7 +112,7 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return [];
 
-    return points.filter((point) => {
+    return simulatedPoints.filter((point) => {
       const trainset = trainById.get(point.trainsetId);
       return (
         point.trainsetId.toLowerCase().includes(normalizedQuery) ||
@@ -83,10 +122,10 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
         (trainset?.location ?? "").toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [points, query, trainById]);
+  }, [simulatedPoints, query, trainById]);
 
   const filteredPoints = useMemo(() => {
-    return points.filter((point) => {
+    return simulatedPoints.filter((point) => {
       const trainset = trainById.get(point.trainsetId);
       if (!trainset) return false;
 
@@ -105,12 +144,11 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
 
       return matchesConnection && matchesHealth;
     });
-  }, [connectionFilter, healthFilter, points, trainById]);
+  }, [connectionFilter, healthFilter, simulatedPoints, trainById]);
 
-  const selectedPoint =
-    points.find((point) => point.trainsetId === selectedId) ??
-    filteredPoints[0] ??
-    points[0];
+  const selectedPoint = selectedId
+    ? simulatedPoints.find((point) => point.trainsetId === selectedId)
+    : undefined;
   const selectedTrainset = selectedPoint ? trainById.get(selectedPoint.trainsetId) : undefined;
 
   const connectedCount = trainsets.filter((trainset) => trainset.online).length;
@@ -119,7 +157,7 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
   const staleCount = trainsets.filter((trainset) => trainset.dataStatus !== "Online").length;
 
   const handleSelectTrain = (id: string) => {
-    const nextPoint = points.find((point) => point.trainsetId === id);
+    const nextPoint = simulatedPoints.find((point) => point.trainsetId === id);
     setSelectedId(id);
     setIsFollowing(false);
     setIsDockExpanded(false);
@@ -202,6 +240,8 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
       <section className="live-operational-grid">
         <div className="live-map-stage">
           <LiveTrainMapClient
+            focusRevision={focusRevision}
+            followTrainsetId={isFollowing ? selectedPoint?.trainsetId ?? null : null}
             points={filteredPoints}
             selectedTrainsetId={selectedPoint?.trainsetId ?? null}
             onPointSelect={(point) => handleSelectTrain(point.trainsetId)}
@@ -215,6 +255,10 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
                 setSelectedId(null);
                 setIsFollowing(false);
                 setIsDockExpanded(false);
+                setConnectionFilter("all");
+                setHealthFilter("All");
+                setQuery("");
+                setFocusRevision((value) => value + 1);
               }}
               variant="secondary"
             >
