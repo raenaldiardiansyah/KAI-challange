@@ -22,7 +22,7 @@ const insight: Insight = {
 };
 
 describe("TrainComposition", () => {
-  it("uses overview composition as a local summary selector", () => {
+  it("uses the composition only as a local insight selector", () => {
     const onSelectCar = vi.fn();
 
     render(
@@ -34,9 +34,11 @@ describe("TrainComposition", () => {
       />
     );
 
-    expect(screen.queryByRole("link", { name: "C5" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /C5, Status Critical/i })).not.toBeInTheDocument();
 
-    screen.getByRole("button", { name: "C5" }).click();
+    const carButton = screen.getByRole("button", { name: /C5, Status Critical/i });
+    expect(carButton).toHaveAttribute("aria-pressed", "true");
+    carButton.click();
 
     expect(onSelectCar).toHaveBeenCalledWith(5);
   });

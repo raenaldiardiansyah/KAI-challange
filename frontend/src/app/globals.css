@@ -11017,6 +11017,177 @@ pre {
   padding: 0 7px !important;
 }
 
+/* Interactive miniature train composition */
+.train-composition-scroll {
+  margin: -2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 2px 7px;
+  scrollbar-color: #94a3b8 transparent;
+  scrollbar-width: thin;
+}
+
+.overview-car-grid.train-composition-track {
+  align-items: center;
+  display: flex !important;
+  gap: 0 !important;
+  grid-template-columns: none !important;
+  min-width: 692px;
+  width: 100%;
+}
+
+.train-composition-segment {
+  align-items: center;
+  display: flex;
+  flex: 1 1 0;
+  min-width: 60px;
+}
+
+.train-car-connector {
+  background: #94a3b8;
+  height: 2px;
+  position: relative;
+  flex: 0 0 8px;
+  width: 8px;
+}
+
+.train-car-connector::before,
+.train-car-connector::after {
+  background: #64748b;
+  border-radius: 50%;
+  content: "";
+  height: 3px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+}
+
+.train-car-connector::before { left: 0; }
+.train-car-connector::after { right: 0; }
+
+.composition .train-car-link,
+.overview-car-item.train-car-link,
+.overview-presentation-canvas .overview-car-item.train-car-link,
+.dashboard-density-balanced .overview-car-item.train-car-link,
+.overview-compact-fit .overview-car-item.train-car-link {
+  --car-border: #2563eb;
+  --car-fill: #eff6ff;
+  --car-detail: #7aa7f8;
+  --car-text: #1d4ed8;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 7px;
+  color: var(--car-text);
+  display: block;
+  flex: 1 1 auto;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 !important;
+  position: relative;
+  text-decoration: none;
+  transition: filter 160ms ease, transform 160ms ease;
+  min-width: 54px;
+  width: 100%;
+}
+
+.overview-car-item.train-car-link.status-warning {
+  --car-border: #f59e0b;
+  --car-fill: #fff7df;
+  --car-detail: #f6bd55;
+  --car-text: #a65308;
+}
+
+.overview-car-item.train-car-link.status-critical {
+  --car-border: #e83b4f;
+  --car-fill: #fff0f2;
+  --car-detail: #f28794;
+  --car-text: #b42335;
+}
+
+.overview-car-item.train-car-link.status-no-data {
+  --car-border: #94a3b8;
+  --car-fill: #f8fafc;
+  --car-detail: #cbd5e1;
+  --car-text: #64748b;
+}
+
+.train-car-svg {
+  display: block;
+  height: 42px;
+  overflow: visible;
+  width: 100%;
+}
+
+.train-car-body {
+  fill: var(--car-fill);
+  stroke: var(--car-border);
+  stroke-width: 1.7;
+}
+
+.train-car-detail {
+  fill: none;
+  opacity: 0.85;
+  stroke: var(--car-detail);
+  stroke-linecap: round;
+  stroke-width: 1;
+}
+
+.train-car-wheel {
+  fill: var(--car-fill);
+  stroke: var(--car-border);
+  stroke-width: 1.5;
+}
+
+.train-car-label {
+  fill: var(--car-text);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: -0.2px;
+}
+
+.train-car-alert circle { fill: var(--car-border); }
+.train-car-alert text {
+  fill: #fff;
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.train-car-link:hover {
+  filter: saturate(1.08) drop-shadow(0 4px 4px rgba(15, 23, 42, 0.15));
+  transform: translateY(-2px);
+  z-index: 2;
+}
+
+.train-car-link.selected {
+  box-shadow: 0 0 0 2px #7c3aed, 0 0 0 4px rgba(124, 58, 237, 0.2) !important;
+  z-index: 1;
+}
+
+.train-car-link:focus-visible {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px #2563eb !important;
+  outline: none;
+  z-index: 3;
+}
+
+.overview-priority-actions .overview-evidence-button {
+  background: #f0fdfa;
+  border-color: #0f766e;
+  color: #0f5f59;
+}
+
+.overview-priority-actions .overview-evidence-button:hover {
+  background: #ccfbf1;
+  border-color: #0f766e;
+}
+
+@media (max-width: 720px) {
+  .train-composition-scroll {
+    background: linear-gradient(to right, transparent calc(100% - 22px), rgba(255, 255, 255, 0.96));
+    padding-right: 18px;
+  }
+}
+
 .overview-compact-fit .overview-priority-card {
   height: 100%;
   min-height: 0;

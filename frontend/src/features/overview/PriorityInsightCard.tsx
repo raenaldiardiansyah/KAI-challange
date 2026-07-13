@@ -115,7 +115,7 @@ export function PriorityInsightCard({ insight }: { insight: Insight }) {
           
           <div className="overview-priority-actions">
             <Link href="/insight-analytic" className="button button-primary">Lihat Insight</Link>
-            <Link href={`/car-detail?${params.toString()}`} className="button button-secondary">Tinjau Bukti</Link>
+            <Link href={`/car-detail?${params.toString()}`} className="button button-secondary overview-evidence-button">Tinjau Bukti</Link>
             <Link href={`/work-order?${workOrderParams.toString()}`} className="button button-ghost">Buat SPK</Link>
           </div>
         </div>
