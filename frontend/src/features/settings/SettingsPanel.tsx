@@ -4,6 +4,13 @@ import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { Input } from "@/components/ui/Input";
 import { setDashboardScale, getDashboardScale, subscribeDashboardScale } from "@/lib/dashboardScale";
+import {
+  getDataMode,
+  getDefaultDataMode,
+  isLiveApiAllowed,
+  setDataMode,
+  subscribeDataMode
+} from "@/services/api/dataMode";
 import { useSyncExternalStore } from "react";
 
 export function SettingsPanel() {
@@ -12,6 +19,12 @@ export function SettingsPanel() {
     getDashboardScale,
     () => 0.5
   );
+  const dataMode = useSyncExternalStore(
+    subscribeDataMode,
+    getDataMode,
+    getDefaultDataMode
+  );
+  const liveAllowed = isLiveApiAllowed();
 
   return (
     <Card title="Pengaturan Sistem" eyebrow="Preferensi & Integrasi">
@@ -72,9 +85,9 @@ export function SettingsPanel() {
           
           <div>
             <label style={{ display: "block", fontSize: "12px", marginBottom: "4px", color: "#64748b" }}>Sumber Data (Data Source)</label>
-            <Select defaultValue="dummy">
+            <Select value={dataMode} onChange={(event) => setDataMode(event.target.value === "live" ? "live" : "dummy")}>
               <option value="dummy">Dummy / Mock Mode (Presentasi)</option>
-              <option value="api">Live API Mode (Belum tersambung ke backend produksi)</option>
+              <option value="live" disabled={!liveAllowed}>Live API Mode{liveAllowed ? "" : " (dinonaktifkan lewat environment)"}</option>
             </Select>
           </div>
 
@@ -82,7 +95,7 @@ export function SettingsPanel() {
             <label style={{ display: "block", fontSize: "12px", marginBottom: "4px", color: "#64748b" }}>Status Koneksi MQTT/API</label>
             <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", padding: "10px", borderRadius: "8px", fontSize: "12px", display: "flex", alignItems: "center", gap: "8px", fontWeight: "bold" }}>
               <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", background: "#10b981" }}></span>
-              Simulasi Connected WebSocket
+              {dataMode === "live" ? "Live API dipilih — status diperiksa per request" : "Simulasi Connected WebSocket — Dummy Mode tanpa request RAMS"}
             </div>
           </div>
 

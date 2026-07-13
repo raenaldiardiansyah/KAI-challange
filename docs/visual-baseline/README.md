@@ -29,6 +29,11 @@ docs/visual-baseline/after-auth/100
 Halaman login berdiri sendiri tanpa sidebar/dashboard shell dan tepat setinggi
 viewport. Seluruh 11 route setelah fase autentikasi tetap `Fit` pada skala 50%.
 
+Validasi Settings setelah fondasi API tersimpan sebagai
+`docs/visual-baseline/after-api-foundation/settings-{50,75,100}.png`.
+Dummy Mode tetap menjadi default, Live Mode dikunci oleh environment flag, dan
+halaman Settings tetap fit pada ketiga skala baseline.
+
 Masing-masing folder berisi:
 
 ```text
