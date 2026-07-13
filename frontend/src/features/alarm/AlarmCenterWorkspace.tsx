@@ -46,12 +46,13 @@ export function AlarmCenterWorkspace({
   const searchParams = useSearchParams();
   const { user } = useCurrentUser();
   const canMutateAlarm = isDummy || hasPermission(user?.role, "maintenance_action");
-  const [query, setQuery] = useState("");
+  const initialCar = searchParams.get("car");
+  const [query, setQuery] = useState(initialCar ? `C${initialCar.replace(/^C/i, "")}` : "");
   const [selectedId, setSelectedId] = useState(searchParams.get("alarm") ?? alarms[0]?.id ?? "");
-  const [trainsetFilter, setTrainsetFilter] = useState("all");
-  const [subsystemFilter, setSubsystemFilter] = useState<"all" | SubsystemName>("all");
-  const [severityFilter, setSeverityFilter] = useState<"all" | Severity>("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | AlarmStatus>("all");
+  const [trainsetFilter, setTrainsetFilter] = useState(searchParams.get("trainset") ?? "all");
+  const [subsystemFilter, setSubsystemFilter] = useState<"all" | SubsystemName>((searchParams.get("subsystem") as SubsystemName | null) ?? "all");
+  const [severityFilter, setSeverityFilter] = useState<"all" | Severity>((searchParams.get("severity") as Severity | null) ?? "all");
+  const [statusFilter, setStatusFilter] = useState<"all" | AlarmStatus>((searchParams.get("status") as AlarmStatus | null) ?? "all");
   const [statusOverrides, setStatusOverrides] = useState<Record<string, AlarmStatus>>({});
   const [mutatingId, setMutatingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -134,6 +135,9 @@ export function AlarmCenterWorkspace({
 
   return (
     <div className="page-grid alarm-inbox-layout">
+      {(trainsetFilter !== "all" || initialCar || subsystemFilter !== "all") ? <div className="alarm-context-bar">
+        <strong>Konteks:</strong> {trainsetFilter !== "all" ? trainsetFilter : "Semua trainset"}{initialCar ? ` · C${initialCar.replace(/^C/i, "")}` : ""}{subsystemFilter !== "all" ? ` · ${subsystemFilter}` : ""}
+      </div> : null}
       <section className="alarm-summary-strip">
         <AlarmSummary alarms={filteredAlarms} />
       </section>

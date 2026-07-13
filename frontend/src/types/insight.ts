@@ -16,4 +16,12 @@ export type Insight = {
   structuredInsight: Record<string, string | number>;
   naturalInsight: string;
   recommendation: string;
+  carId?: string | null;
+  probableCauses?: string[];
+  recommendedActions?: string[];
+  generatedBy?: string | null;
+  sourceEventId?: number | string | null;
+  createdAt?: string | null;
+  technicalExplanation?: string | null;
+  llmRecommendation?: unknown;
 };

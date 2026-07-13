@@ -36,7 +36,7 @@ type TimelineItem = {
 };
 
 type TrendMetric = "health" | "brakeCylinder" | "brakePipe";
-type SummaryMode = "trend" | "timeline" | "comparison" | "action";
+type SummaryMode = "trend" | "timeline" | "comparison" | "rule" | "action";
 
 function buildTrendData(car: CarDetail, telemetry?: TelemetrySeries) {
   const points = telemetry?.points.length
@@ -136,6 +136,7 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
     { id: "trend", label: "Tren", helper: "Analisis grafik" },
     { id: "timeline", label: "Timeline", helper: "Urutan kejadian" },
     { id: "comparison", label: "Perbandingan", helper: "Konteks gerbong" },
+    { id: "rule", label: "Rule", helper: "Evaluasi RAMS" },
     { id: "action", label: "Tindakan", helper: "Langkah berikutnya" }
   ];
 
@@ -321,6 +322,32 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
             <div className="car-trend-combined-conclusion">
               Gerbong {car.carNumber} berada di bawah rata-rata rangkaian. Karena Brake Pipe tetap stabil, masalah lebih kuat dibaca sebagai anomali lokal gerbong.
             </div>
+          </Card>
+        ) : null}
+
+        {summaryMode === "rule" ? (
+          <Card title="Rule Evaluation" eyebrow={car.healthSource ?? "RAMS condition monitoring"} className="car-comparison-summary-panel">
+            <div className="car-comparison-grid">
+              <span><strong>{car.primaryRuleId ?? "Belum tersedia"}</strong>Primary Rule</span>
+              <span><strong>{car.primaryEventCode ?? "Belum tersedia"}</strong>Event Code</span>
+              <span><strong>{car.matchedRules?.[0]?.validationStatus ?? "Belum tersedia"}</strong>Validation</span>
+              <span><strong>{car.matchedRules?.length ?? 0}/{car.availableRules?.length ?? 0}</strong>Matched/Available</span>
+            </div>
+            <div className="car-trend-combined-conclusion">
+              {car.healthReason ?? "Hasil evaluasi rule belum tersedia dari RAMS."}
+            </div>
+            <details style={{ marginTop: 10 }}>
+              <summary style={{ cursor: "pointer", color: "#2563eb", fontWeight: 700 }}>Detail aturan</summary>
+              <div style={{ maxHeight: 160, overflow: "auto", marginTop: 8 }}>
+                {(car.availableRules ?? []).map((rule) => (
+                  <div className="car-action-copy" key={rule.ruleId} style={{ marginBottom: 7 }}>
+                    <strong>{rule.ruleId} · {rule.level}</strong>
+                    <p>{rule.condition} · {rule.validationStatus ?? "Belum tersedia"}</p>
+                  </div>
+                ))}
+                {!car.availableRules?.length ? <p>Rule tersedia belum diberikan backend untuk konteks ini.</p> : null}
+              </div>
+            </details>
           </Card>
         ) : null}
 

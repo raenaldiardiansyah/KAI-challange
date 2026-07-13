@@ -99,7 +99,7 @@ export function ScaledDashboardContent({ children }: { children: ReactNode }) {
       <div ref={shellRef} className="scaled-dashboard-shell">
         <div
           ref={canvasRef}
-          className="scaled-dashboard-wrapper"
+          className={`scaled-dashboard-wrapper ${getDensityClass(dashboardScale, isOverview)}`}
           style={{ "--dashboard-scale": dashboardScale } as CSSProperties}
         >
           {children}

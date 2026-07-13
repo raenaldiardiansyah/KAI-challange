@@ -65,14 +65,14 @@ export function PredictiveMaintenancePanel({ risks, insights = [] }: PredictiveM
           <>
             <button 
               onClick={handlePrev} 
-              style={{ position: 'absolute', left: '-12px', top: '50%', transform: 'translateY(-50%)', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }} 
+              style={{ position: 'absolute', left: '4px', top: '50%', transform: 'translateY(-50%)', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }} 
               aria-label="Previous insight"
             >
               <CaretLeft size={16} />
             </button>
             <button 
               onClick={handleNext} 
-              style={{ position: 'absolute', right: '-12px', top: '50%', transform: 'translateY(-50%)', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }} 
+              style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }} 
               aria-label="Next insight"
             >
               <CaretRight size={16} />

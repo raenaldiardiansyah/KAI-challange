@@ -6,17 +6,20 @@ import { adaptHealthStatus } from "@/adapters/statusAdapter";
 import { formatTimestamp, normalizeScore } from "@/adapters/normalizers";
 import { adaptTrainsets } from "@/adapters/trainsetAdapter";
 import { getTrainsetIdentity } from "@/adapters/identityAdapter";
-import { requestRams, type RamsApiResult } from "./api/ramsApiClient";
+import { frontendMapsFixture, trainsetsFixture } from "@/dummy/rams";
+import type { DataMode } from "./api/dataMode";
+import { loadRams } from "./api/ramsDataSource";
+import { mergeRamsMetadata, type RamsApiResult } from "./api/ramsApiClient";
 
 export type LiveMonitoringData = { points: MapPoint[]; trainsets: Trainset[] };
 
-export async function getLiveMonitoringData(signal?: AbortSignal): Promise<RamsApiResult<LiveMonitoringData>> {
+export async function getLiveMonitoringData(signal?: AbortSignal, mode: DataMode = "live"): Promise<RamsApiResult<LiveMonitoringData>> {
   const [maps, trains] = await Promise.all([
-    requestRams<RamsMapsResponse>("/frontend/maps", { signal }),
-    requestRams<RamsTrainsetListResponse>("/trainsets", { signal })
+    loadRams<RamsMapsResponse>(mode, "/frontend/maps", frontendMapsFixture, { signal }),
+    loadRams<RamsTrainsetListResponse>(mode, "/trainsets", trainsetsFixture, { signal })
   ]);
   const trainById = new Map(trains.data.trains.map((train) => [train.trainset_id, train]));
-  const points = maps.data.items.map((item) => {
+  const points = maps.data.items.map((item): MapPoint | null => {
     const point = adaptMapItem(item);
     const train = trainById.get(item.trainset);
     if (!point) return null;
@@ -26,13 +29,12 @@ export async function getLiveMonitoringData(signal?: AbortSignal): Promise<RamsA
       trainName: `${identity.displayCode} · ${identity.displayName}`,
       status: adaptHealthStatus(train?.status),
       health: normalizeScore(train?.health_score),
-      lastUpdate: formatTimestamp(train?.last_update)
+      lastUpdate: formatTimestamp(train?.last_update),
+      alarmCount: train?.active_alarm_count ?? null
     };
   }).filter((item): item is MapPoint => Boolean(item));
   return {
     data: { points, trainsets: adaptTrainsets(trains.data.trains) },
-    source: maps.source === "cache" || trains.source === "cache" ? "cache" : "live",
-    stale: maps.stale || trains.stale,
-    fetchedAt: maps.fetchedAt > trains.fetchedAt ? maps.fetchedAt : trains.fetchedAt
+    ...mergeRamsMetadata([maps, trains])
   };
 }

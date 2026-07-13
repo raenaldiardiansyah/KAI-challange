@@ -19,6 +19,8 @@ export type TrainMapPoint = {
   status?: string;
   health?: number;
   lastUpdate?: string;
+  speed?: number | null;
+  alarmCount?: number | null;
 };
 
 const mapStyle: maplibregl.StyleSpecification = {
@@ -64,13 +66,6 @@ function getStatusColor(status?: string) {
   }
 }
 
-function getMockAlarmCount(status?: string) {
-  if (status === "Warning") return 3;
-  if (status === "Watch") return 1;
-  if (status === "Alarm" || status === "High") return 5;
-  return 0;
-}
-
 function escapeHtml(value?: string) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -103,7 +98,8 @@ function buildMarkerHTML(point: TrainMapPoint, isSelected: boolean, isFollowing:
 
 function buildPopupHTML(point: TrainMapPoint) {
   const bgColor = getStatusColor(point.status);
-  const mockAlarmCount = getMockAlarmCount(point.status);
+  const speed = point.speed == null ? "Kecepatan tidak tersedia" : `${point.speed} km/jam`;
+  const alarmCount = point.alarmCount == null ? "Tidak tersedia" : String(point.alarmCount);
 
   return `
     <div style="font-size: 13px; line-height: 1.45; color: #1f2937; min-width: 220px; padding: 4px;">
@@ -111,8 +107,9 @@ function buildPopupHTML(point: TrainMapPoint) {
         ${point.trainsetId} - ${point.trainName || "Tidak diketahui"}
       </h3>
       <p style="margin: 0 0 4px;"><strong>Status:</strong> <span style="color: ${bgColor}; font-weight: 800;">${point.status || "Normal"}</span></p>
-      <p style="margin: 0 0 4px;"><strong>Health:</strong> ${point.health || 100}%</p>
-      <p style="margin: 0 0 4px;"><strong>Alarm:</strong> ${mockAlarmCount}</p>
+      <p style="margin: 0 0 4px;"><strong>Health:</strong> ${point.health ?? "Tidak tersedia"}${point.health == null ? "" : "%"}</p>
+      <p style="margin: 0 0 4px;"><strong>Kecepatan:</strong> ${speed}</p>
+      <p style="margin: 0 0 4px;"><strong>Alarm:</strong> ${alarmCount}</p>
       <p style="margin: 0 0 8px;"><strong>Update:</strong> ${point.lastUpdate || "-"}</p>
       <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
         <span style="background: #162340; border-radius: 7px; color: #fff; font-size: 12px; font-weight: 800; padding: 6px 8px;">Pilih Kereta</span>

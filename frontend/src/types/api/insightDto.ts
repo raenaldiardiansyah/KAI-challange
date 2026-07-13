@@ -19,3 +19,30 @@ export type RamsInsightDto = {
 };
 
 export type RamsInsightsResponse = RamsListResponse<RamsInsightDto>;
+
+export type RamsLlmAffectedCarDto = {
+  car_id: string;
+  role: string;
+  reason: string;
+  confidence: number | string | null;
+};
+
+export type RamsLlmRecommendationDto = {
+  title: string;
+  summary: string;
+  technical_explanation: string;
+  affected_cars: RamsLlmAffectedCarDto[];
+  probable_causes: string[];
+  recommended_actions: string[];
+  inspection_steps: string[];
+  safety_notes: string[];
+  priority: string;
+  provider: string;
+  model: string;
+  llm_status: string;
+};
+
+export type RamsLlmRecommendationResponse = {
+  ok: boolean;
+  recommendation: RamsLlmRecommendationDto;
+};

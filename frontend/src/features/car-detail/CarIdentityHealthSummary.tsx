@@ -59,6 +59,14 @@ export function CarIdentityHealthSummary({ car }: { car: CarDetail }) {
           </div>
         </div>
       </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 6, color: "#64748b", fontSize: 11 }}>
+        <span>{car.role}{car.backendCarId ? ` • ${car.backendCarId}` : ""}</span>
+        <span>Primary Rule: {car.primaryRuleId ?? "Belum tersedia"}</span>
+        <span>Primary Event: {car.primaryEventCode ?? "Belum tersedia"}</span>
+        <span>Subsystem: {car.criticalSubsystemCount ?? 0} Critical • {car.warningSubsystemCount ?? 0} Warning</span>
+        <span>Signals: {car.signalCount ?? "Belum tersedia"}</span>
+        <span>Alarm aktif: {car.activeAlarmCount ?? "Belum tersedia"}</span>
+      </div>
     </Card>
   );
 }

@@ -18,9 +18,9 @@ export function UserSessionControl() {
   const nextMode = mode === "dummy" ? "live" : "dummy";
   const modeState = mode === "dummy"
     ? "dummy"
-    : resourceStatus.source === "empty" || resourceStatus.error
+    : resourceStatus.error
       ? "error"
-      : resourceStatus.stale || resourceStatus.source === "cache"
+      : resourceStatus.stale || resourceStatus.fromCache
         ? "stale"
         : resourceStatus.source === "live"
           ? "connected"

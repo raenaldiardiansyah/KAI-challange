@@ -1,22 +1,39 @@
-import { telemetryDummy } from "@/dummy/telemetryDummy";
+import { telemetryRamsDummy } from "@/dummy/telemetryRamsDummy";
+import { telemetryHistoryFixture, telemetryLatestFixture } from "@/dummy/rams";
 import type { TelemetrySeries } from "@/types/telemetry";
 import type { RamsTelemetryDto, RamsTelemetryResponse } from "@/types/api";
 import { adaptTelemetry } from "@/adapters/telemetryAdapter";
-import { requestRams, type RamsApiResult, type RamsQuery } from "./api/ramsApiClient";
+import type { DataMode } from "./api/dataMode";
+import { loadRams } from "./api/ramsDataSource";
+import { mergeRamsMetadata, type RamsApiResult, type RamsQuery } from "./api/ramsApiClient";
 
 export type TelemetryFilters = {
   trainsetId?: string;
   carId?: string;
   subsystem?: string;
   signalName?: string;
+  qualityStatus?: string;
   limit?: number;
 };
 
 export type TelemetryData = { series: TelemetrySeries[]; records: RamsTelemetryDto[] };
 
-export const telemetryDummyData: TelemetryData = { series: telemetryDummy, records: [] };
+export function filterTelemetryRecords(records: RamsTelemetryDto[], filters: TelemetryFilters = {}) {
+  return records.filter((item) => (
+    (!filters.trainsetId || item.trainset_id === filters.trainsetId)
+    && (!filters.carId || item.car_id === filters.carId)
+    && (!filters.subsystem || item.subsystem === filters.subsystem)
+    && (!filters.signalName || item.signal_name === filters.signalName)
+    && (!filters.qualityStatus || item.quality_status === filters.qualityStatus)
+  ));
+}
 
-export async function getTelemetryData(filters: TelemetryFilters = {}, signal?: AbortSignal): Promise<RamsApiResult<TelemetryData>> {
+export const telemetryDummyData: TelemetryData = {
+  records: telemetryRamsDummy,
+  series: adaptTelemetry(telemetryRamsDummy)
+};
+
+export async function getTelemetryData(filters: TelemetryFilters = {}, signal?: AbortSignal, mode: DataMode = "live"): Promise<RamsApiResult<TelemetryData>> {
   const historyQuery: RamsQuery = {
     trainset_id: filters.trainsetId,
     car_id: filters.carId,
@@ -24,28 +41,28 @@ export async function getTelemetryData(filters: TelemetryFilters = {}, signal?: 
     signal_name: filters.signalName,
     limit: filters.limit ?? 500
   };
-  const [latest, history] = await Promise.all([
-    requestRams<RamsTelemetryResponse>("/telemetry/latest", { signal, query: { limit: Math.min(filters.limit ?? 100, 1000) } }),
-    requestRams<RamsTelemetryResponse>("/telemetry/history", { signal, query: historyQuery })
+  const settled = await Promise.allSettled([
+    loadRams<RamsTelemetryResponse>(mode, "/telemetry/latest", telemetryLatestFixture, { signal, query: { limit: Math.min(filters.limit ?? 100, 1000) } }),
+    loadRams<RamsTelemetryResponse>(mode, "/telemetry/history", telemetryHistoryFixture, { signal, query: historyQuery })
   ]);
+  const fulfilled = settled
+    .filter((result): result is PromiseFulfilledResult<RamsApiResult<RamsTelemetryResponse>> => result.status === "fulfilled")
+    .map((result) => result.value);
+  if (fulfilled.length === 0) {
+    const rejected = settled.find((result): result is PromiseRejectedResult => result.status === "rejected");
+    throw rejected?.reason ?? new Error("Data telemetry RAMS belum tersedia.");
+  }
   const byId = new Map<number, RamsTelemetryDto>();
-  [...history.data.items, ...latest.data.items].forEach((item) => {
-    const matches = (!filters.trainsetId || item.trainset_id === filters.trainsetId)
-      && (!filters.carId || item.car_id === filters.carId)
-      && (!filters.subsystem || item.subsystem === filters.subsystem)
-      && (!filters.signalName || item.signal_name === filters.signalName);
-    if (matches) byId.set(item.id, item);
-  });
-  const records = Array.from(byId.values()).sort((a, b) => a.event_time.localeCompare(b.event_time));
+  fulfilled.flatMap((result) => result.data.items).forEach((item) => byId.set(item.id, item));
+  const records = filterTelemetryRecords(Array.from(byId.values()), filters)
+    .sort((a, b) => a.event_time.localeCompare(b.event_time));
   return {
     data: { records, series: adaptTelemetry(records) },
-    source: latest.source === "cache" || history.source === "cache" ? "cache" : "live",
-    stale: latest.stale || history.stale,
-    fetchedAt: latest.fetchedAt > history.fetchedAt ? latest.fetchedAt : history.fetchedAt
+    ...mergeRamsMetadata(fulfilled)
   };
 }
 
 /** @deprecated Local/Prototype callers should import telemetryDummy directly. */
 export async function getTelemetry(): Promise<TelemetrySeries[]> {
-  return telemetryDummy;
+  return telemetryDummyData.series;
 }

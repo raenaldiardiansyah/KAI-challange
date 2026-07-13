@@ -1,25 +1,39 @@
-import { alarmDummy } from "@/dummy/alarmDummy";
 import type { Alarm } from "@/types/alarm";
 import type { RamsActiveAlarmsResponse, RamsAlarmMutationResponse, RamsAlarmsResponse } from "@/types/api";
-import { adaptAlarms } from "@/adapters/alarmAdapter";
-import { requestRams, type RamsApiResult } from "./api/ramsApiClient";
+import { adaptAlarms, type AlarmDiagnosticMatch } from "@/adapters/alarmAdapter";
+import { activeAlarmsFixture, alarmsFixture } from "@/dummy/rams";
+import type { DataMode } from "./api/dataMode";
+import { loadRams } from "./api/ramsDataSource";
+import { mergeRamsMetadata, requestRams, type RamsApiResult } from "./api/ramsApiClient";
 
-export async function getAlarms(signal?: AbortSignal): Promise<RamsApiResult<Alarm[]>> {
-  const [active, acknowledged, resolved, activeFrontend] = await Promise.all([
-    requestRams<RamsAlarmsResponse>("/alarms", { signal, query: { status: "ACTIVE", limit: 1000 } }),
-    requestRams<RamsAlarmsResponse>("/alarms", { signal, query: { status: "ACKED", limit: 1000 } }),
-    requestRams<RamsAlarmsResponse>("/alarms", { signal, query: { status: "RESOLVED", limit: 1000 } }),
-    requestRams<RamsActiveAlarmsResponse>("/frontend/alarms/active", { signal, query: { limit: 1000 } })
+export async function getAlarms(signal?: AbortSignal, mode: DataMode = "live"): Promise<RamsApiResult<Alarm[]>> {
+  const settled = await Promise.allSettled([
+    loadRams<RamsAlarmsResponse>(mode, "/alarms", alarmsFixture("ACTIVE"), { signal, query: { status: "ACTIVE", limit: 1000 } }),
+    loadRams<RamsAlarmsResponse>(mode, "/alarms", alarmsFixture("ACKED"), { signal, query: { status: "ACKED", limit: 1000 } }),
+    loadRams<RamsAlarmsResponse>(mode, "/alarms", alarmsFixture("RESOLVED"), { signal, query: { status: "RESOLVED", limit: 1000 } }),
+    loadRams<RamsActiveAlarmsResponse>(mode, "/frontend/alarms/active", activeAlarmsFixture, { signal, query: { limit: 1000 } })
   ]);
-  const byId = new Map<number, (typeof active.data.items)[number]>();
-  [...resolved.data.items, ...acknowledged.data.items, ...active.data.items, ...activeFrontend.data.items]
-    .forEach((alarm) => byId.set(alarm.id, alarm));
-  const results = [active, acknowledged, resolved, activeFrontend];
+  const alarmResults = settled.slice(0, 3)
+    .filter((result): result is PromiseFulfilledResult<RamsApiResult<RamsAlarmsResponse>> => result.status === "fulfilled")
+    .map((result) => result.value);
+  if (alarmResults.length === 0) {
+    const rejected = settled.find((result): result is PromiseRejectedResult => result.status === "rejected");
+    throw rejected?.reason ?? new Error("Data alarm RAMS belum tersedia.");
+  }
+  const frontendResult = settled[3].status === "fulfilled" ? settled[3].value : null;
+  const diagnostics: AlarmDiagnosticMatch[] = frontendResult
+    ? frontendResult.data.items.flatMap((train) => (train.cars ?? []).flatMap((car) => (car.subsystems ?? []).map((subsystem) => ({
+        ...subsystem,
+        trainsetId: train.trainset,
+        carId: car.car
+      }))))
+    : [];
+  const byId = new Map<number, RamsAlarmsResponse["items"][number]>();
+  alarmResults.flatMap((result) => result.data.items).forEach((alarm) => byId.set(alarm.id, alarm));
+  const results: RamsApiResult<unknown>[] = [...alarmResults, ...(frontendResult ? [frontendResult] : [])];
   return {
-    data: adaptAlarms(Array.from(byId.values())),
-    source: results.some((result) => result.source === "cache") ? "cache" : "live",
-    stale: results.some((result) => result.stale),
-    fetchedAt: results.map((result) => result.fetchedAt).sort().at(-1) ?? new Date().toISOString()
+    data: adaptAlarms(Array.from(byId.values()), diagnostics),
+    ...mergeRamsMetadata(results)
   };
 }
 
@@ -36,5 +50,3 @@ export async function resolveAlarm(id: string) {
     allowCachedFallback: false
   });
 }
-
-export { alarmDummy };

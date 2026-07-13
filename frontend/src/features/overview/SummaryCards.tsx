@@ -5,10 +5,10 @@ import Link from "next/link";
 
 export function SummaryCards({ summary }: { summary: OverviewData["summary"] }) {
   const items = [
-    { label: "Armada Aktif", value: `${summary.onlineTrainsets}/${summary.totalTrainsets}`, icon: <Broadcast size={24} weight="fill" color="var(--accent)" />, link: "/live-monitoring" },
-    { label: "Total Gerbong", value: summary.totalCars, icon: <Train size={24} weight="fill" color="var(--muted)" />, link: "/trainset" },
+    { label: `Armada Aktif · Data ${summary.dataAvailabilityPercent}%`, value: `${summary.onlineTrainsets}/${summary.totalTrainsets}`, icon: <Broadcast size={24} weight="fill" color="var(--accent)" />, link: "/live-monitoring" },
+    { label: "Gerbong Online", value: `${summary.onlineCars}/${summary.totalCars}`, icon: <Train size={24} weight="fill" color="var(--muted)" />, link: "/trainset" },
     { label: "Kesehatan Global", value: `${summary.globalHealthScore}%`, icon: <Wrench size={24} weight="fill" color="#10b981" />, link: "/predictive-maintenance", delta: summary.showTrends ? "1.2%" : undefined, dir: "down", deltaColor: "#10b981" },
-    { label: "Alarm Aktif", value: summary.activeAlarms, icon: <Warning size={24} weight="fill" color="var(--danger)" />, link: "/alarm-center", delta: summary.showTrends ? "2" : undefined, dir: "up", deltaColor: "var(--danger)" },
+    { label: `Alarm Aktif · ${summary.criticalAlarms} kritis`, value: summary.activeAlarms, icon: <Warning size={24} weight="fill" color="var(--danger)" />, link: "/alarm-center", delta: summary.showTrends ? "2" : undefined, dir: "up", deltaColor: "var(--danger)" },
     { label: "Risiko Prediktif", value: summary.predictiveRisks, icon: <Heartbeat size={24} weight="fill" color="var(--warning)" />, link: "/predictive-maintenance", delta: summary.showTrends ? "1" : undefined, dir: "up", deltaColor: "var(--danger)" },
     { label: "Insight LLM", value: summary.insightCount, icon: <Brain size={24} weight="fill" color="#2563eb" />, link: "/insight-analytic", delta: summary.showTrends ? "1" : undefined, dir: "up", deltaColor: "var(--danger)" }
   ];

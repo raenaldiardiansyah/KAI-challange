@@ -28,18 +28,47 @@ export function adaptTrainCarToInsight(trainsetId: string, car: RamsTrainCarDto)
     evidence: { backendCarId: car.car_id, source: "frontend/state" },
     structuredInsight: { source: "DERIVED", backendCarId: car.car_id },
     naturalInsight: "Status diturunkan dari snapshot kesehatan gerbong.",
-    recommendation: "Tinjau detail gerbong dan data sensor terbaru."
+    recommendation: "Tinjau detail gerbong dan data sensor terbaru.",
+    carId: car.car_id
   };
 }
 
 export function adaptFrontendState(dto: RamsFrontendStateDto): OverviewData {
   const liveInsights = adaptInsights(dto.insights);
   const derivedInsights = dto.trains.flatMap((train) => train.cars.map((car) => adaptTrainCarToInsight(train.trainset_id, car)));
+  const liveInsightByCar = new Map(liveInsights
+    .filter((insight) => insight.carId)
+    .map((insight) => [`${insight.trainsetId}:${insight.carId}`, insight]));
+  const mergedCarInsights = derivedInsights.map((derived) => {
+    const live = derived.carId ? liveInsightByCar.get(`${derived.trainsetId}:${derived.carId}`) : undefined;
+    return live ? { ...live, healthScore: derived.healthScore } : derived;
+  });
+  const derivedKeys = new Set(derivedInsights.filter((insight) => insight.carId).map((insight) => `${insight.trainsetId}:${insight.carId}`));
+  mergedCarInsights.push(...liveInsights.filter((insight) => !insight.carId || !derivedKeys.has(`${insight.trainsetId}:${insight.carId}`)));
+  const primaryTrainsetId = dto.trains[0]?.trainset_id;
+  const overviewCarInsights = primaryTrainsetId
+    ? mergedCarInsights.filter((insight) => insight.trainsetId === primaryTrainsetId)
+    : mergedCarInsights;
+  const trainsetCompositions = dto.trains.map((train) => {
+    const identity = getTrainsetIdentity(train.trainset_id, train.display_name);
+    return {
+      trainsetId: train.trainset_id,
+      displayCode: identity.displayCode,
+      displayName: identity.displayName,
+      totalCars: train.total_cars || train.cars.length,
+      carInsights: mergedCarInsights
+        .filter((insight) => insight.trainsetId === train.trainset_id)
+        .sort((left, right) => left.carNumber - right.carNumber)
+    };
+  });
   return {
     summary: {
       onlineTrainsets: dto.metrics.online_trains,
       totalTrainsets: dto.metrics.total_trains,
       totalCars: dto.metrics.total_cars,
+      onlineCars: dto.metrics.online_cars,
+      criticalAlarms: dto.metrics.critical_alarms,
+      dataAvailabilityPercent: dto.metrics.data_availability_percent,
       globalHealthScore: dto.metrics.average_health_score,
       activeAlarms: dto.metrics.active_alarms,
       predictiveRisks: dto.predictive.length,
@@ -47,9 +76,10 @@ export function adaptFrontendState(dto: RamsFrontendStateDto): OverviewData {
       showTrends: false
     },
     trainsets: adaptTrainsets(dto.trains),
-    priorityInsight: liveInsights[0] ?? derivedInsights[0] ?? null,
+    priorityInsight: mergedCarInsights[0] ?? null,
     insights: liveInsights,
-    carInsights: liveInsights.length ? liveInsights : derivedInsights,
+    carInsights: overviewCarInsights,
+    trainsetCompositions,
     alarms: adaptAlarms(dto.alarms),
     maintenance: adaptPredictiveList(dto.predictive),
     mapPoints: dto.positions.map(adaptFrontendPosition).filter((item): item is NonNullable<typeof item> => Boolean(item))

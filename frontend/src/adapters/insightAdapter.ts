@@ -26,7 +26,15 @@ export function adaptInsight(dto: RamsInsightDto): Insight {
     },
     structuredInsight: { generatedAt: dto.created_at, source: dto.generated_by },
     naturalInsight: dto.summary,
-    recommendation: dto.recommended_actions.join("; ") || "Belum tersedia"
+    recommendation: dto.recommended_actions.join("; ") || "Belum tersedia",
+    carId: dto.car_id,
+    probableCauses: dto.probable_causes,
+    recommendedActions: dto.recommended_actions,
+    generatedBy: dto.generated_by,
+    sourceEventId: dto.source_event_id,
+    createdAt: dto.created_at,
+    technicalExplanation: dto.technical_explanation,
+    llmRecommendation: dto.llm_recommendation
   };
 }
 

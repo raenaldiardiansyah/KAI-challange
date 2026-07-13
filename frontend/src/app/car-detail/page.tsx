@@ -6,9 +6,10 @@ import { CarIdentityHealthSummary } from "@/features/car-detail/CarIdentityHealt
 import { CarLlmSummary } from "@/features/car-detail/CarLlmSummary";
 import { CarSelectorFilter } from "@/features/car-detail/CarSelectorFilter";
 import { CarDetailInvestigationTabs } from "@/features/car-detail/CarDetailInvestigationTabs";
-import { carPageDummyData, getCarPageData, type CarPageData } from "@/services/carDetailService";
+import { getCarPageData, type CarPageData } from "@/services/carDetailService";
 import type { CarDetail } from "@/types/car";
 import { adaptSubsystem } from "@/adapters/statusAdapter";
+import { resolveCarId, resolveTrainsetId } from "@/adapters/identityAdapter";
 import { useRamsResource } from "@/hooks/useRamsResource";
 import { PageSkeleton } from "@/components/layout/PageSkeleton";
 import { DataUnavailableState } from "@/components/data/DataUnavailableState";
@@ -51,10 +52,10 @@ export default function CarDetailPage() {
   const carQuery = searchParams.get("car") ?? undefined;
   const subsystemQuery = searchParams.get("subsystem") ?? undefined;
   const loader = useCallback(
-    (signal: AbortSignal) => getCarPageData({ trainsetId: trainsetQuery, carId: carQuery, subsystem: subsystemQuery }, signal),
+    (signal: AbortSignal, mode: "dummy" | "live") => getCarPageData({ trainsetId: trainsetQuery, carId: carQuery, subsystem: subsystemQuery }, signal, mode),
     [carQuery, subsystemQuery, trainsetQuery]
   );
-  const resource = useRamsResource<CarPageData>(carPageDummyData, loader, 30_000);
+  const resource = useRamsResource<CarPageData>(loader, 30_000);
 
   if (!resource.ready || resource.loading) return <PageSkeleton />;
   if (!resource.data || resource.data.cars.length === 0 || resource.data.trainsets.length === 0) {
@@ -68,9 +69,10 @@ export default function CarDetailPage() {
     insights,
     carOptionsByTrainset,
     selectedTrainsetId: defaultTrainsetId,
-    selectedCarId
+    selectedCarId,
+    telemetryRecords,
+    partialErrors
   } = resource.data;
-  const isDummy = resource.source === "dummy";
   const issueMap = new Map<string, Set<number>>();
   const addIssue = (trainsetId: string, carNumber: number) => {
     if (!issueMap.has(trainsetId)) issueMap.set(trainsetId, new Set<number>());
@@ -83,39 +85,35 @@ export default function CarDetailPage() {
     if (insight.trainsetId !== "ALL" && insight.severity !== "Normal") addIssue(insight.trainsetId, insight.carNumber);
   });
 
-  const selectedTrainsetId = trainsetQuery ?? defaultTrainsetId;
+  const selectedTrainsetId = trainsetQuery ? resolveTrainsetId(trainsetQuery) : defaultTrainsetId;
   const selectedTrainset = trainsets.find((trainset) => trainset.id === selectedTrainsetId) ?? trainsets[0];
-  const selectedTrainsetIssues = Array.from(issueMap.get(selectedTrainset.id) ?? []).sort((a, b) => a - b);
-  const requestedCarNumber = isDummy && carQuery ? Number.parseInt(carQuery, 10) : NaN;
-  const exactCar = isDummy
-    ? cars.find((candidate) => candidate.trainsetId === selectedTrainset.id && candidate.carNumber === requestedCarNumber)
-      ?? cars.find((candidate) => candidate.trainsetId === selectedTrainset.id)
-    : cars.find((candidate) => candidate.trainsetId === selectedTrainset.id && candidate.id === (carQuery ?? selectedCarId));
-  if (!isDummy && !exactCar) {
+  const normalizedCarQuery = carQuery && /^\d+$/.test(carQuery) ? `C${carQuery}` : carQuery;
+  const requestedCarId = normalizedCarQuery ? resolveCarId(selectedTrainset.id, normalizedCarQuery) : selectedCarId;
+  const exactCar = cars.find((candidate) => candidate.trainsetId === selectedTrainset.id && candidate.id === requestedCarId);
+  if (!exactCar) {
     return <DataUnavailableState message="Gerbong RAMS yang dipilih tidak tersedia." onRetry={resource.retry} />;
   }
-  const targetCarNumber = exactCar?.carNumber ?? selectedTrainsetIssues[0] ?? 1;
+  const targetCarNumber = exactCar.carNumber;
   const selectedInsight = insights.find((insight) => insight.trainsetId === selectedTrainset.id && insight.carNumber === targetCarNumber);
   const car = exactCar ?? buildFallbackCar(selectedTrainset.id, targetCarNumber, selectedInsight?.healthScore ?? selectedTrainset.healthScore);
   const selectedSubsystemLabel = !subsystemQuery || subsystemQuery === "all"
     ? "all"
-    : isDummy ? subsystemQuery : adaptSubsystem(subsystemQuery);
+    : adaptSubsystem(backendSubsystem(subsystemQuery));
   const visibleCar = selectedSubsystemLabel === "all"
     ? car
     : { ...car, subsystems: car.subsystems.filter((subsystem) => subsystem.subsystem === selectedSubsystemLabel) };
   const selectedTelemetry = telemetry.find((series) => series.trainsetId === car.trainsetId && series.carNumber === car.carNumber);
   const issueTrainsets = trainsets.filter((trainset) => issueMap.has(trainset.id) || !["Healthy", "Watch"].includes(trainset.healthStatus)).map((trainset) => trainset.id);
   const issueCarsByTrainset = Object.fromEntries(Array.from(issueMap.entries()).map(([trainsetId, carNumbers]) => [trainsetId, Array.from(carNumbers).sort((a, b) => a - b)]));
-  const selectedCarValue = isDummy ? String(targetCarNumber) : car.id;
-  const subsystemOptions = car.subsystems.map((subsystem) => isDummy
-    ? subsystem.subsystem
-    : { value: backendSubsystem(subsystem.subsystem), label: subsystem.subsystem });
+  const selectedCarValue = car.id;
+  const subsystemOptions = car.subsystems.map((subsystem) => ({ value: backendSubsystem(subsystem.subsystem), label: subsystem.subsystem }));
 
   return (
     <div className="page-grid">
       <CarDetailInvestigationTabs
         car={visibleCar}
         telemetry={selectedTelemetry}
+        telemetryRecords={telemetryRecords}
         filterContent={
           <CarSelectorFilter
             defaultCar={selectedCarValue}
@@ -130,10 +128,13 @@ export default function CarDetailPage() {
           />
         }
         headerContent={
-          <div className="car-detail-summary-grid">
-            <CarIdentityHealthSummary car={visibleCar} />
-            <CarLlmSummary car={visibleCar} insight={selectedInsight} />
-          </div>
+          <>
+            {partialErrors.length ? <div role="status" style={{ color: "#92400e", fontSize: 11, marginBottom: 6 }}>Data parsial: {partialErrors.join(" · ")}</div> : null}
+            <div className="car-detail-summary-grid">
+              <CarIdentityHealthSummary car={visibleCar} />
+              <CarLlmSummary car={visibleCar} insight={selectedInsight} />
+            </div>
+          </>
         }
       />
     </div>

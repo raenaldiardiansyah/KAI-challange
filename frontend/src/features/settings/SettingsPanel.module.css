@@ -1,0 +1,26 @@
+.tabs { display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid #e2e8f0; margin-bottom: 16px; padding-bottom: 8px; }
+.tabs button { background: transparent; border: 0; border-radius: 8px; color: #64748b; cursor: pointer; font-size: 12px; font-weight: 800; padding: 8px 12px; white-space: nowrap; }
+.tabs button.active { background: #162340; color: #fff; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grid label { color: #475569; display: grid; font-size: 12px; font-weight: 700; gap: 6px; }
+.grid small { color: #64748b; font-weight: 500; }
+.full { grid-column: 1 / -1; }
+.label { color: #475569; display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+.actions { align-items: center; display: flex; flex-wrap: wrap; gap: 6px; }
+.connection { align-content: center; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; display: grid; gap: 8px; padding: 12px; }
+.stack { display: grid; gap: 12px; }
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.metric { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9px; display: grid; gap: 4px; min-width: 0; padding: 10px; }
+.metric span { color: #64748b; font-size: 11px; }
+.metric strong { color: #162340; font-size: 12px; overflow-wrap: anywhere; }
+.tableWrap { max-height: 360px; overflow: auto; }
+.tableWrap table { border-collapse: collapse; font-size: 12px; width: 100%; }
+.tableWrap th, .tableWrap td { border-bottom: 1px solid #e2e8f0; padding: 9px; text-align: left; white-space: nowrap; }
+.tableWrap tbody tr { cursor: pointer; }
+.tableWrap tbody tr:hover { background: #f8fafc; }
+.empty, .warning, .notice { border-radius: 8px; font-size: 12px; margin: 0; padding: 10px; }
+.empty { background: #f8fafc; color: #64748b; }
+.warning { background: #fff7ed; color: #c2410c; }
+.notice { background: #eff6ff; color: #1d4ed8; }
+.headerRow { align-items: center; display: flex; justify-content: space-between; gap: 12px; }
+@media (max-width: 800px) { .grid, .metrics { grid-template-columns: 1fr; } .full { grid-column: auto; } }

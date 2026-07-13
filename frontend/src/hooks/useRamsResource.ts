@@ -3,21 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDataMode } from "@/features/data-mode/DataModeProvider";
 import type { RamsApiResult } from "@/services/api/ramsApiClient";
+import type { DataMode } from "@/services/api/dataMode";
+import type { SectionData } from "@/types/data";
 
-export type DataSource = "dummy" | "live" | "cache" | "empty";
-
-type ResourceState<T> = {
-  data: T | null;
-  source: DataSource;
-  stale: boolean;
-  fetchedAt: string | null;
-  loading: boolean;
-  error: string | null;
-};
+type ResourceState<T> = SectionData<T>;
 
 export function useRamsResource<T>(
-  dummyData: T,
-  loader: (signal: AbortSignal) => Promise<RamsApiResult<T>>,
+  loader: (signal: AbortSignal, mode: DataMode) => Promise<RamsApiResult<T>>,
   refreshIntervalMs?: number
 ) {
   const { mode, ready, reportResourceStatus } = useDataMode();
@@ -25,8 +17,10 @@ export function useRamsResource<T>(
   const [retrySequence, setRetrySequence] = useState(0);
   const [state, setState] = useState<ResourceState<T>>({
     data: null,
-    source: "empty",
+    source: "dummy",
     stale: false,
+    fromCache: false,
+    generatedAt: null,
     fetchedAt: null,
     loading: true,
     error: null
@@ -36,19 +30,6 @@ export function useRamsResource<T>(
 
   useEffect(() => {
     if (!ready) return;
-    if (mode === "dummy") {
-      setState({
-        data: dummyData,
-        source: "dummy",
-        stale: false,
-        fetchedAt: null,
-        loading: false,
-        error: null
-      });
-      reportResourceStatus({ source: "dummy", stale: false, fetchedAt: null, error: null });
-      return;
-    }
-
     const controller = new AbortController();
     const sequence = ++requestSequence.current;
 
@@ -56,30 +37,36 @@ export function useRamsResource<T>(
       if (document.visibilityState === "hidden") return;
       if (!background) setState((current) => ({ ...current, loading: true, error: null }));
       try {
-        const result = await loader(controller.signal);
+        const result = await loader(controller.signal, mode);
         if (sequence !== requestSequence.current || controller.signal.aborted) return;
         setState({
           data: result.data,
           source: result.source,
           stale: result.stale,
+          fromCache: result.fromCache,
+          generatedAt: result.generatedAt,
           fetchedAt: result.fetchedAt,
           loading: false,
           error: null
         });
-        reportResourceStatus({ source: result.source, stale: result.stale, fetchedAt: result.fetchedAt, error: null });
+        reportResourceStatus({ source: result.source, stale: result.stale, fromCache: result.fromCache, generatedAt: result.generatedAt, fetchedAt: result.fetchedAt, error: null });
       } catch (error) {
         if (sequence !== requestSequence.current || controller.signal.aborted) return;
         setState({
           data: null,
-          source: "empty",
+          source: mode,
           stale: false,
+          fromCache: false,
+          generatedAt: null,
           fetchedAt: null,
           loading: false,
           error: error instanceof Error ? error.message : "Data RAMS belum tersedia."
         });
         reportResourceStatus({
-          source: "empty",
+          source: mode,
           stale: false,
+          fromCache: false,
+          generatedAt: null,
           fetchedAt: null,
           error: error instanceof Error ? error.message : "Data RAMS belum tersedia."
         });
@@ -87,7 +74,7 @@ export function useRamsResource<T>(
     };
 
     void load();
-    const interval = refreshIntervalMs
+    const interval = refreshIntervalMs && mode === "live"
       ? window.setInterval(() => void load(true), refreshIntervalMs)
       : null;
 
@@ -95,7 +82,7 @@ export function useRamsResource<T>(
       controller.abort();
       if (interval) window.clearInterval(interval);
     };
-  }, [dummyData, loader, mode, ready, refreshIntervalMs, reportResourceStatus, retrySequence]);
+  }, [loader, mode, ready, refreshIntervalMs, reportResourceStatus, retrySequence]);
 
   return { ...state, mode, ready, retry };
 }

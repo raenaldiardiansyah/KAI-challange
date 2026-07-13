@@ -27,12 +27,23 @@ describe("alarm service", () => {
   it("loads documented alarm wrappers and never exposes AUTO_CLEARED", async () => {
     vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
       const url = String(input);
-      const items = url.includes("status=ACTIVE") || url.includes("frontend%2Falarms") || url.includes("frontend/alarms") ? [alarm] : [];
+      if (url.includes("frontend/alarms")) {
+        return new Response(JSON.stringify({
+          ok: true,
+          items: [{ trainset: "KA_DATA_DUMMY", cars: [{ car: "M102401", subsystems: [{
+            subsystem: "PRESSURE", priority: "WARNING", error: "Pressure warning", recommendation: "Inspect valve",
+            diagnostic_cases: ["LOCAL_BC_DEVIATION"], affected_cars: [{ car_id: "M102401", confidence: "HIGH" }],
+            diagnostic_scope: "LOCAL", diagnostic_confidence: "HIGH", diagnostic_evidence: ["Observed deviation"]
+          }] }] }]
+        }), { status: 200 });
+      }
+      const items = url.includes("status=ACTIVE") ? [alarm] : [];
       return new Response(JSON.stringify({ ok: true, items }), { status: 200 });
     });
     const result = await getAlarms();
     expect(result.data).toHaveLength(1);
     expect(result.data[0]).toMatchObject({ id: "12", trainsetCode: "TS-001", carId: "M102401", carNumber: 1, status: "Open" });
+    expect(result.data[0]).toMatchObject({ diagnosticCases: ["LOCAL_BC_DEVIATION"], recommendation: "Inspect valve" });
   });
 
   it("calls backend acknowledge and resolve mutations through the BFF", async () => {

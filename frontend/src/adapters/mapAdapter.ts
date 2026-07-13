@@ -13,7 +13,8 @@ export type MapPoint = {
   status: ReturnType<typeof adaptHealthStatus>;
   health: number;
   lastUpdate: string;
-  speed?: number;
+  speed?: number | null;
+  alarmCount?: number | null;
 };
 
 export function adaptFrontendPosition(dto: RamsFrontendPositionDto): MapPoint | null {

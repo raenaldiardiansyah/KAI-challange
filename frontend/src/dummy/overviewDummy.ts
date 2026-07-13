@@ -10,6 +10,9 @@ export const overviewDummy: OverviewData = {
     onlineTrainsets: trainsetDummy.filter((trainset) => trainset.online).length,
     totalTrainsets: trainsetDummy.length,
     totalCars: trainsetDummy.reduce((sum, trainset) => sum + trainset.totalCars, 0),
+    onlineCars: trainsetDummy.filter((trainset) => trainset.online).reduce((sum, trainset) => sum + trainset.totalCars, 0),
+    criticalAlarms: alarmDummy.filter((alarm) => alarm.severity === "Critical").length,
+    dataAvailabilityPercent: 96.8,
     globalHealthScore: 66,
     activeAlarms: alarmDummy.filter((alarm) => alarm.status === "Open").length,
     predictiveRisks: maintenanceDummy.length,
@@ -20,6 +23,15 @@ export const overviewDummy: OverviewData = {
   priorityInsight: insightDummy[0],
   insights: insightDummy,
   carInsights: carInsightsDummy,
+  trainsetCompositions: trainsetDummy
+    .map((trainset) => ({
+      trainsetId: trainset.id,
+      displayCode: trainset.id,
+      displayName: trainset.name,
+      totalCars: trainset.totalCars,
+      carInsights: carInsightsDummy.filter((insight) => insight.trainsetId === trainset.id)
+    }))
+    .filter((composition) => composition.carInsights.length > 0),
   alarms: alarmDummy,
   maintenance: maintenanceDummy,
   mapPoints: mapDummy

@@ -13,7 +13,7 @@ import {
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MaintenanceTable } from "./MaintenanceTable";
 import { RiskRanking } from "./RiskRanking";
 import { RiskSummary } from "./RiskSummary";
@@ -45,15 +45,26 @@ function RiskMetric({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false }: { risks: MaintenanceRisk[]; prototypeFields?: boolean }) {
+function formatPredictiveValue(value: number | string | null) {
+  if (value === null || value === "") return "Tidak tersedia";
+  return String(value);
+}
+
+export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false, onRefresh }: { risks: MaintenanceRisk[]; prototypeFields?: boolean; onRefresh?: () => Promise<void> }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const riskViews = useMemo(() => risks.map((risk, index) => buildRiskViewForSource(risk, index, prototypeFields)), [prototypeFields, risks]);
-  const [selectedId, setSelectedId] = useState(riskViews[0]?.id ?? "");
+  const contextualRisk = riskViews.find((risk) =>
+    (!searchParams.get("trainset") || risk.trainsetId === searchParams.get("trainset")) &&
+    (!searchParams.get("car") || String(risk.carNumber) === searchParams.get("car")?.replace(/^C/i, "")) &&
+    (!searchParams.get("subsystem") || risk.subsystem === searchParams.get("subsystem"))
+  );
+  const [selectedId, setSelectedId] = useState(searchParams.get("risk") ?? contextualRisk?.id ?? riskViews[0]?.id ?? "");
   const [activeFilter, setActiveFilter] = useState<RiskFilter>("all");
   const [query, setQuery] = useState("");
-  const [trainsetFilter, setTrainsetFilter] = useState("all");
-  const [carFilter, setCarFilter] = useState("all");
-  const [subsystemFilter, setSubsystemFilter] = useState("all");
+  const [trainsetFilter, setTrainsetFilter] = useState(searchParams.get("trainset") ?? "all");
+  const [carFilter, setCarFilter] = useState(searchParams.get("car")?.replace(/^C/i, "") ?? "all");
+  const [subsystemFilter, setSubsystemFilter] = useState(searchParams.get("subsystem") ?? "all");
   const [ttwFilter, setTtwFilter] = useState<PredictiveTtwFilter>("all");
   const [qualityFilter, setQualityFilter] = useState<PredictiveQualityFilter>("all");
   const [statusFilter, setStatusFilter] = useState<PredictiveStatusFilter>("all");
@@ -66,6 +77,7 @@ export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false 
   const [isAllQueueOpen, setIsAllQueueOpen] = useState(false);
   const [scheduleStatus, setScheduleStatus] = useState("");
   const [spkDraftStatus, setSpkDraftStatus] = useState("");
+  const [refreshStatus, setRefreshStatus] = useState("");
   const portalRoot = getPortalRoot();
 
   const trainsetOptions = useMemo(() => Array.from(new Set(riskViews.map((risk) => risk.trainsetId))), [riskViews]);
@@ -77,9 +89,9 @@ export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false 
       const ttwHours = risk.timeToWarning.includes("hari")
         ? Number.parseInt(risk.timeToWarning, 10) * 24
         : Number.parseInt(risk.timeToWarning, 10);
-      const matchesTtw = ttwFilter === "all"
+      const matchesTtw = prototypeFields || ttwFilter === "all"
         || (ttwFilter === "under24" ? ttwHours < 24 : ttwHours >= 24 && ttwHours <= 72);
-      const matchesQuality = qualityFilter === "all"
+      const matchesQuality = prototypeFields || qualityFilter === "all"
         || (qualityFilter === "complete" ? risk.missingTelemetry < 12 : risk.missingTelemetry >= 12);
 
       return (
@@ -91,15 +103,15 @@ export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false 
         (statusFilter === "all" || risk.status === statusFilter)
       );
     });
-  }, [activeFilter, carFilter, qualityFilter, query, riskViews, statusFilter, subsystemFilter, trainsetFilter, ttwFilter]);
+  }, [activeFilter, carFilter, prototypeFields, qualityFilter, query, riskViews, statusFilter, subsystemFilter, trainsetFilter, ttwFilter]);
   const selectedRisk = filteredRisks.find((risk) => risk.id === selectedId) ?? filteredRisks[0] ?? riskViews.find((risk) => risk.id === selectedId) ?? riskViews[0];
   const activeFilterCount = [
     activeFilter !== "all",
     trainsetFilter !== "all",
     carFilter !== "all",
     subsystemFilter !== "all",
-    ttwFilter !== "all",
-    qualityFilter !== "all",
+    !prototypeFields && ttwFilter !== "all",
+    !prototypeFields && qualityFilter !== "all",
     statusFilter !== "all",
     query.trim().length > 0
   ].filter(Boolean).length;
@@ -110,6 +122,15 @@ export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false 
 
   const selectRisk = (id: string) => {
     setSelectedId(id);
+    const risk = riskViews.find((item) => item.id === id);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("risk", id);
+    if (risk) {
+      params.set("trainset", risk.trainsetId);
+      params.set("car", String(risk.carNumber));
+      params.set("subsystem", risk.subsystem);
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
   };
 
   const openDetail = (id = selectedRisk?.id) => {
@@ -150,18 +171,20 @@ export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false 
         <Button variant="secondary" icon={<FunnelSimple size={16} />} onClick={() => setIsFilterOpen(true)}>
           Filter {activeFilterCount ? activeFilterCount : ""}
         </Button>
-        <div className="predictive-horizon" aria-label="Horizon prediksi">
+        <div className="predictive-horizon" aria-label="Horizon prediksi" title={prototypeFields ? "Prototype: backend belum menyediakan horizon" : undefined}>
           {horizons.map((item) => (
             <button className={horizon === item ? "active" : ""} key={item} onClick={() => setHorizon(item)} type="button">
-              {item}
+              {item}{prototypeFields ? " · P" : ""}
             </button>
           ))}
         </div>
         <Button variant="ghost" onClick={resetFilters}>Reset</Button>
+        {onRefresh ? <Button variant="secondary" onClick={async () => { setRefreshStatus("Memproses..."); try { await onRefresh(); setRefreshStatus("Prediksi diperbarui."); } catch (error) { setRefreshStatus(error instanceof Error ? error.message : "Refresh gagal."); } }}>Refresh RAMS</Button> : null}
         <Button icon={<CalendarBlank size={16} />} onClick={() => setIsScheduleOpen(true)}>
           Jadwalkan Inspeksi
         </Button>
       </section>
+      {refreshStatus ? <p className="chart-caption">{refreshStatus}</p> : null}
 
       {activeFilter !== "all" || query ? (
         <div className="predictive-active-filters">
@@ -217,9 +240,11 @@ export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false 
             </div>
             <div className="predictive-detail-panel">
               <RiskMetric label="Skor Risiko" value={`${selectedRisk.riskScore}%`} />
-              <RiskMetric label="TTW" value={selectedRisk.timeToWarning} />
+              <RiskMetric label="TTW" value={selectedRisk.prototypeFields ? "Prototype" : selectedRisk.timeToWarning} />
               <RiskMetric label="Confidence" value={selectedRisk.prototypeFields ? "Prototype" : `${selectedRisk.confidence}%`} />
               <RiskMetric label="Threshold" value={selectedRisk.thresholdTime} />
+              <RiskMetric label="Prediction Type" value={selectedRisk.predictionType ?? "Tidak tersedia"} />
+              <RiskMetric label="Status RAMS" value={selectedRisk.predictedStatus ?? "Tidak tersedia"} />
             </div>
             <div className="predictive-recommendation">
               <span>Rekomendasi</span>
@@ -244,10 +269,10 @@ export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false 
               <label>Gerbong<select value={carFilter} onChange={(event) => setCarFilter(event.target.value)}><option value="all">Semua gerbong</option>{carOptions.map((item) => <option key={item} value={item}>Gerbong {item}</option>)}</select></label>
               <label>Subsistem<select value={subsystemFilter} onChange={(event) => setSubsystemFilter(event.target.value)}><option value="all">Semua subsistem</option>{subsystemOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
               <label>Tingkat risiko<select value={activeFilter} onChange={(event) => setActiveFilter(event.target.value as RiskFilter)}><option value="all">Semua</option><option value="high">Risiko tinggi</option><option value="medium">Risiko sedang</option><option value="watch">Pantau</option><option value="limited">Data terbatas</option></select></label>
-              <label>Rentang TTW<select value={ttwFilter} onChange={(event) => setTtwFilter(event.target.value as PredictiveTtwFilter)}><option value="all">Semua TTW</option><option value="under24">&lt; 24 jam</option><option value="oneToThree">1-3 hari</option></select></label>
-              <label>Kualitas data<select value={qualityFilter} onChange={(event) => setQualityFilter(event.target.value as PredictiveQualityFilter)}><option value="all">Semua kualitas</option><option value="complete">Lengkap</option><option value="limited">Data terbatas</option></select></label>
+              {!prototypeFields ? <label>Rentang TTW<select value={ttwFilter} onChange={(event) => setTtwFilter(event.target.value as PredictiveTtwFilter)}><option value="all">Semua TTW</option><option value="under24">&lt; 24 jam</option><option value="oneToThree">1-3 hari</option></select></label> : null}
+              {!prototypeFields ? <label>Kualitas data<select value={qualityFilter} onChange={(event) => setQualityFilter(event.target.value as PredictiveQualityFilter)}><option value="all">Semua kualitas</option><option value="complete">Lengkap</option><option value="limited">Data terbatas</option></select></label> : null}
               <label>Status SPK<select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as PredictiveStatusFilter)}><option value="all">Semua status</option><option value="Siap SPK">Siap SPK</option><option value="Perlu validasi">Perlu validasi</option><option value="Pantau">Pantau</option></select></label>
-              <label>Rentang tanggal<input type="date" /></label>
+              {!prototypeFields ? <label>Rentang tanggal<input type="date" /></label> : null}
             </div>
             <div className="predictive-modal-footer">
               <span>{filteredRisks.length} hasil akan ditampilkan</span>
@@ -270,12 +295,19 @@ export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false 
               <button type="button" onClick={() => setIsDetailOpen(false)}><X size={18} /></button>
             </div>
             <div className="predictive-drawer-body">
-              <section><span>Ringkasan prediksi</span><p>Risiko {selectedRisk.riskScore}%. TTW dan confidence masih Prototype.</p></section>
-              <section><span>Input fitur model</span><p>{selectedRisk.prototypeFields ? "Nilai fitur tersedia dari backend; kontribusi fitur belum tersedia." : `Tren ${selectedRisk.trend}, deviasi subsystem ${selectedRisk.subsystem}, dan telemetry hilang ${selectedRisk.missingTelemetry}%.`}</p></section>
-              <section><span>Evidence pendukung</span><p>Nilai sensor bergerak mendekati threshold dan perlu dibandingkan dengan gerbong referensi sebelum inspeksi.</p></section>
+              <section><span>Ringkasan prediksi</span><p>Risiko {selectedRisk.riskScore}%. Tipe {selectedRisk.predictionType ?? "tidak tersedia"}; status RAMS {selectedRisk.predictedStatus ?? "tidak tersedia"}.</p></section>
+              <section>
+                <span>Input fitur model</span>
+                {selectedRisk.features && Object.keys(selectedRisk.features).length ? (
+                  <div className="predictive-evidence-grid">
+                    {Object.entries(selectedRisk.features).map(([key, value]) => <RiskMetric key={key} label={key} value={formatPredictiveValue(value)} />)}
+                  </div>
+                ) : <p>{selectedRisk.prototypeFields ? "Backend belum mengirim fitur model." : `Tren ${selectedRisk.trend}; telemetry hilang ${selectedRisk.missingTelemetry}%.`}</p>}
+              </section>
+              <section><span>Waktu prediksi</span><p>{selectedRisk.createdAt ? new Date(selectedRisk.createdAt).toLocaleString("id-ID") : "Tidak tersedia"}</p></section>
               <section><span>Dampak operasional</span><p>{selectedRisk.impact}</p></section>
               <section><span>Rekomendasi pemeriksaan</span><p>{selectedRisk.recommendation}</p></section>
-              <section><span>Riwayat skor</span><p>H-3 52%, H-2 58%, H-1 67%, saat ini {selectedRisk.riskScore}%.</p></section>
+              {!selectedRisk.prototypeFields ? <section><span>Riwayat skor</span><p>H-3 52%, H-2 58%, H-1 67%, saat ini {selectedRisk.riskScore}%.</p></section> : null}
             </div>
           </aside>
         </div>,
@@ -291,11 +323,11 @@ export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false 
             </div>
             <div className="predictive-evidence-grid">
               <RiskMetric label="Sensor utama" value={selectedRisk.subsystem} />
-              <RiskMetric label="Rentang normal" value="2.1-2.4 bar" />
-              <RiskMetric label="Deviasi" value={`${Math.max(7, selectedRisk.riskScore - 72)}%`} />
-              <RiskMetric label="Kualitas data" value={`${100 - selectedRisk.missingTelemetry}%`} />
+              <RiskMetric label="Prediction Type" value={selectedRisk.predictionType ?? "Tidak tersedia"} />
+              <RiskMetric label="Status RAMS" value={selectedRisk.predictedStatus ?? "Tidak tersedia"} />
+              <RiskMetric label="Kualitas data" value={selectedRisk.prototypeFields ? "Prototype" : `${100 - selectedRisk.missingTelemetry}%`} />
             </div>
-            <p className="chart-caption">Evidence ini adalah simulasi dari dummy/service untuk membantu operator memutuskan apakah perlu membuka investigasi Gerbong.</p>
+            <p className="chart-caption">{selectedRisk.prototypeFields ? "Evidence Live hanya menampilkan fitur yang benar-benar dikirim RAMS." : "Evidence Dummy membantu operator mensimulasikan keputusan investigasi Gerbong."}</p>
             <div className="predictive-modal-footer"><Button onClick={() => setIsEvidenceOpen(false)}>Tutup</Button></div>
           </section>
         </div>,

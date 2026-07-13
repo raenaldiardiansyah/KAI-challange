@@ -12,8 +12,8 @@ export type RamsSubsystemHealthDto = {
   primary_rule_id: string | null;
   primary_event_code: string | null;
   reason: string | null;
-  last_value_json: Record<string, RamsSignalValueDto>;
-  matched_rules_json: RamsRuleMatchDto[];
+  last_value_json: Record<string, RamsSignalValueDto> | string | null;
+  matched_rules_json: RamsRuleMatchDto[] | string | null;
   source: string;
   last_update: string | null;
   created_at: string;
@@ -32,7 +32,7 @@ export type RamsCarHealthDto = {
   warning_subsystem_count: number;
   watch_subsystem_count: number;
   offline_subsystem_count: number;
-  subsystem_summary_json: Array<Record<string, unknown>>;
+  subsystem_summary_json: Array<Record<string, unknown>> | string | null;
   source: string;
   last_update: string | null;
   updated_at: string;
@@ -52,7 +52,7 @@ export type RamsTrainsetHealthDto = {
   warning_car_count: number;
   watch_car_count: number;
   offline_car_count: number;
-  car_summary_json: Array<Record<string, unknown>>;
+  car_summary_json: Array<Record<string, unknown>> | string | null;
   source: string;
   last_update: string | null;
   updated_at: string;

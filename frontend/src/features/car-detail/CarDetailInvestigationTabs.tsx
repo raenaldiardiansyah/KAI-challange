@@ -7,6 +7,7 @@ import { CarOperationalOverview } from "./CarOperationalOverview";
 import { CarPriorityAction } from "./CarPriorityAction";
 import type { CarDetail } from "@/types/car";
 import type { TelemetrySeries } from "@/types/telemetry";
+import type { RamsTelemetryDto } from "@/types/api";
 
 type TabId = "summary" | "sensor" | "action";
 
@@ -19,6 +20,7 @@ const tabs: Array<{ id: TabId; label: string }> = [
 export function CarDetailInvestigationTabs({
   car,
   telemetry,
+  telemetryRecords = [],
   filterContent,
   headerContent,
   trainsets = [],
@@ -27,6 +29,7 @@ export function CarDetailInvestigationTabs({
 }: {
   car: CarDetail;
   telemetry?: TelemetrySeries;
+  telemetryRecords?: RamsTelemetryDto[];
   filterContent?: ReactNode;
   headerContent?: ReactNode;
   trainsets?: Array<{ id: string; name: string }>;
@@ -74,7 +77,7 @@ export function CarDetailInvestigationTabs({
           />
         ) : null}
 
-        {activeTab === "sensor" ? <CarDataSensorTab car={car} telemetry={telemetry} /> : null}
+        {activeTab === "sensor" ? <CarDataSensorTab car={car} telemetry={telemetry} records={telemetryRecords} /> : null}
 
         {activeTab === "action" ? <CarPriorityAction car={car} onViewSensor={() => setActiveTab("sensor")} /> : null}
       </div>

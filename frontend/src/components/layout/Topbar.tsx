@@ -66,7 +66,7 @@ export function Topbar() {
         <span className="connection-test-button idle" aria-label="Sumber data aktif">
           {mode === "dummy"
             ? "DUMMY"
-            : resourceStatus.source === "empty"
+            : resourceStatus.error
               ? "LIVE ERROR"
               : resourceStatus.stale
                 ? `STALE ${resourceStatus.fetchedAt ? new Date(resourceStatus.fetchedAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : ""}`

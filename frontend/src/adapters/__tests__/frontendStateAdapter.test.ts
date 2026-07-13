@@ -40,5 +40,10 @@ describe("frontend state adapter", () => {
     expect(result.summary).toMatchObject({ totalTrainsets: 1, totalCars: 1, globalHealthScore: 91, predictiveRisks: 0, insightCount: 0, showTrends: false });
     expect(result.trainsets[0]).toMatchObject({ id: "KA_DATA_DUMMY", healthScore: 91 });
     expect(result.carInsights[0]).toMatchObject({ carNumber: 1, confidence: 0 });
+    expect(result.trainsetCompositions[0]).toMatchObject({
+      trainsetId: "KA_DATA_DUMMY",
+      displayCode: "TS-001",
+      totalCars: 1
+    });
   });
 });

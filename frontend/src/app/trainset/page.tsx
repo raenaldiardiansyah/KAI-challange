@@ -8,7 +8,7 @@ import { TrainsetComposition } from "@/features/trainset/TrainsetComposition";
 import { PriorityCars } from "@/features/trainset/PriorityCars";
 import { HealthByCarChart } from "@/features/trainset/HealthByCarChart";
 import { SubsystemHeatmap } from "@/features/trainset/SubsystemHeatmap";
-import { getTrainsetPageData, trainsetPageDummyData, type TrainsetPageData } from "@/services/trainsetService";
+import { getTrainsetPageData, type TrainsetPageData } from "@/services/trainsetService";
 import type { Insight } from "@/types/insight";
 import type { Trainset } from "@/types/trainset";
 import { useRamsResource } from "@/hooks/useRamsResource";
@@ -43,8 +43,8 @@ function buildTrainsetCarInsights(trainset: Trainset, allInsights: Insight[]) {
 
 export default function TrainsetPage() {
   const searchParams = useSearchParams();
-  const loader = useCallback((signal: AbortSignal) => getTrainsetPageData(signal), []);
-  const resource = useRamsResource<TrainsetPageData>(trainsetPageDummyData, loader, 30_000);
+  const loader = useCallback((signal: AbortSignal, mode: "dummy" | "live") => getTrainsetPageData(signal, mode), []);
+  const resource = useRamsResource<TrainsetPageData>(loader, 30_000);
 
   if (!resource.ready || resource.loading) return <PageSkeleton />;
   if (!resource.data || resource.data.trainsets.length === 0) {

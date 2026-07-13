@@ -15,7 +15,12 @@ export function adaptPredictive(dto: RamsPredictiveDto): MaintenanceRisk {
     riskScore: normalizeScore(dto.risk_score),
     timeToWarning: "Prototype",
     recommendation: dto.recommendation,
-    workOrderReady: false
+    workOrderReady: false,
+    carId: dto.car_id,
+    predictionType: dto.prediction_type,
+    predictedStatus: dto.predicted_status,
+    features: dto.features,
+    createdAt: dto.created_at
   };
 }
 

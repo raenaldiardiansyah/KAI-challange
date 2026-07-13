@@ -36,7 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    void refreshUser();
+    const timer = window.setTimeout(() => void refreshUser(), 0);
+    return () => window.clearTimeout(timer);
   }, [refreshUser]);
 
   const logout = useCallback(async () => {

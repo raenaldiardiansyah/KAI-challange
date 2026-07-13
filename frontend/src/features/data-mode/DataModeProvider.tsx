@@ -17,13 +17,14 @@ import {
   setDataMode,
   subscribeDataMode
 } from "@/services/api/dataMode";
+import type { ResourceStatus } from "@/types/data";
 
 type DataModeContextValue = {
   mode: DataMode;
   ready: boolean;
   changeMode: (mode: DataMode) => void;
-  resourceStatus: { source: "dummy" | "live" | "cache" | "empty"; stale: boolean; fetchedAt: string | null; error: string | null };
-  reportResourceStatus: (status: DataModeContextValue["resourceStatus"]) => void;
+  resourceStatus: ResourceStatus;
+  reportResourceStatus: (status: ResourceStatus) => void;
 };
 
 const DataModeContext = createContext<DataModeContextValue | null>(null);
@@ -34,11 +35,16 @@ export function DataModeProvider({ children }: { children: ReactNode }) {
   const [resourceStatus, setResourceStatus] = useState<DataModeContextValue["resourceStatus"]>({
     source: "dummy",
     stale: false,
+    fromCache: false,
+    generatedAt: null,
     fetchedAt: null,
     error: null
   });
 
-  useEffect(() => setReady(true), []);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReady(true), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const reportResourceStatus = useCallback((status: DataModeContextValue["resourceStatus"]) => setResourceStatus(status), []);
   const value = useMemo(

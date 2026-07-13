@@ -8,6 +8,7 @@ export * from "./mapDto";
 export * from "./predictiveDto";
 export * from "./ruleDto";
 export * from "./systemDto";
+export * from "./subsystemDto";
 export * from "./telemetryDto";
 export * from "./trainsetDto";
 export * from "./userDto";

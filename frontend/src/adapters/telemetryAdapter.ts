@@ -1,6 +1,54 @@
 import type { RamsTelemetryDto } from "@/types/api";
 import type { TelemetryPoint, TelemetrySeries } from "@/types/telemetry";
-import { getCarIdentity } from "./identityAdapter";
+import { formatTimestamp } from "./normalizers";
+import { getCarIdentity, getTrainsetIdentity } from "./identityAdapter";
+
+export type TelemetryRecordView = {
+  id: number;
+  eventTime: string;
+  eventTimeLabel: string;
+  trainsetId: string;
+  trainsetLabel: string;
+  carId: string | null;
+  carLabel: string;
+  subsystem: string;
+  signalName: string;
+  displayValue: string;
+  value: number | string | null;
+  valueFloat: number | null;
+  valueText: string | null;
+  unit: string | null;
+  qualityStatus: string;
+  sourceTopic: string | null;
+};
+
+export function adaptTelemetryRecord(item: RamsTelemetryDto): TelemetryRecordView {
+  const trainset = getTrainsetIdentity(item.trainset_id);
+  const car = item.car_id ? getCarIdentity(item.trainset_id, item.car_id) : null;
+  const value = item.value_float ?? item.value_text ?? item.value;
+  return {
+    id: item.id,
+    eventTime: item.event_time,
+    eventTimeLabel: formatTimestamp(item.event_time),
+    trainsetId: item.trainset_id,
+    trainsetLabel: trainset.displayCode,
+    carId: item.car_id,
+    carLabel: car?.displayCode ?? "Kereta",
+    subsystem: item.subsystem,
+    signalName: item.signal_name,
+    displayValue: value === null || value === "" ? "Belum tersedia" : String(value),
+    value: item.value,
+    valueFloat: item.value_float,
+    valueText: item.value_text,
+    unit: item.unit,
+    qualityStatus: item.quality_status,
+    sourceTopic: item.source_topic
+  };
+}
+
+export function adaptTelemetryRecords(items: RamsTelemetryDto[]) {
+  return items.map(adaptTelemetryRecord);
+}
 
 export function adaptTelemetry(items: RamsTelemetryDto[]): TelemetrySeries[] {
   const groups = new Map<string, { trainsetId: string; carNumber: number; points: Map<string, TelemetryPoint> }>();
@@ -8,9 +56,10 @@ export function adaptTelemetry(items: RamsTelemetryDto[]): TelemetrySeries[] {
   items.forEach((item) => {
     if (!item.car_id) return;
     const car = getCarIdentity(item.trainset_id, item.car_id);
+    const trainset = getTrainsetIdentity(item.trainset_id);
     const groupKey = `${item.trainset_id}:${item.car_id}`;
     const group = groups.get(groupKey) ?? {
-      trainsetId: item.trainset_id,
+      trainsetId: trainset.displayCode,
       carNumber: car.order,
       points: new Map<string, TelemetryPoint>()
     };

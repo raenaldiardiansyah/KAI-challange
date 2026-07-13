@@ -22,7 +22,7 @@ describe("RAMS API client", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(live.source).toBe("live");
-    expect(cached).toMatchObject({ source: "cache", stale: true, data: { ok: true, items: [1] } });
+    expect(cached).toMatchObject({ source: "live", fromCache: true, stale: true, data: { ok: true, items: [1] } });
   });
 
   it("normalizes validation errors without using dummy data", async () => {

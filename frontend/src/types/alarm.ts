@@ -13,4 +13,15 @@ export type Alarm = {
   message: string;
   detectedAt: string;
   lastUpdate: string;
+  title?: string;
+  signalName?: string | null;
+  observedValue?: number | string | null;
+  thresholdValue?: number | string | null;
+  evidence?: unknown;
+  recommendation?: string | null;
+  diagnosticCases?: string[];
+  affectedCars?: Array<{ carId: string; role?: string; confidence?: string; bp?: number | null; bc?: number | null }>;
+  diagnosticScope?: string | null;
+  diagnosticConfidence?: string | null;
+  diagnosticEvidence?: string[];
 };

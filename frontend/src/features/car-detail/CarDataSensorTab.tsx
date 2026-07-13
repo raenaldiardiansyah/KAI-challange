@@ -5,19 +5,24 @@ import { Card } from "@/components/ui/Card";
 import { TelemetryTable } from "@/features/telemetry/TelemetryTable";
 import type { CarDetail } from "@/types/car";
 import type { TelemetrySeries } from "@/types/telemetry";
+import type { RamsTelemetryDto } from "@/types/api";
+import { adaptTelemetryRecords } from "@/adapters/telemetryAdapter";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 type CarDataSensorTabProps = {
   car: CarDetail;
   telemetry?: TelemetrySeries;
+  records?: RamsTelemetryDto[];
 };
 
 const timeRanges = ["1 jam", "6 jam", "24 jam", "7 hari"];
 const normalBrakeCylinder = "2.1-2.4 bar";
 const normalBrakePipe = "4.0-4.5 bar";
 
-export function CarDataSensorTab({ car, telemetry }: CarDataSensorTabProps) {
-  const [selectedSubsystem, setSelectedSubsystem] = useState<string>(car.subsystems[0]?.subsystem ?? "Brake System");
+export function CarDataSensorTab({ car, telemetry, records = [] }: CarDataSensorTabProps) {
+  const liveData = Boolean(car.backendCarId);
+  const initialSubsystem = car.selectedSubsystemCode === "AC" ? "HVAC" : car.selectedSubsystemCode === "PRESSURE" ? "Brake System" : car.subsystems[0]?.subsystem ?? "Brake System";
+  const [selectedSubsystem, setSelectedSubsystem] = useState<string>(initialSubsystem);
   const [selectedRange, setSelectedRange] = useState("24 jam");
   const [showThreshold, setShowThreshold] = useState(true);
   const [showRawData, setShowRawData] = useState(false);
@@ -25,8 +30,19 @@ export function CarDataSensorTab({ car, telemetry }: CarDataSensorTabProps) {
   const currentBrakeCylinder = latestPoint?.brakeCylinderBar ?? car.brakeCylinderBar;
   const currentBrakePipe = latestPoint?.brakePipeBar ?? car.brakePipeBar;
   const currentTemperature = latestPoint?.temperature ?? car.hvacTemperature;
+  const rawViews = useMemo(() => adaptTelemetryRecords(records), [records]);
+  const isAc = selectedSubsystem === "HVAC" || car.selectedSubsystemCode === "AC";
+  const liveEvidenceRows = (car.sensorValues ?? []).map((sensor) => ({
+    sensor: sensor.label,
+    actual: sensor.value == null ? "Belum tersedia" : `${sensor.value}${sensor.unit ? ` ${sensor.unit}` : ""}`,
+    normal: "Ambang tidak tersedia",
+    deviation: "—",
+    duration: "Prototype",
+    time: sensor.updatedAt ?? "Belum tersedia",
+    status: sensor.quality ?? car.dataStatus ?? "Belum tersedia"
+  }));
 
-  const evidenceRows = useMemo(() => [
+  const prototypeEvidenceRows = useMemo(() => [
     {
       sensor: "Brake Cylinder",
       actual: `${currentBrakeCylinder.toFixed(1)} bar`,
@@ -64,6 +80,7 @@ export function CarDataSensorTab({ car, telemetry }: CarDataSensorTabProps) {
       status: car.gensetVoltage === 0 ? "Tidak aktif" : "Normal"
     }
   ], [car.gensetVoltage, currentBrakeCylinder, currentBrakePipe, currentTemperature, latestPoint?.timestamp]);
+  const evidenceRows = liveData ? liveEvidenceRows : prototypeEvidenceRows;
   const chartData = useMemo(() => {
     return (telemetry?.points ?? []).map((point) => ({
       time: point.timestamp,
@@ -85,7 +102,7 @@ export function CarDataSensorTab({ car, telemetry }: CarDataSensorTabProps) {
               ))}
             </select>
           </label>
-          <div className="sensor-range-control" aria-label="Rentang waktu">
+          {!liveData ? <div className="sensor-range-control" aria-label="Rentang waktu Prototype">
             {timeRanges.map((range) => (
               <button
                 className={selectedRange === range ? "active" : ""}
@@ -96,16 +113,16 @@ export function CarDataSensorTab({ car, telemetry }: CarDataSensorTabProps) {
                 {range}
               </button>
             ))}
-          </div>
-          <label className="sensor-threshold-toggle">
+          </div> : null}
+          {!isAc ? <label className="sensor-threshold-toggle">
             <input checked={showThreshold} onChange={(event) => setShowThreshold(event.target.checked)} type="checkbox" />
             Threshold
-          </label>
+          </label> : null}
         </div>
 
         <div className="car-data-sensor-grid">
           <div className="car-data-chart-panel">
-            {telemetry ? (
+            {telemetry && !isAc ? (
               <div className="car-data-telemetry-chart">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData} margin={{ top: 10, right: 26, left: 0, bottom: 0 }}>
@@ -124,7 +141,7 @@ export function CarDataSensorTab({ car, telemetry }: CarDataSensorTabProps) {
               </div>
             ) : (
               <div className="car-data-empty-chart">
-                Data telemetry belum tersedia untuk sensor ini.
+                {isAc ? "Sensor AC ditampilkan sebagai nilai aktual RAMS." : "Data telemetry belum tersedia untuk sensor ini."}
               </div>
             )}
           </div>
@@ -134,7 +151,13 @@ export function CarDataSensorTab({ car, telemetry }: CarDataSensorTabProps) {
               <strong>{selectedSubsystem}</strong>
               <small>{selectedRange}</small>
             </div>
-            <div className={currentBrakeCylinder < 2 ? "threshold-cell alert" : "threshold-cell"}>
+            {isAc ? (car.sensorValues ?? []).slice(0, 7).map((sensor) => (
+              <div className="threshold-cell" key={sensor.key}>
+                <span>{sensor.label}</span>
+                <strong>{sensor.value == null ? "Belum tersedia" : `${sensor.value}${sensor.unit ? ` ${sensor.unit}` : ""}`}</strong>
+                <small>{sensor.quality ?? car.dataStatus ?? "Belum tersedia"}</small>
+              </div>
+            )) : <><div className={currentBrakeCylinder < 2 ? "threshold-cell alert" : "threshold-cell"}>
               <span>Brake Cylinder</span>
               <strong>{currentBrakeCylinder.toFixed(2)} bar</strong>
               <small>{showThreshold ? `Normal ${normalBrakeCylinder}` : "Threshold disembunyikan"}</small>
@@ -144,6 +167,7 @@ export function CarDataSensorTab({ car, telemetry }: CarDataSensorTabProps) {
               <strong>{currentBrakePipe.toFixed(2)} bar</strong>
               <small>{showThreshold ? `Normal ${normalBrakePipe}` : "Threshold disembunyikan"}</small>
             </div>
+            </>}
             <button className="compare-car-button" type="button">Bandingkan Gerbong</button>
           </div>
         </div>
@@ -182,7 +206,7 @@ export function CarDataSensorTab({ car, telemetry }: CarDataSensorTabProps) {
             {showRawData ? "Sembunyikan Data Mentah" : "Lihat Data Mentah"}
           </button>
         </div>
-        {showRawData ? <TelemetryTable /> : null}
+        {showRawData ? <TelemetryTable records={rawViews} /> : null}
       </Card>
     </div>
   );

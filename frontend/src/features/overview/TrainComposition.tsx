@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/Card";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import type { Insight } from "@/types/insight";
 
 type TrainCompositionProps = {
@@ -6,6 +7,12 @@ type TrainCompositionProps = {
   selectedCar: number;
   carsInsights: Insight[];
   onSelectCar: (car: number) => void;
+  trainsetCode?: string;
+  trainsetName?: string;
+  currentTrainsetIndex?: number;
+  totalTrainsets?: number;
+  onPreviousTrainset?: () => void;
+  onNextTrainset?: () => void;
 };
 
 type CarVisualStatus = "normal" | "warning" | "critical" | "no-data";
@@ -54,10 +61,32 @@ export function TrainComposition({
   totalCars,
   selectedCar,
   carsInsights,
-  onSelectCar
+  onSelectCar,
+  trainsetCode,
+  trainsetName,
+  currentTrainsetIndex = 0,
+  totalTrainsets = 1,
+  onPreviousTrainset,
+  onNextTrainset
 }: TrainCompositionProps) {
+  const showTrainsetNavigation = totalTrainsets > 1 && onPreviousTrainset && onNextTrainset;
+  const navigation = showTrainsetNavigation ? (
+    <div className="trainset-composition-navigation" aria-label="Navigasi komposisi kereta">
+      <button type="button" onClick={onPreviousTrainset} aria-label="Kereta sebelumnya" title="Kereta sebelumnya">
+        <CaretLeft size={15} weight="bold" />
+      </button>
+      <span className="trainset-composition-position" title={trainsetName}>
+        <strong>{trainsetCode}</strong>
+        <small>{currentTrainsetIndex + 1}/{totalTrainsets}</small>
+      </span>
+      <button type="button" onClick={onNextTrainset} aria-label="Kereta berikutnya" title="Kereta berikutnya">
+        <CaretRight size={15} weight="bold" />
+      </button>
+    </div>
+  ) : null;
+
   return (
-    <Card title="Komposisi Kereta" eyebrow="Mewakili armada aktif" className="overview-composition-card">
+    <Card title="Komposisi Kereta" eyebrow="Mewakili armada aktif" action={navigation} className="overview-composition-card">
       <div className="train-composition-scroll" aria-label="Komposisi gerbong interaktif">
         <div className="composition overview-car-grid train-composition-track">
         {Array.from({ length: totalCars }, (_, index) => {
