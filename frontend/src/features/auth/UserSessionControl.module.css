@@ -1,0 +1,41 @@
+.control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.identity {
+  display: grid;
+  min-width: 0;
+  line-height: 1.15;
+  text-align: right;
+}
+
+.identity strong {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.identity span,
+.demo {
+  color: #64748b;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.demo {
+  border: 1px solid #d8e0e7;
+  border-radius: 999px;
+  padding: 6px 9px;
+  background: #f8fafc;
+}
+
+.logout {
+  min-height: 30px;
+  padding-inline: 10px;
+}

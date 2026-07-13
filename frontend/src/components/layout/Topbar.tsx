@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Bell, Broadcast } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/Button";
+import { UserSessionControl } from "@/features/auth/UserSessionControl";
 
 type ConnectionStatus = "idle" | "testing" | "connected" | "partial" | "failed";
 
@@ -80,6 +81,7 @@ export function Topbar() {
         <Link className="button button-ghost topbar-alarm-link" href="/alarm-center" aria-label="Buka pusat alarm">
           <Bell size={18} />
         </Link>
+        <UserSessionControl />
       </div>
     </header>
   );

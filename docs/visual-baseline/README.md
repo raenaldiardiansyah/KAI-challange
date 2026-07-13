@@ -17,6 +17,18 @@ docs/visual-baseline/before/75
 docs/visual-baseline/before/100
 ```
 
+Validasi setelah fase autentikasi tersimpan di:
+
+```text
+docs/visual-baseline/after-auth/login.png
+docs/visual-baseline/after-auth/50
+docs/visual-baseline/after-auth/75
+docs/visual-baseline/after-auth/100
+```
+
+Halaman login berdiri sendiri tanpa sidebar/dashboard shell dan tepat setinggi
+viewport. Seluruh 11 route setelah fase autentikasi tetap `Fit` pada skala 50%.
+
 Masing-masing folder berisi:
 
 ```text
