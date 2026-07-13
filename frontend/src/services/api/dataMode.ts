@@ -1,6 +1,7 @@
 export type DataMode = "dummy" | "live";
 
 const STORAGE_KEY = "kai-rams-data-mode";
+const DATA_MODE_EVENT = "kai-rams-data-mode-change";
 const subscribers = new Set<() => void>();
 
 export function isLiveApiAllowed() {
@@ -21,11 +22,25 @@ export function getDataMode(): DataMode {
 
 export function setDataMode(mode: DataMode) {
   const nextMode = mode === "live" && !isLiveApiAllowed() ? "dummy" : mode;
-  if (typeof window !== "undefined") window.localStorage.setItem(STORAGE_KEY, nextMode);
-  subscribers.forEach((subscriber) => subscriber());
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(STORAGE_KEY, nextMode);
+    window.dispatchEvent(new Event(DATA_MODE_EVENT));
+  } else {
+    subscribers.forEach((subscriber) => subscriber());
+  }
 }
 
 export function subscribeDataMode(subscriber: () => void) {
   subscribers.add(subscriber);
-  return () => subscribers.delete(subscriber);
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", subscriber);
+    window.addEventListener(DATA_MODE_EVENT, subscriber);
+  }
+  return () => {
+    subscribers.delete(subscriber);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", subscriber);
+      window.removeEventListener(DATA_MODE_EVENT, subscriber);
+    }
+  };
 }

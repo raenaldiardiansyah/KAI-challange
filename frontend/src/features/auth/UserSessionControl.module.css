@@ -28,6 +28,68 @@
   text-transform: uppercase;
 }
 
+.modeSwitch {
+  min-height: 30px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #475569;
+  background: #f8fafc;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.modeSwitch:hover:not(:disabled) {
+  border-color: #64748b;
+  background: #f1f5f9;
+}
+
+.modeSwitch:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.modeSwitch:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.dummy {
+  border-color: #cbd5e1;
+  color: #475569;
+  background: #f8fafc;
+}
+
+.pending {
+  border-color: #93c5fd;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+.connected {
+  border-color: #86efac;
+  color: #15803d;
+  background: #f0fdf4;
+}
+
+.stale {
+  border-color: #fcd34d;
+  color: #a16207;
+  background: #fffbeb;
+}
+
+.error {
+  border-color: #fca5a5;
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
 .demo {
   border: 1px solid #d8e0e7;
   border-radius: 999px;

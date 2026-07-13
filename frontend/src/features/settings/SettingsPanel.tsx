@@ -4,14 +4,12 @@ import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { Input } from "@/components/ui/Input";
 import { setDashboardScale, getDashboardScale, subscribeDashboardScale } from "@/lib/dashboardScale";
-import {
-  getDataMode,
-  getDefaultDataMode,
-  isLiveApiAllowed,
-  setDataMode,
-  subscribeDataMode
-} from "@/services/api/dataMode";
+import { isLiveApiAllowed } from "@/services/api/dataMode";
+import { useDataMode } from "@/features/data-mode/DataModeProvider";
 import { useSyncExternalStore } from "react";
+import { useCallback } from "react";
+import { dummySystemStatus, getSystemStatus } from "@/services/systemService";
+import { useRamsResource } from "@/hooks/useRamsResource";
 
 export function SettingsPanel() {
   const currentScale = useSyncExternalStore(
@@ -19,12 +17,10 @@ export function SettingsPanel() {
     getDashboardScale,
     () => 0.5
   );
-  const dataMode = useSyncExternalStore(
-    subscribeDataMode,
-    getDataMode,
-    getDefaultDataMode
-  );
+  const { mode: dataMode, changeMode } = useDataMode();
   const liveAllowed = isLiveApiAllowed();
+  const statusLoader = useCallback((signal: AbortSignal) => getSystemStatus(signal), []);
+  const system = useRamsResource(dummySystemStatus, statusLoader, 60_000);
 
   return (
     <Card title="Pengaturan Sistem" eyebrow="Preferensi & Integrasi">
@@ -85,7 +81,7 @@ export function SettingsPanel() {
           
           <div>
             <label style={{ display: "block", fontSize: "12px", marginBottom: "4px", color: "#64748b" }}>Sumber Data (Data Source)</label>
-            <Select value={dataMode} onChange={(event) => setDataMode(event.target.value === "live" ? "live" : "dummy")}>
+            <Select value={dataMode} onChange={(event) => changeMode(event.target.value === "live" ? "live" : "dummy")}>
               <option value="dummy">Dummy / Mock Mode (Presentasi)</option>
               <option value="live" disabled={!liveAllowed}>Live API Mode{liveAllowed ? "" : " (dinonaktifkan lewat environment)"}</option>
             </Select>
@@ -95,7 +91,13 @@ export function SettingsPanel() {
             <label style={{ display: "block", fontSize: "12px", marginBottom: "4px", color: "#64748b" }}>Status Koneksi MQTT/API</label>
             <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", padding: "10px", borderRadius: "8px", fontSize: "12px", display: "flex", alignItems: "center", gap: "8px", fontWeight: "bold" }}>
               <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", background: "#10b981" }}></span>
-              {dataMode === "live" ? "Live API dipilih — status diperiksa per request" : "Simulasi Connected WebSocket — Dummy Mode tanpa request RAMS"}
+              {dataMode === "live"
+                ? system.loading
+                  ? "Memeriksa API, database, dan MQTT..."
+                  : system.data
+                    ? `API ${system.data.apiOk ? "OK" : "Gagal"} · DB ${system.data.databaseOk ? "OK" : "Gagal"} · MQTT ${system.data.mqttConnected ? "Terhubung" : "Offline"}${system.stale ? " · data stale" : ""}`
+                    : system.error ?? "Status RAMS belum tersedia"
+                : "Simulasi Connected WebSocket — Dummy Mode tanpa request RAMS"}
             </div>
           </div>
 

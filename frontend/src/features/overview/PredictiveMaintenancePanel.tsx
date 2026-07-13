@@ -56,8 +56,8 @@ export function PredictiveMaintenancePanel({ risks, insights = [] }: PredictiveM
           </>
         ) : (
           <div className="overview-empty-state" style={{ margin: "auto" }}>
-            <strong>Tidak ada insight</strong>
-            <span>Sistem berjalan normal.</span>
+            <strong>Insight RAMS belum tersedia</strong>
+            <span>Tidak ada insight yang dikembalikan oleh sumber data aktif.</span>
           </div>
         )}
 

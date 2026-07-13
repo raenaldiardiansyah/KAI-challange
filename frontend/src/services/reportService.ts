@@ -1,12 +1,7 @@
 import { reportDummy } from "@/dummy/reportDummy";
 import type { Report } from "@/types/report";
-import { fetchFromApi, isDummyMode } from "./apiClient";
 
+/** LOCAL / PROTOTYPE: RAMS does not document a report endpoint yet. */
 export async function getReports(): Promise<Report[]> {
-  if (isDummyMode()) return reportDummy;
-  try {
-    return await fetchFromApi<Report[]>("/reports");
-  } catch {
-    return reportDummy;
-  }
+  return reportDummy;
 }

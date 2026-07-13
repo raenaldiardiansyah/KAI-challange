@@ -1,12 +1,26 @@
+"use client";
+
+import { useCallback } from "react";
 import { ActiveAlarmTable } from "@/features/overview/ActiveAlarmTable";
 import { PredictiveMaintenancePanel } from "@/features/overview/PredictiveMaintenancePanel";
 import { InteractiveTrainsetPanel } from "@/features/overview/InteractiveTrainsetPanel";
 import { SummaryCards } from "@/features/overview/SummaryCards";
 import { TrainPositionMap } from "@/features/overview/TrainPositionMap";
-import { getOverviewData } from "@/services/overviewService";
+import { getOverviewData, type OverviewData } from "@/services/overviewService";
+import { overviewDummy } from "@/dummy/overviewDummy";
+import { useRamsResource } from "@/hooks/useRamsResource";
+import { PageSkeleton } from "@/components/layout/PageSkeleton";
+import { DataUnavailableState } from "@/components/data/DataUnavailableState";
 
-export default async function OverviewPage() {
-  const data = await getOverviewData();
+export default function OverviewPage() {
+  const loader = useCallback((signal: AbortSignal) => getOverviewData(signal), []);
+  const resource = useRamsResource<OverviewData>(overviewDummy, loader, 15_000);
+
+  if (!resource.ready || resource.loading) return <PageSkeleton />;
+  if (!resource.data || resource.data.carInsights.length === 0) {
+    return <DataUnavailableState message={resource.error} onRetry={resource.retry} />;
+  }
+  const data = resource.data;
 
   return (
     <>
@@ -22,7 +36,7 @@ export default async function OverviewPage() {
 
         <section className="overview-bottom-grid">
           <ActiveAlarmTable alarms={data.alarms} />
-          <PredictiveMaintenancePanel risks={data.maintenance} insights={data.carInsights} />
+          <PredictiveMaintenancePanel risks={data.maintenance} insights={data.insights} />
         </section>
       </div>
     </>

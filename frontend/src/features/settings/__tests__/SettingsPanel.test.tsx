@@ -1,15 +1,24 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { SettingsPanel } from "../SettingsPanel";
+import { DataModeProvider } from "@/features/data-mode/DataModeProvider";
+
+function renderSettings() {
+  return render(
+    <DataModeProvider>
+      <SettingsPanel />
+    </DataModeProvider>
+  );
+}
 
 describe("SettingsPanel", () => {
   it("renders the card title", () => {
-    render(<SettingsPanel />);
+    renderSettings();
     expect(screen.getByRole("heading", { name: /pengaturan sistem/i })).toBeInTheDocument();
   });
 
   it("shows UI preferences section", () => {
-    render(<SettingsPanel />);
+    renderSettings();
     expect(screen.getByText("Preferensi Antarmuka (UI)")).toBeInTheDocument();
     expect(screen.getAllByText("Mode Tampilan")[0]).toBeInTheDocument();
     expect(screen.getAllByText("Tingkat Detail Map")[0]).toBeInTheDocument();
@@ -17,7 +26,7 @@ describe("SettingsPanel", () => {
   });
 
   it("shows data source select with dummy mode option", () => {
-    render(<SettingsPanel />);
+    renderSettings();
     expect(screen.getByText("Koneksi Backend & Notifikasi")).toBeInTheDocument();
     
     expect(screen.getAllByText("Sumber Data (Data Source)")[0]).toBeInTheDocument();
@@ -26,12 +35,12 @@ describe("SettingsPanel", () => {
   });
 
   it("shows connection status text 'Simulasi Connected WebSocket'", () => {
-    render(<SettingsPanel />);
+    renderSettings();
     expect(screen.getByText(/simulasi connected websocket/i)).toBeInTheDocument();
   });
 
   it("shows email notification input", () => {
-    render(<SettingsPanel />);
+    renderSettings();
     expect(screen.getByText(/email notifikasi alarm kritis/i)).toBeInTheDocument();
     const emailInput = screen.getByDisplayValue("admin.depo@kai.id");
     expect(emailInput).toBeInTheDocument();

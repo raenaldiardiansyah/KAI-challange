@@ -5,15 +5,19 @@ import { useEffect, useMemo, useState } from "react";
 import { Bell, Broadcast } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/Button";
 import { UserSessionControl } from "@/features/auth/UserSessionControl";
+import { useDataMode } from "@/features/data-mode/DataModeProvider";
+import { getSystemStatus, type SystemStatusData } from "@/services/systemService";
 
 type ConnectionStatus = "idle" | "testing" | "connected" | "partial" | "failed";
 
 export function Topbar() {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("idle");
   const [showConnectionPanel, setShowConnectionPanel] = useState(false);
+  const [systemDetails, setSystemDetails] = useState<SystemStatusData | null>(null);
+  const { mode, resourceStatus } = useDataMode();
 
   useEffect(() => {
-    if (connectionStatus !== "testing") return;
+    if (connectionStatus !== "testing" || mode === "live") return;
 
     const timer = window.setTimeout(() => {
       setConnectionStatus("partial");
@@ -21,7 +25,7 @@ export function Topbar() {
     }, 800);
 
     return () => window.clearTimeout(timer);
-  }, [connectionStatus]);
+  }, [connectionStatus, mode]);
 
   const connectionLabel = useMemo(() => {
     switch (connectionStatus) {
@@ -41,6 +45,15 @@ export function Topbar() {
   const handleConnectionTest = () => {
     setConnectionStatus("testing");
     setShowConnectionPanel(true);
+    if (mode === "live") {
+      void getSystemStatus().then((result) => {
+        setSystemDetails(result.data);
+        setConnectionStatus(result.data.apiOk && result.data.databaseOk && result.data.mqttConnected ? "connected" : "partial");
+      }).catch(() => {
+        setSystemDetails(null);
+        setConnectionStatus("failed");
+      });
+    }
   };
 
   return (
@@ -50,6 +63,15 @@ export function Topbar() {
         <h1>Dasbor Insight Operasional</h1>
       </Link>
       <div className="topbar-actions">
+        <span className="connection-test-button idle" aria-label="Sumber data aktif">
+          {mode === "dummy"
+            ? "DUMMY"
+            : resourceStatus.source === "empty"
+              ? "LIVE ERROR"
+              : resourceStatus.stale
+                ? `STALE ${resourceStatus.fetchedAt ? new Date(resourceStatus.fetchedAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : ""}`
+                : "LIVE"}
+        </span>
         <div className="connection-test-wrap">
           <Button
             aria-expanded={showConnectionPanel}
@@ -69,12 +91,12 @@ export function Topbar() {
                 </button>
               </div>
               <div className="connection-check-list">
-                <span><b>API</b><em className="ok">Terhubung</em></span>
-                <span><b>MQTT</b><em className={connectionStatus === "partial" ? "warn" : "ok"}>{connectionStatus === "partial" ? "Laten" : "Terhubung"}</em></span>
-                <span><b>GPS</b><em className="ok">Terhubung</em></span>
-                <span><b>Telemetry</b><em className={connectionStatus === "partial" ? "warn" : "ok"}>{connectionStatus === "partial" ? "2 data terlambat" : "Normal"}</em></span>
+                <span><b>API</b><em className={systemDetails?.apiOk === false ? "warn" : "ok"}>{mode === "live" ? systemDetails?.apiOk ? "Terhubung" : "Tidak tersedia" : "Simulasi"}</em></span>
+                <span><b>MQTT</b><em className={systemDetails?.mqttConnected === false || connectionStatus === "partial" ? "warn" : "ok"}>{mode === "live" ? systemDetails?.mqttConnected ? "Terhubung" : "Offline" : "Simulasi"}</em></span>
+                <span><b>Database</b><em className={systemDetails?.databaseOk === false ? "warn" : "ok"}>{mode === "live" ? systemDetails?.databaseOk ? "Terhubung" : "Tidak tersedia" : "Simulasi"}</em></span>
+                <span><b>Queue</b><em className={systemDetails && systemDetails.queueSize > 0 ? "warn" : "ok"}>{mode === "live" ? systemDetails?.queueSize ?? "-" : "Simulasi"}</em></span>
               </div>
-              <small>Respons terakhir: 220 ms - simulasi lokal</small>
+              <small>{mode === "live" ? `Pesan ${systemDetails?.messagesProcessed ?? 0}/${systemDetails?.messagesReceived ?? 0}${systemDetails?.lastError ? ` · ${systemDetails.lastError}` : ""}` : "Simulasi lokal — tidak memanggil RAMS"}</small>
             </div>
           ) : null}
         </div>

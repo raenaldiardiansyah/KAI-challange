@@ -2,15 +2,15 @@
 
 import { Card } from "@/components/ui/Card";
 import { Table } from "@/components/ui/Table";
+import type { TelemetrySeries } from "@/types/telemetry";
 
-export function TelemetryTable() {
-  const data = [
-    { time: "2026-07-02 18:30:00", bp: 4.21, bc: 1.15, status: "Anomali" },
-    { time: "2026-07-02 18:00:00", bp: 4.19, bc: 1.21, status: "Anomali" },
-    { time: "2026-07-02 17:30:00", bp: 4.22, bc: 1.55, status: "Warning" },
-    { time: "2026-07-02 17:00:00", bp: 4.20, bc: 2.30, status: "Normal" },
-    { time: "2026-07-02 16:30:00", bp: 4.18, bc: 2.45, status: "Normal" },
-  ];
+export function TelemetryTable({ series }: { series?: TelemetrySeries }) {
+  const data = (series?.points ?? []).slice(-100).reverse().map((point) => ({
+    time: point.timestamp,
+    bp: point.brakePipeBar,
+    bc: point.brakeCylinderBar,
+    status: "Terekam"
+  }));
 
   return (
     <Card title="Data Log Mentah (Raw Telemetry)" eyebrow="100 baris terakhir">
@@ -26,23 +26,15 @@ export function TelemetryTable() {
         </thead>
         <tbody>
           {data.map((row, i) => (
-            <tr key={i} style={{ background: row.status === "Anomali" ? "#fee2e2" : "inherit" }}>
+            <tr key={`${row.time}-${i}`}>
               <td>{row.time}</td>
               <td>{row.bp} bar</td>
-              <td style={{ color: row.status === "Anomali" ? "#b91c1c" : "inherit", fontWeight: row.status === "Anomali" ? "bold" : "normal" }}>
-                {row.bc} bar
-              </td>
-              <td>2.00 bar</td>
-              <td>
-                <span style={{ 
-                  color: row.status === "Anomali" ? "#b91c1c" : (row.status === "Warning" ? "#d97706" : "#10b981"),
-                  fontWeight: "bold"
-                }}>
-                  {row.status}
-                </span>
-              </td>
+              <td>{row.bc} bar</td>
+              <td>Prototype</td>
+              <td><span style={{ color: "#10b981", fontWeight: "bold" }}>{row.status}</span></td>
             </tr>
           ))}
+          {data.length === 0 ? <tr><td colSpan={5}>Data telemetry belum tersedia.</td></tr> : null}
         </tbody>
       </Table>
     </Card>

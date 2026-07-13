@@ -1,21 +1,17 @@
 import { insightDummy } from "@/dummy/insightDummy";
 import type { Insight } from "@/types/insight";
-import { fetchFromApi, isDummyMode } from "./apiClient";
+import type { RamsInsightsResponse } from "@/types/api";
+import { adaptInsights } from "@/adapters/insightAdapter";
+import { mapRamsResult, requestRams } from "./api/ramsApiClient";
 
-export async function getInsights(): Promise<Insight[]> {
-  if (isDummyMode()) return insightDummy;
-  try {
-    return await fetchFromApi<Insight[]>("/insights");
-  } catch {
-    return insightDummy;
-  }
+export async function getInsights(signal?: AbortSignal) {
+  const result = await requestRams<RamsInsightsResponse>("/insights", { signal, query: { limit: 500 } });
+  return mapRamsResult(result, (response) => adaptInsights(response.items));
 }
 
+/** @deprecated Detail selection is performed from the shared insight list. */
 export async function getInsight(id: string): Promise<Insight | undefined> {
-  if (isDummyMode()) return insightDummy.find((insight) => insight.id === id);
-  try {
-    return await fetchFromApi<Insight>(`/insights/${id}`);
-  } catch {
-    return insightDummy.find((i) => i.id === id);
-  }
+  return insightDummy.find((insight) => insight.id === id);
 }
+
+export { insightDummy };

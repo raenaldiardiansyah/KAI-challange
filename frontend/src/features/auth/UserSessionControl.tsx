@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { useDataMode } from "@/features/data-mode/DataModeProvider";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import styles from "./UserSessionControl.module.css";
 
@@ -12,12 +13,38 @@ const roleLabels = {
 
 export function UserSessionControl() {
   const { user, isLoading, logout } = useCurrentUser();
+  const { mode, ready, changeMode, resourceStatus } = useDataMode();
 
-  if (isLoading) return <span className={styles.demo}>Memuat sesi</span>;
-  if (!user) return <span className={styles.demo}>Mode Demo</span>;
+  const nextMode = mode === "dummy" ? "live" : "dummy";
+  const modeState = mode === "dummy"
+    ? "dummy"
+    : resourceStatus.source === "empty" || resourceStatus.error
+      ? "error"
+      : resourceStatus.stale || resourceStatus.source === "cache"
+        ? "stale"
+        : resourceStatus.source === "live"
+          ? "connected"
+          : "pending";
+  const modeButton = (
+    <button
+      aria-label={`Sumber data ${mode === "dummy" ? "Dummy" : "API"}. Klik untuk beralih ke mode ${nextMode === "dummy" ? "Dummy" : "API"}.`}
+      aria-pressed={mode === "live"}
+      className={`${styles.modeSwitch} ${styles[modeState]}`}
+      disabled={!ready}
+      onClick={() => changeMode(nextMode)}
+      title={`Beralih ke Mode ${nextMode === "dummy" ? "Dummy" : "API"}`}
+      type="button"
+    >
+      Mode {mode === "dummy" ? "Dummy" : "API"}
+    </button>
+  );
+
+  if (isLoading) return <div className={styles.control}>{modeButton}<span className={styles.demo}>Memuat sesi</span></div>;
+  if (!user) return modeButton;
 
   return (
     <div className={styles.control}>
+      {modeButton}
       <span className={styles.identity}>
         <strong title={user.name}>{user.name}</strong>
         <span>{roleLabels[user.role]}</span>

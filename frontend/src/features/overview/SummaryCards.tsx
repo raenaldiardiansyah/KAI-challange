@@ -7,10 +7,10 @@ export function SummaryCards({ summary }: { summary: OverviewData["summary"] }) 
   const items = [
     { label: "Armada Aktif", value: `${summary.onlineTrainsets}/${summary.totalTrainsets}`, icon: <Broadcast size={24} weight="fill" color="var(--accent)" />, link: "/live-monitoring" },
     { label: "Total Gerbong", value: summary.totalCars, icon: <Train size={24} weight="fill" color="var(--muted)" />, link: "/trainset" },
-    { label: "Kesehatan Global", value: `${summary.globalHealthScore}%`, icon: <Wrench size={24} weight="fill" color="#10b981" />, link: "/predictive-maintenance", delta: "1.2%", dir: "down", deltaColor: "#10b981" },
-    { label: "Alarm Aktif", value: summary.activeAlarms, icon: <Warning size={24} weight="fill" color="var(--danger)" />, link: "/alarm-center", delta: "2", dir: "up", deltaColor: "var(--danger)" },
-    { label: "Risiko Prediktif", value: 2, icon: <Heartbeat size={24} weight="fill" color="var(--warning)" />, link: "/predictive-maintenance", delta: "1", dir: "up", deltaColor: "var(--danger)" },
-    { label: "Insight LLM", value: 3, icon: <Brain size={24} weight="fill" color="#2563eb" />, link: "/insight-analytic", delta: "1", dir: "up", deltaColor: "var(--danger)" }
+    { label: "Kesehatan Global", value: `${summary.globalHealthScore}%`, icon: <Wrench size={24} weight="fill" color="#10b981" />, link: "/predictive-maintenance", delta: summary.showTrends ? "1.2%" : undefined, dir: "down", deltaColor: "#10b981" },
+    { label: "Alarm Aktif", value: summary.activeAlarms, icon: <Warning size={24} weight="fill" color="var(--danger)" />, link: "/alarm-center", delta: summary.showTrends ? "2" : undefined, dir: "up", deltaColor: "var(--danger)" },
+    { label: "Risiko Prediktif", value: summary.predictiveRisks, icon: <Heartbeat size={24} weight="fill" color="var(--warning)" />, link: "/predictive-maintenance", delta: summary.showTrends ? "1" : undefined, dir: "up", deltaColor: "var(--danger)" },
+    { label: "Insight LLM", value: summary.insightCount, icon: <Brain size={24} weight="fill" color="#2563eb" />, link: "/insight-analytic", delta: summary.showTrends ? "1" : undefined, dir: "up", deltaColor: "var(--danger)" }
   ];
 
   return (

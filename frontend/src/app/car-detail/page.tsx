@@ -1,16 +1,20 @@
+"use client";
+
+import { useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { CarIdentityHealthSummary } from "@/features/car-detail/CarIdentityHealthSummary";
 import { CarLlmSummary } from "@/features/car-detail/CarLlmSummary";
 import { CarSelectorFilter } from "@/features/car-detail/CarSelectorFilter";
 import { CarDetailInvestigationTabs } from "@/features/car-detail/CarDetailInvestigationTabs";
-import { getCarDetails } from "@/services/carDetailService";
-import { getInsights } from "@/services/insightService";
-import { getTelemetry } from "@/services/telemetryService";
-import { getTrainsets } from "@/services/trainsetService";
+import { carPageDummyData, getCarPageData, type CarPageData } from "@/services/carDetailService";
 import type { CarDetail } from "@/types/car";
+import { adaptSubsystem } from "@/adapters/statusAdapter";
+import { useRamsResource } from "@/hooks/useRamsResource";
+import { PageSkeleton } from "@/components/layout/PageSkeleton";
+import { DataUnavailableState } from "@/components/data/DataUnavailableState";
 
 function buildFallbackCar(trainsetId: string, carNumber: number, healthScore: number): CarDetail {
   const isIssue = healthScore < 80;
-
   return {
     id: `CAR-${trainsetId}-${String(carNumber).padStart(2, "0")}`,
     trainsetId,
@@ -28,101 +32,110 @@ function buildFallbackCar(trainsetId: string, carNumber: number, healthScore: nu
     doorOpenCount: 18,
     doorStatus: "Closed",
     subsystems: [
-      {
-        subsystem: isIssue ? "Brake System" : "Door",
-        healthScore,
-        status: isIssue ? "Warning" : "Healthy",
-        evidence: isIssue ? "Indikasi dari insight/alarm armada terpilih" : "Tidak ada anomali utama"
-      },
+      { subsystem: isIssue ? "Brake System" : "Door", healthScore, status: isIssue ? "Warning" : "Healthy", evidence: "Indikasi data demonstrasi" },
       { subsystem: "HVAC", healthScore: 88, status: "Healthy", evidence: "Temperature stable" },
       { subsystem: "Door", healthScore: 90, status: "Healthy", evidence: "Door cycle normal" }
     ]
   };
 }
 
-export default async function CarDetailPage({ searchParams }: { searchParams?: Promise<{ car?: string; trainset?: string; subsystem?: string }> }) {
-  const params = await searchParams;
-  const [cars, telemetrySeries, trainsets, insights] = await Promise.all([
-    getCarDetails(), 
-    getTelemetry(),
-    getTrainsets(),
-    getInsights()
-  ]);
-  
-  const issueMap = new Map<string, Set<number>>();
+function backendSubsystem(label: string) {
+  if (label === "Brake System") return "PRESSURE";
+  if (label === "HVAC") return "AC";
+  return label.toUpperCase().replaceAll(" ", "_");
+}
 
+export default function CarDetailPage() {
+  const searchParams = useSearchParams();
+  const trainsetQuery = searchParams.get("trainset") ?? undefined;
+  const carQuery = searchParams.get("car") ?? undefined;
+  const subsystemQuery = searchParams.get("subsystem") ?? undefined;
+  const loader = useCallback(
+    (signal: AbortSignal) => getCarPageData({ trainsetId: trainsetQuery, carId: carQuery, subsystem: subsystemQuery }, signal),
+    [carQuery, subsystemQuery, trainsetQuery]
+  );
+  const resource = useRamsResource<CarPageData>(carPageDummyData, loader, 30_000);
+
+  if (!resource.ready || resource.loading) return <PageSkeleton />;
+  if (!resource.data || resource.data.cars.length === 0 || resource.data.trainsets.length === 0) {
+    return <DataUnavailableState message={resource.error} onRetry={resource.retry} />;
+  }
+
+  const {
+    cars,
+    telemetry,
+    trainsets,
+    insights,
+    carOptionsByTrainset,
+    selectedTrainsetId: defaultTrainsetId,
+    selectedCarId
+  } = resource.data;
+  const isDummy = resource.source === "dummy";
+  const issueMap = new Map<string, Set<number>>();
   const addIssue = (trainsetId: string, carNumber: number) => {
     if (!issueMap.has(trainsetId)) issueMap.set(trainsetId, new Set<number>());
     issueMap.get(trainsetId)?.add(carNumber);
   };
-
   cars.forEach((candidate) => {
-    if (candidate.healthScore < 80 || candidate.healthStatus === "Alarm" || candidate.healthStatus === "Warning") {
-      addIssue(candidate.trainsetId, candidate.carNumber);
-    }
+    if (candidate.healthScore < 80 || candidate.healthStatus === "Alarm" || candidate.healthStatus === "Warning") addIssue(candidate.trainsetId, candidate.carNumber);
   });
-
   insights.forEach((insight) => {
-    if (insight.trainsetId !== "ALL" && insight.severity !== "Normal") {
-      addIssue(insight.trainsetId, insight.carNumber);
-    }
+    if (insight.trainsetId !== "ALL" && insight.severity !== "Normal") addIssue(insight.trainsetId, insight.carNumber);
   });
 
-  const selectedTrainsetId = params?.trainset ?? cars[0]?.trainsetId ?? trainsets[0]?.id ?? "TS-001";
+  const selectedTrainsetId = trainsetQuery ?? defaultTrainsetId;
   const selectedTrainset = trainsets.find((trainset) => trainset.id === selectedTrainsetId) ?? trainsets[0];
-  const selectedTrainsetIssues = Array.from(issueMap.get(selectedTrainsetId) ?? []).sort((a, b) => a - b);
-  const firstKnownCar = cars.find((candidate) => candidate.trainsetId === selectedTrainsetId)?.carNumber;
-  const targetCarNumber = params?.car ? parseInt(params.car, 10) : (selectedTrainsetIssues[0] ?? firstKnownCar ?? 1);
-  const exactCar = cars.find((candidate) => candidate.trainsetId === selectedTrainsetId && candidate.carNumber === targetCarNumber);
-  const selectedInsight = insights.find((insight) => insight.trainsetId === selectedTrainsetId && insight.carNumber === targetCarNumber);
-  const car = exactCar ?? buildFallbackCar(selectedTrainsetId, targetCarNumber, selectedInsight?.healthScore ?? selectedTrainset?.healthScore ?? 90);
-  const selectedSubsystem = params?.subsystem && car.subsystems.some((subsystem) => subsystem.subsystem === params.subsystem)
-    ? params.subsystem
-    : "all";
-  const visibleCar = selectedSubsystem === "all"
+  const selectedTrainsetIssues = Array.from(issueMap.get(selectedTrainset.id) ?? []).sort((a, b) => a - b);
+  const requestedCarNumber = isDummy && carQuery ? Number.parseInt(carQuery, 10) : NaN;
+  const exactCar = isDummy
+    ? cars.find((candidate) => candidate.trainsetId === selectedTrainset.id && candidate.carNumber === requestedCarNumber)
+      ?? cars.find((candidate) => candidate.trainsetId === selectedTrainset.id)
+    : cars.find((candidate) => candidate.trainsetId === selectedTrainset.id && candidate.id === (carQuery ?? selectedCarId));
+  if (!isDummy && !exactCar) {
+    return <DataUnavailableState message="Gerbong RAMS yang dipilih tidak tersedia." onRetry={resource.retry} />;
+  }
+  const targetCarNumber = exactCar?.carNumber ?? selectedTrainsetIssues[0] ?? 1;
+  const selectedInsight = insights.find((insight) => insight.trainsetId === selectedTrainset.id && insight.carNumber === targetCarNumber);
+  const car = exactCar ?? buildFallbackCar(selectedTrainset.id, targetCarNumber, selectedInsight?.healthScore ?? selectedTrainset.healthScore);
+  const selectedSubsystemLabel = !subsystemQuery || subsystemQuery === "all"
+    ? "all"
+    : isDummy ? subsystemQuery : adaptSubsystem(subsystemQuery);
+  const visibleCar = selectedSubsystemLabel === "all"
     ? car
-    : {
-        ...car,
-        subsystems: car.subsystems.filter((subsystem) => subsystem.subsystem === selectedSubsystem)
-      };
-
-  const selectedTelemetry = telemetrySeries.find(
-    (series) => series.trainsetId === car.trainsetId && series.carNumber === car.carNumber
-  );
-
-  const issueTrainsets = trainsets
-    .filter((trainset) => issueMap.has(trainset.id) || (trainset.healthStatus !== "Healthy" && trainset.healthStatus !== "Watch"))
-    .map((trainset) => trainset.id);
-  const issueCarsByTrainset = Object.fromEntries(
-    Array.from(issueMap.entries()).map(([trainsetId, carNumbers]) => [trainsetId, Array.from(carNumbers).sort((a, b) => a - b)])
-  );
+    : { ...car, subsystems: car.subsystems.filter((subsystem) => subsystem.subsystem === selectedSubsystemLabel) };
+  const selectedTelemetry = telemetry.find((series) => series.trainsetId === car.trainsetId && series.carNumber === car.carNumber);
+  const issueTrainsets = trainsets.filter((trainset) => issueMap.has(trainset.id) || !["Healthy", "Watch"].includes(trainset.healthStatus)).map((trainset) => trainset.id);
+  const issueCarsByTrainset = Object.fromEntries(Array.from(issueMap.entries()).map(([trainsetId, carNumbers]) => [trainsetId, Array.from(carNumbers).sort((a, b) => a - b)]));
+  const selectedCarValue = isDummy ? String(targetCarNumber) : car.id;
+  const subsystemOptions = car.subsystems.map((subsystem) => isDummy
+    ? subsystem.subsystem
+    : { value: backendSubsystem(subsystem.subsystem), label: subsystem.subsystem });
 
   return (
-    <>
-      <div className="page-grid">
-        <CarDetailInvestigationTabs
-          car={visibleCar}
-          telemetry={selectedTelemetry}
-          filterContent={
-            <CarSelectorFilter
-              defaultCar={targetCarNumber.toString()}
-              defaultTrainset={selectedTrainsetId}
-              defaultSubsystem={selectedSubsystem}
-              trainsets={trainsets.map(t => ({ id: t.id, name: t.name }))}
-              issueTrainsets={issueTrainsets}
-              issueCarsByTrainset={issueCarsByTrainset}
-              totalCarsByTrainset={Object.fromEntries(trainsets.map((trainset) => [trainset.id, trainset.totalCars]))}
-              availableSubsystems={car.subsystems.map((subsystem) => subsystem.subsystem)}
-            />
-          }
-          headerContent={
-            <div className="car-detail-summary-grid">
-              <CarIdentityHealthSummary car={visibleCar} />
-              <CarLlmSummary car={visibleCar} insight={selectedInsight} />
-            </div>
-          }
-        />
-      </div>
-    </>
+    <div className="page-grid">
+      <CarDetailInvestigationTabs
+        car={visibleCar}
+        telemetry={selectedTelemetry}
+        filterContent={
+          <CarSelectorFilter
+            defaultCar={selectedCarValue}
+            defaultTrainset={selectedTrainset.id}
+            defaultSubsystem={subsystemQuery ?? "all"}
+            trainsets={trainsets.map((trainset) => ({ id: trainset.id, name: trainset.name }))}
+            issueTrainsets={issueTrainsets}
+            issueCarsByTrainset={issueCarsByTrainset}
+            totalCarsByTrainset={Object.fromEntries(trainsets.map((trainset) => [trainset.id, trainset.totalCars]))}
+            carOptionsByTrainset={carOptionsByTrainset}
+            availableSubsystems={subsystemOptions}
+          />
+        }
+        headerContent={
+          <div className="car-detail-summary-grid">
+            <CarIdentityHealthSummary car={visibleCar} />
+            <CarLlmSummary car={visibleCar} insight={selectedInsight} />
+          </div>
+        }
+      />
+    </div>
   );
 }

@@ -20,7 +20,7 @@ import { RiskSummary } from "./RiskSummary";
 import { RiskTrendChart } from "./RiskTrendChart";
 import type { MaintenanceRisk } from "@/types/maintenance";
 import {
-  buildRiskView,
+  buildRiskViewForSource,
   filterRiskViews,
   getRiskFilter,
   type PredictiveRiskView,
@@ -45,9 +45,9 @@ function RiskMetric({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function PredictiveMaintenanceWorkspace({ risks }: { risks: MaintenanceRisk[] }) {
+export function PredictiveMaintenanceWorkspace({ risks, prototypeFields = false }: { risks: MaintenanceRisk[]; prototypeFields?: boolean }) {
   const router = useRouter();
-  const riskViews = useMemo(() => risks.map(buildRiskView), [risks]);
+  const riskViews = useMemo(() => risks.map((risk, index) => buildRiskViewForSource(risk, index, prototypeFields)), [prototypeFields, risks]);
   const [selectedId, setSelectedId] = useState(riskViews[0]?.id ?? "");
   const [activeFilter, setActiveFilter] = useState<RiskFilter>("all");
   const [query, setQuery] = useState("");
@@ -218,7 +218,7 @@ export function PredictiveMaintenanceWorkspace({ risks }: { risks: MaintenanceRi
             <div className="predictive-detail-panel">
               <RiskMetric label="Skor Risiko" value={`${selectedRisk.riskScore}%`} />
               <RiskMetric label="TTW" value={selectedRisk.timeToWarning} />
-              <RiskMetric label="Confidence" value={`${selectedRisk.confidence}%`} />
+              <RiskMetric label="Confidence" value={selectedRisk.prototypeFields ? "Prototype" : `${selectedRisk.confidence}%`} />
               <RiskMetric label="Threshold" value={selectedRisk.thresholdTime} />
             </div>
             <div className="predictive-recommendation">
@@ -270,8 +270,8 @@ export function PredictiveMaintenanceWorkspace({ risks }: { risks: MaintenanceRi
               <button type="button" onClick={() => setIsDetailOpen(false)}><X size={18} /></button>
             </div>
             <div className="predictive-drawer-body">
-              <section><span>Ringkasan prediksi</span><p>Risiko {selectedRisk.riskScore}% dengan TTW {selectedRisk.timeToWarning} dan confidence {selectedRisk.confidence}%.</p></section>
-              <section><span>Faktor pendorong</span><p>Tren {selectedRisk.trend}, deviasi subsystem {selectedRisk.subsystem}, dan telemetry hilang {selectedRisk.missingTelemetry}%.</p></section>
+              <section><span>Ringkasan prediksi</span><p>Risiko {selectedRisk.riskScore}%. TTW dan confidence masih Prototype.</p></section>
+              <section><span>Input fitur model</span><p>{selectedRisk.prototypeFields ? "Nilai fitur tersedia dari backend; kontribusi fitur belum tersedia." : `Tren ${selectedRisk.trend}, deviasi subsystem ${selectedRisk.subsystem}, dan telemetry hilang ${selectedRisk.missingTelemetry}%.`}</p></section>
               <section><span>Evidence pendukung</span><p>Nilai sensor bergerak mendekati threshold dan perlu dibandingkan dengan gerbong referensi sebelum inspeksi.</p></section>
               <section><span>Dampak operasional</span><p>{selectedRisk.impact}</p></section>
               <section><span>Rekomendasi pemeriksaan</span><p>{selectedRisk.recommendation}</p></section>

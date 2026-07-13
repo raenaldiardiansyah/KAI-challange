@@ -28,6 +28,13 @@ type RiskTrendChartProps = {
 
 export function RiskTrendChart({ selectedRisk, onOpenDetail }: RiskTrendChartProps) {
   const [filter, setFilter] = useState("all");
+  if (selectedRisk?.prototypeFields) {
+    return (
+      <Card title="Proyeksi Risiko Armada" eyebrow="Prototype / Backend Required">
+        <div className="risk-chart-frame empty-state">Histori, horizon, dan proyeksi risiko belum tersedia dari RAMS.</div>
+      </Card>
+    );
+  }
   const data = [
     { name: "H-3", historical: 52, forecast: null, high: 1, medium: 4, contributor: "TS-002 C2", confidence: 78 },
     { name: "H-2", historical: 58, forecast: null, high: 1, medium: 5, contributor: "TS-002 C2", confidence: 80 },

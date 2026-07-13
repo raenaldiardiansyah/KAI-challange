@@ -32,4 +32,12 @@ describe("RAMS API client", () => {
     await expect(requestRams("/telemetry/latest", { allowCachedFallback: false }))
       .rejects.toMatchObject({ status: 422, message: "limit: invalid" });
   });
+
+  it("deduplicates simultaneous GET requests", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ok: true, items: [] }), { status: 200 })
+    );
+    await Promise.all([requestRams("/rules"), requestRams("/rules")]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
