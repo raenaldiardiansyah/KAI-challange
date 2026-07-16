@@ -14,7 +14,24 @@ export function Topbar() {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("idle");
   const [showConnectionPanel, setShowConnectionPanel] = useState(false);
   const [systemDetails, setSystemDetails] = useState<SystemStatusData | null>(null);
-  const { mode, resourceStatus } = useDataMode();
+  const { mode, ready, changeMode, resourceStatus } = useDataMode();
+  const nextMode = mode === "dummy" ? "live" : "dummy";
+  const dataModeState = mode === "dummy"
+    ? "dummy"
+    : resourceStatus.error
+      ? "error"
+      : resourceStatus.stale || resourceStatus.fromCache
+        ? "stale"
+        : resourceStatus.source === "live"
+          ? "connected"
+          : "pending";
+  const dataModeLabel = mode === "dummy"
+    ? "DUMMY"
+    : resourceStatus.error
+      ? "LIVE ERROR"
+      : resourceStatus.stale
+        ? `STALE ${resourceStatus.fetchedAt ? new Date(resourceStatus.fetchedAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : ""}`
+        : "LIVE";
 
   useEffect(() => {
     if (connectionStatus !== "testing" || mode === "live") return;
@@ -63,15 +80,17 @@ export function Topbar() {
         <h1>Dasbor Insight Operasional</h1>
       </Link>
       <div className="topbar-actions">
-        <span className="connection-test-button idle" aria-label="Sumber data aktif">
-          {mode === "dummy"
-            ? "DUMMY"
-            : resourceStatus.error
-              ? "LIVE ERROR"
-              : resourceStatus.stale
-                ? `STALE ${resourceStatus.fetchedAt ? new Date(resourceStatus.fetchedAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : ""}`
-                : "LIVE"}
-        </span>
+        <button
+          aria-label={`Sumber data ${mode === "dummy" ? "Dummy" : "API"}. Klik untuk beralih ke mode ${nextMode === "dummy" ? "Dummy" : "API"}.`}
+          aria-pressed={mode === "live"}
+          className={`data-mode-toggle ${dataModeState}`}
+          disabled={!ready}
+          onClick={() => changeMode(nextMode)}
+          title={`Beralih ke Mode ${nextMode === "dummy" ? "Dummy" : "API"}`}
+          type="button"
+        >
+          {dataModeLabel}
+        </button>
         <div className="connection-test-wrap">
           <Button
             aria-expanded={showConnectionPanel}
@@ -103,7 +122,7 @@ export function Topbar() {
         <Link className="button button-ghost topbar-alarm-link" href="/alarm-center" aria-label="Buka pusat alarm">
           <Bell size={18} />
         </Link>
-        <UserSessionControl />
+        <UserSessionControl showModeSwitch={false} />
       </div>
     </header>
   );

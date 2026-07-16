@@ -11,7 +11,7 @@ const roleLabels = {
   VIEWER: "Viewer"
 } as const;
 
-export function UserSessionControl() {
+export function UserSessionControl({ showModeSwitch = true }: { showModeSwitch?: boolean }) {
   const { user, isLoading, logout } = useCurrentUser();
   const { mode, ready, changeMode, resourceStatus } = useDataMode();
 
@@ -39,12 +39,12 @@ export function UserSessionControl() {
     </button>
   );
 
-  if (isLoading) return <div className={styles.control}>{modeButton}<span className={styles.demo}>Memuat sesi</span></div>;
-  if (!user) return modeButton;
+  if (isLoading) return <div className={styles.control}>{showModeSwitch ? modeButton : null}<span className={styles.demo}>Memuat sesi</span></div>;
+  if (!user) return showModeSwitch ? modeButton : null;
 
   return (
     <div className={styles.control}>
-      {modeButton}
+      {showModeSwitch ? modeButton : null}
       <span className={styles.identity}>
         <strong title={user.name}>{user.name}</strong>
         <span>{roleLabels[user.role]}</span>
