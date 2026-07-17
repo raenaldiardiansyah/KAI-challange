@@ -14,15 +14,16 @@ type CarLlmSummaryProps = {
 
 export function CarLlmSummary({ car, insight }: CarLlmSummaryProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const carCode = car.backendCarId ?? car.id;
   const mainSubsystem = insight?.subsystem ?? car.subsystems[0]?.subsystem ?? "Brake System";
   const confidence = insight?.confidence ?? 86;
   const recommendation = insight?.recommendation
-    ?? `Validasi ${mainSubsystem} Gerbong ${car.carNumber} dan bandingkan pembacaan sensor dengan gerbong referensi.`;
+    ?? `Validasi ${mainSubsystem} pada ${carCode} dan bandingkan pembacaan sensor dengan unit referensi.`;
   const summary = insight?.naturalInsight
-    ?? `${mainSubsystem} Gerbong ${car.carNumber} menjadi perhatian utama. Sistem menyarankan validasi sensor dan inspeksi komponen sebelum perjalanan berikutnya.`;
+    ?? `${mainSubsystem} pada ${carCode} menjadi perhatian utama. Sistem menyarankan validasi sensor dan inspeksi komponen sebelum perjalanan berikutnya.`;
   const compactSummary = insight
-    ? `${mainSubsystem} C${car.carNumber}: ${car.healthScore}% health, ${confidence}% confidence. Validasi sensor dan inspeksi komponen utama.`
-    : `${mainSubsystem} C${car.carNumber}: perlu validasi sensor sebelum perjalanan berikutnya.`;
+    ? `${mainSubsystem} ${carCode}: ${car.healthScore}% health, ${confidence}% confidence. Validasi sensor dan inspeksi komponen utama.`
+    : `${mainSubsystem} ${carCode}: perlu validasi sensor sebelum perjalanan berikutnya.`;
 
   return (
     <>
@@ -62,7 +63,7 @@ export function CarLlmSummary({ car, insight }: CarLlmSummaryProps) {
           >
             <header className="car-llm-dialog-header">
               <div>
-                <span>{car.trainsetId} - Gerbong {car.carNumber}</span>
+                <span>{car.trainsetId} - {carCode}</span>
                 <h3 id="car-llm-dialog-title">Detail Insight LLM</h3>
               </div>
               <button type="button" onClick={() => setIsOpen(false)}>Tutup</button>
@@ -77,7 +78,7 @@ export function CarLlmSummary({ car, insight }: CarLlmSummaryProps) {
               <section>
                 <span>Rekomendasi</span>
                 <strong>{recommendation}</strong>
-                <p>Fokuskan pemeriksaan pada {mainSubsystem}, validasi pembacaan sensor, dan bandingkan dengan gerbong referensi sebelum keputusan operasi.</p>
+                <p>Fokuskan pemeriksaan pada {mainSubsystem}, validasi pembacaan sensor, dan bandingkan dengan unit referensi sebelum keputusan operasi.</p>
               </section>
               <div className="car-llm-dialog-metrics">
                 <span><strong>{confidence}%</strong>Keyakinan</span>

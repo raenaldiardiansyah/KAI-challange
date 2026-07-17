@@ -13,15 +13,16 @@ type CarPriorityActionProps = {
 
 export function CarPriorityAction({ car, onViewSensor }: CarPriorityActionProps) {
   const router = useRouter();
+  const carCode = car.backendCarId ?? car.id;
   const mainSubsystem = [...car.subsystems].sort((a, b) => a.healthScore - b.healthScore)[0];
   const subsystemName = mainSubsystem?.subsystem ?? "Brake System";
   const [processed, setProcessed] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
-  const workOrderUrl = `/work-order?trainset=${encodeURIComponent(car.trainsetId)}&car=${car.carNumber}&subsystem=${encodeURIComponent(subsystemName)}`;
+  const workOrderUrl = `/work-order?trainset=${encodeURIComponent(car.trainsetId)}&car=${encodeURIComponent(carCode)}&subsystem=${encodeURIComponent(subsystemName)}`;
 
   const checklist = [
-    `Periksa ${subsystemName} Gerbong ${car.carNumber}`,
+    `Periksa ${subsystemName} pada ${carCode}`,
     "Bandingkan tekanan dengan gerbong referensi",
     "Inspeksi selang, sambungan, valve, dan kebocoran lokal",
     "Validasi pembacaan sensor setelah pemeriksaan"
@@ -52,7 +53,7 @@ export function CarPriorityAction({ car, onViewSensor }: CarPriorityActionProps)
         <div className="recommendation car-action-recommendation">
           <strong>Perlu inspeksi terarah</strong>
           <p>
-            Fokuskan pemeriksaan pada {subsystemName} Gerbong {car.carNumber}. Data kesehatan menunjukkan skor {car.healthScore}% dan perlu validasi sensor sebelum operasi berikutnya.
+            Fokuskan pemeriksaan pada {subsystemName} unit {carCode}. Data kesehatan menunjukkan skor {car.healthScore}% dan perlu validasi sensor sebelum operasi berikutnya.
           </p>
         </div>
 

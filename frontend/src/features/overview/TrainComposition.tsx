@@ -1,9 +1,14 @@
 import { Card } from "@/components/ui/Card";
-import { CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, MagnifyingGlass } from "@phosphor-icons/react";
 import type { Insight } from "@/types/insight";
 
 type TrainCompositionProps = {
+  trainsetId: string;
   totalCars: number;
+  cars: Array<{
+    carId: string;
+    carNumber: number | null;
+  }>;
   selectedCar: number;
   carsInsights: Insight[];
   onSelectCar: (car: number) => void;
@@ -13,6 +18,7 @@ type TrainCompositionProps = {
   totalTrainsets?: number;
   onPreviousTrainset?: () => void;
   onNextTrainset?: () => void;
+  onViewMore?: () => void;
 };
 
 type CarVisualStatus = "normal" | "warning" | "critical" | "no-data";
@@ -35,7 +41,7 @@ function getAnomalyLabel(insight?: Insight) {
     .join(" ");
 }
 
-function TrainCarIcon({ label, status }: { label: string; status: CarVisualStatus }) {
+function TrainCarIcon({ status }: { status: CarVisualStatus }) {
   const showIndicator = status === "warning" || status === "critical";
 
   return (
@@ -44,13 +50,10 @@ function TrainCarIcon({ label, status }: { label: string; status: CarVisualStatu
       <path className="train-car-detail" d="M8 10h48M10 25h44" />
       <circle className="train-car-wheel" cx="15" cy="36" r="3.5" />
       <circle className="train-car-wheel" cx="49" cy="36" r="3.5" />
-      <text className="train-car-label" x="32" y="21" textAnchor="middle">
-        {label}
-      </text>
       {showIndicator ? (
-        <g className="train-car-alert" transform="translate(52 4)">
-          <circle cx="4" cy="4" r="4" />
-          <text x="4" y="6" textAnchor="middle">!</text>
+        <g className="train-car-alert" transform="translate(32 17)">
+          <circle cx="0" cy="0" r="7" />
+          <text x="0" y="3.5" textAnchor="middle">!</text>
         </g>
       ) : null}
     </svg>
@@ -58,7 +61,9 @@ function TrainCarIcon({ label, status }: { label: string; status: CarVisualStatu
 }
 
 export function TrainComposition({
+  trainsetId,
   totalCars,
+  cars,
   selectedCar,
   carsInsights,
   onSelectCar,
@@ -67,21 +72,38 @@ export function TrainComposition({
   currentTrainsetIndex = 0,
   totalTrainsets = 1,
   onPreviousTrainset,
-  onNextTrainset
+  onNextTrainset,
+  onViewMore
 }: TrainCompositionProps) {
+  const compositionCars = cars.length > 0
+    ? cars
+    : Array.from({ length: totalCars }, (_, index) => ({
+        carId: "",
+        carNumber: index + 1
+      }));
   const showTrainsetNavigation = totalTrainsets > 1 && onPreviousTrainset && onNextTrainset;
-  const navigation = showTrainsetNavigation ? (
-    <div className="trainset-composition-navigation" aria-label="Navigasi komposisi kereta">
-      <button type="button" onClick={onPreviousTrainset} aria-label="Kereta sebelumnya" title="Kereta sebelumnya">
-        <CaretLeft size={15} weight="bold" />
-      </button>
-      <span className="trainset-composition-position" title={trainsetName}>
-        <strong>{trainsetCode}</strong>
-        <small>{currentTrainsetIndex + 1}/{totalTrainsets}</small>
-      </span>
-      <button type="button" onClick={onNextTrainset} aria-label="Kereta berikutnya" title="Kereta berikutnya">
-        <CaretRight size={15} weight="bold" />
-      </button>
+  const navigation = showTrainsetNavigation || onViewMore ? (
+    <div className="trainset-composition-actions">
+      {showTrainsetNavigation ? (
+        <div className="trainset-composition-navigation" aria-label="Navigasi komposisi kereta">
+          <button type="button" onClick={onPreviousTrainset} aria-label="Kereta sebelumnya" title="Kereta sebelumnya">
+            <CaretLeft size={15} weight="bold" />
+          </button>
+          <span className="trainset-composition-position" title={trainsetName}>
+            <strong>{trainsetCode}</strong>
+            <small>{currentTrainsetIndex + 1}/{totalTrainsets}</small>
+          </span>
+          <button type="button" onClick={onNextTrainset} aria-label="Kereta berikutnya" title="Kereta berikutnya">
+            <CaretRight size={15} weight="bold" />
+          </button>
+        </div>
+      ) : null}
+      {onViewMore ? (
+        <button type="button" className="trainset-composition-more" onClick={onViewMore}>
+          <MagnifyingGlass size={14} weight="bold" />
+          Lihat lebih banyak
+        </button>
+      ) : null}
     </div>
   ) : null;
 
@@ -89,33 +111,38 @@ export function TrainComposition({
     <Card title="Komposisi Kereta" eyebrow="Mewakili armada aktif" action={navigation} className="overview-composition-card">
       <div className="train-composition-scroll" aria-label="Komposisi gerbong interaktif">
         <div className="composition overview-car-grid train-composition-track">
-        {Array.from({ length: totalCars }, (_, index) => {
-          const car = index + 1;
+        {compositionCars.map((compositionCar, index) => {
+          const insight = carsInsights.find((item) => (
+            (compositionCar.carId && item.carId === compositionCar.carId)
+            || (compositionCar.carNumber != null && item.carNumber === compositionCar.carNumber)
+          ));
+          const car = compositionCar.carNumber ?? insight?.carNumber ?? index + 1;
           const isSelected = car === selectedCar;
-          const insight = carsInsights.find(c => c.carNumber === car);
           const status = getVisualStatus(insight);
           const anomaly = getAnomalyLabel(insight);
           const statusLabel = status === "no-data" ? "No data" : status.charAt(0).toUpperCase() + status.slice(1);
+          const backendCarId = compositionCar.carId.trim() || insight?.carId?.trim();
+
           const tooltip = [
-            `C${car}`,
+            backendCarId ? `Kode gerbong: ${backendCarId}` : "Kode gerbong belum tersedia dari backend",
             `Status: ${statusLabel}`,
             insight ? `Health: ${insight.healthScore}%` : "Health: -",
             anomaly ? `Anomaly: ${anomaly}` : null,
-            "Klik untuk memilih gerbong"
+            "Klik untuk memilih, lalu gunakan Tinjau Bukti"
           ].filter(Boolean).join("\n");
 
           return (
-            <div className="train-composition-segment" key={car}>
-              {car > 1 ? <span className="train-car-connector" aria-hidden="true" /> : null}
+            <div className="train-composition-segment" key={backendCarId || `fallback-${index}`}>
+              {index > 0 ? <span className="train-car-connector" aria-hidden="true" /> : null}
               <button
                 type="button"
                 className={`car-item overview-car-item train-car-link status-${status}${isSelected ? " selected" : ""}`}
                 onClick={() => onSelectCar(car)}
                 title={tooltip}
-                aria-label={`C${car}, Status ${statusLabel}${insight ? `, Health ${insight.healthScore} persen` : ""}${anomaly ? `, Anomaly ${anomaly}` : ""}. Klik untuk memilih gerbong`}
+                aria-label={`${backendCarId ? `Gerbong ${backendCarId}` : "Gerbong tanpa kode backend"}, Status ${statusLabel}${insight ? `, Health ${insight.healthScore} persen` : ""}${anomaly ? `, Anomaly ${anomaly}` : ""}. Pilih untuk meninjau insight`}
                 aria-pressed={isSelected}
               >
-                <TrainCarIcon label={`C${car}`} status={status} />
+                <TrainCarIcon status={status} />
               </button>
             </div>
           );

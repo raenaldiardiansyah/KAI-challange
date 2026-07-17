@@ -31,5 +31,12 @@ export const workOrderEmailCopyRecipients: TechnicianContact[] = [
     email: "albiang03@gmail.com",
     specialization: ["Review", "Maintenance"],
     status: "available"
+  },
+  {
+    id: "REV-002",
+    name: "Reviewer Maintenance",
+    email: "prasd.wibawa@gmail.com",
+    specialization: ["Review", "Maintenance"],
+    status: "available"
   }
 ];

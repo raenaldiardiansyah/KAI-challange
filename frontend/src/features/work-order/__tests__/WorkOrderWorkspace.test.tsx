@@ -113,10 +113,11 @@ describe("WorkOrderWorkspace", () => {
     expect(dialog).toBeInTheDocument();
     expect(within(dialog).getByText("Teknisi Brake & Pneumatic")).toBeInTheDocument();
     expect(within(dialog).getByText("mr.plankton363@gmail.com")).toBeInTheDocument();
-    expect(within(dialog).getByText("Dikirim ke 4 penerima")).toBeInTheDocument();
+    expect(within(dialog).getByText("Dikirim ke 5 penerima")).toBeInTheDocument();
     expect(within(dialog).getByText(/raenaldi\.ardiansyah30@gmail\.com/i)).toBeInTheDocument();
     expect(within(dialog).getByText(/faizahzahraaqilah@gmail\.com/i)).toBeInTheDocument();
     expect(within(dialog).getByText(/albiang03@gmail\.com/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/prasd\.wibawa@gmail\.com/i)).toBeInTheDocument();
     expect(within(dialog).getByRole("button", { name: /kirim email/i })).toBeInTheDocument();
   });
 

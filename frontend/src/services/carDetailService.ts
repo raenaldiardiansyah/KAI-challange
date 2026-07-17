@@ -81,7 +81,12 @@ export async function getCarPageData(
   const selectedTrain = trainResult.data.trains.find((train) => train.trainset_id === requestedTrainsetId)
     ?? trainResult.data.trains[0];
   if (!selectedTrain) throw new Error("Data trainset RAMS belum tersedia.");
-  const requestedCarId = selection.carId ? resolveCarId(selectedTrain.trainset_id, selection.carId.startsWith("C") ? selection.carId : `C${selection.carId}`) : undefined;
+  const requestedCarValue = selection.carId && /^\d+$/.test(selection.carId)
+    ? `C${selection.carId}`
+    : selection.carId;
+  const requestedCarId = requestedCarValue
+    ? resolveCarId(selectedTrain.trainset_id, requestedCarValue)
+    : undefined;
   const selectedCarSummary = selectedTrain.cars.find((car) => car.car_id === requestedCarId)
     ?? selectedTrain.cars[0];
   if (!selectedCarSummary) throw new Error("Data gerbong RAMS belum tersedia.");
@@ -224,7 +229,7 @@ export async function getCarPageData(
         train.trainset_id,
         train.cars.map((car) => {
           const identity = getCarIdentity(train.trainset_id, car.car_id);
-          return { id: car.car_id, label: `${identity.displayCode} · ${car.car_id}`, order: identity.order };
+          return { id: car.car_id, label: car.car_id, order: identity.order };
         })
       ])),
       selectedTrainsetId: selectedTrain.trainset_id,

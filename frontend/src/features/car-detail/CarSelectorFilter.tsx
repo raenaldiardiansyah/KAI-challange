@@ -31,11 +31,7 @@ export function CarSelectorFilter({
   const router = useRouter();
   const selectedTrainset = defaultTrainset ?? trainsets[0]?.id ?? "TS-001";
   const issueCars = issueCarsByTrainset[selectedTrainset] ?? [];
-  const totalCars = totalCarsByTrainset[selectedTrainset] ?? 10;
-  const carOptions = carOptionsByTrainset[selectedTrainset] ?? Array.from(
-    { length: totalCars },
-    (_, index) => ({ id: String(index + 1), label: `Gerbong ${index + 1}`, order: index + 1 })
-  );
+  const carOptions = carOptionsByTrainset[selectedTrainset] ?? [];
 
   const buildDetailUrl = (trainsetId: string, car: string | number, subsystem = defaultSubsystem) => {
     const params = new URLSearchParams({
@@ -63,7 +59,7 @@ export function CarSelectorFilter({
   return (
     <div className="filter-row car-selector-filter">
       <div className="car-selector-filter-inner">
-        <span className="car-selector-filter-label">Filter Gerbong:</span>
+        <span className="car-selector-filter-label">Kode autentik:</span>
         <Select value={selectedTrainset} aria-label="Armada" onChange={(event) => handleTrainsetChange(event.target.value)}>
           {trainsets.map(ts => {
             const hasIssue = issueTrainsets.includes(ts.id);
@@ -82,7 +78,7 @@ export function CarSelectorFilter({
         </Select>
         <Select 
           value={defaultCar} 
-          aria-label="Gerbong"
+          aria-label="Kode autentik"
           onChange={(e) => router.push(buildDetailUrl(selectedTrainset, e.target.value))}
         >
           {carOptions.map((car) => {
@@ -104,6 +100,7 @@ export function CarSelectorFilter({
             const option = typeof subsystem === "string" ? { value: subsystem, label: subsystem } : subsystem;
             return <option key={option.value} value={option.value}>{option.label}</option>;
           })}
+          {carOptions.length === 0 ? <option value={defaultCar}>Kode backend belum tersedia</option> : null}
         </Select>
       </div>
     </div>

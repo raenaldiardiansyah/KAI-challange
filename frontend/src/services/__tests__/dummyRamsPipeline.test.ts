@@ -83,6 +83,7 @@ describe("RAMS-shaped Dummy pipeline", () => {
     expect(overview.data.carInsights).toHaveLength(10);
     expect(overview.data.carInsights.every((insight) => insight.trainsetId === "KA_DATA_DUMMY")).toBe(true);
     expect(overview.data.trainsetCompositions.map((composition) => composition.totalCars)).toEqual([10, 9, 8]);
+    expect(overview.data.trainsetCompositions.map((composition) => composition.cars.length)).toEqual([10, 9, 8]);
     expect(overview.data.trainsetCompositions[1].carInsights.every((insight) => insight.trainsetId === "KA_DUMMY_DATA")).toBe(true);
     expect(trainsets.data.trainsets).toHaveLength(3);
     expect(alarms.data.some((alarm) => alarm.diagnosticEvidence?.length)).toBe(true);
@@ -99,6 +100,7 @@ describe("RAMS-shaped Dummy pipeline", () => {
   it("merges car health, condition, AC and Pressure fixtures into the existing Gerbong view model", async () => {
     const ac = await getCarPageData({ trainsetId: "TS-001", carId: "C3", subsystem: "HVAC" }, undefined, "dummy");
     const pressure = await getCarPageData({ trainsetId: "TS-001", carId: "C5", subsystem: "Brake System" }, undefined, "dummy");
+    const authentic = await getCarPageData({ trainsetId: "KA_DATA_DUMMY", carId: "M102401", subsystem: "Brake System" }, undefined, "dummy");
     const acCar = ac.data.cars.find((car) => car.backendCarId === "T102401");
     const pressureCar = pressure.data.cars.find((car) => car.backendCarId === "D102405");
 
@@ -106,5 +108,6 @@ describe("RAMS-shaped Dummy pipeline", () => {
       expect.objectContaining({ key: "compressor_3_current_t", value: null, unit: "A" })
     ]));
     expect(pressureCar).toMatchObject({ brakePipeBar: 3.6, brakeCylinderBar: 0.8, primaryRuleId: "PRESS-R001" });
+    expect(authentic.data.selectedCarId).toBe("M102401");
   });
 });

@@ -14,6 +14,7 @@ export function adaptCarDetail(dto: RamsCarDetailDto): CarDetail {
     : 0;
   return {
     id: dto.car_id,
+    backendCarId: dto.car_id,
     trainsetId: dto.trainset_id,
     carNumber: identity.order,
     role: identity.displayCode,

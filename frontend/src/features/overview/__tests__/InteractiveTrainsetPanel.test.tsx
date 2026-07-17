@@ -20,7 +20,8 @@ function createInsight(trainsetId: string, trainsetName: string, diagnosis: stri
     evidence: {},
     structuredInsight: {},
     naturalInsight: diagnosis,
-    recommendation: "Periksa sistem rem"
+    recommendation: "Periksa sistem rem",
+    carId: `${trainsetId}-CAR-05`
   };
 }
 
@@ -32,6 +33,7 @@ describe("InteractiveTrainsetPanel", () => {
         displayCode: "TS-001",
         displayName: "Kereta Satu",
         totalCars: 10,
+        cars: [{ carId: "KA_DATA_DUMMY-CAR-05", carNumber: 5 }],
         carInsights: [createInsight("KA_DATA_DUMMY", "TS-001", "Diagnosis kereta satu")]
       },
       {
@@ -39,6 +41,7 @@ describe("InteractiveTrainsetPanel", () => {
         displayCode: "TS-002",
         displayName: "Kereta Dua",
         totalCars: 10,
+        cars: [{ carId: "KA_DUMMY_DATA-CAR-05", carNumber: 5 }],
         carInsights: [createInsight("KA_DUMMY_DATA", "TS-002", "Diagnosis kereta dua")]
       }
     ];
@@ -47,7 +50,7 @@ describe("InteractiveTrainsetPanel", () => {
 
     expect(screen.getByTitle("Kereta Satu")).toHaveTextContent("TS-001");
     expect(screen.getByText("Diagnosis kereta satu")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /C5, Status Critical/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /KA_DATA_DUMMY-CAR-05, Status Critical/i })).toHaveAttribute("aria-pressed", "true");
 
     fireEvent.click(screen.getByRole("button", { name: "Kereta berikutnya" }));
 
@@ -56,5 +59,44 @@ describe("InteractiveTrainsetPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Kereta sebelumnya" }));
     expect(screen.getByTitle("Kereta Satu")).toHaveTextContent("TS-001");
+  });
+
+  it("opens all compositions and recommends trainsets from the first typed character", () => {
+    const compositions: OverviewData["trainsetCompositions"] = [
+      {
+        trainsetId: "KA_DATA_DUMMY",
+        displayCode: "TS-001",
+        displayName: "Kereta Satu",
+        totalCars: 10,
+        cars: [{ carId: "KA_DATA_DUMMY-CAR-05", carNumber: 5 }],
+        carInsights: [createInsight("KA_DATA_DUMMY", "TS-001", "Diagnosis kereta satu")]
+      },
+      {
+        trainsetId: "KA_DUMMY_DATA",
+        displayCode: "TS-002",
+        displayName: "Kereta Dua",
+        totalCars: 9,
+        cars: [{ carId: "KA_DUMMY_DATA-CAR-05", carNumber: 5 }],
+        carInsights: [createInsight("KA_DUMMY_DATA", "TS-002", "Diagnosis kereta dua")]
+      }
+    ];
+
+    render(<InteractiveTrainsetPanel compositions={compositions} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Lihat lebih banyak" }));
+
+    const search = screen.getByRole("textbox", { name: "Cari armada atau komposisi kereta" });
+    expect(search).toHaveFocus();
+
+    fireEvent.change(search, { target: { value: "T" } });
+
+    expect(screen.getByText("2 rekomendasi ditemukan")).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /TS-001/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /TS-002/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("option", { name: /TS-002/i }));
+
+    expect(screen.queryByRole("dialog", { name: "Cari Komposisi Kereta" })).not.toBeInTheDocument();
+    expect(screen.getByTitle("Kereta Dua")).toHaveTextContent("TS-002");
   });
 });

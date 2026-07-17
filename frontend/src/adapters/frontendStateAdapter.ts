@@ -51,11 +51,19 @@ export function adaptFrontendState(dto: RamsFrontendStateDto): OverviewData {
     : mergedCarInsights;
   const trainsetCompositions = dto.trains.map((train) => {
     const identity = getTrainsetIdentity(train.trainset_id, train.display_name);
+    const cars = train.cars.map((car) => {
+      const carIdentity = getCarIdentity(train.trainset_id, car.car_id);
+      return {
+        carId: car.car_id,
+        carNumber: carIdentity.order > 0 ? carIdentity.order : null
+      };
+    });
     return {
       trainsetId: train.trainset_id,
       displayCode: identity.displayCode,
       displayName: identity.displayName,
-      totalCars: train.total_cars || train.cars.length,
+      totalCars: cars.length || train.total_cars,
+      cars,
       carInsights: mergedCarInsights
         .filter((insight) => insight.trainsetId === train.trainset_id)
         .sort((left, right) => left.carNumber - right.carNumber)

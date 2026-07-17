@@ -70,6 +70,7 @@ function getRiskTone(score: number) {
 
 export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpenAction }: CarOperationalOverviewProps) {
   const router = useRouter();
+  const carCode = car.backendCarId ?? car.id;
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const [timelineFilter, setTimelineFilter] = useState<TimelineFilter>("important");
   const [selectedTimelineKey, setSelectedTimelineKey] = useState("");
@@ -96,11 +97,11 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
       ? "Validasi sensor dan bandingkan dengan gerbong referensi sebelum jadwal berikutnya."
       : "Lanjutkan pemantauan rutin dan cek ulang bila tren berubah.";
   const actionSubsystem = mainSubsystem?.subsystem ?? "Brake System";
-  const workOrderUrl = `/work-order?trainset=${encodeURIComponent(car.trainsetId)}&car=${car.carNumber}&subsystem=${encodeURIComponent(actionSubsystem)}`;
+  const workOrderUrl = `/work-order?trainset=${encodeURIComponent(car.trainsetId)}&car=${encodeURIComponent(carCode)}&subsystem=${encodeURIComponent(actionSubsystem)}`;
 
   const timeline: TimelineItem[] = [
     { time: "12:38", title: "Pembacaan baseline normal", text: "Brake Pipe stabil dan tidak ada deviasi signifikan pada awal jendela observasi.", category: "sensor", important: false },
-    { time: "12:45", title: "Sensor mulai menyimpang", text: `${actionSubsystem} menunjukkan perubahan pola pada C${car.carNumber}.`, category: "sensor", important: true },
+    { time: "12:45", title: "Sensor mulai menyimpang", text: `${actionSubsystem} menunjukkan perubahan pola pada ${carCode}.`, category: "sensor", important: true },
     { time: "12:47", title: "Deviasi terdeteksi", text: `Brake Cylinder tercatat ${car.brakeCylinderBar.toFixed(1)} bar dibanding normal 2.1-2.4 bar.`, category: "sensor", important: true },
     { time: "12:50", title: `Status ${car.healthStatus}`, text: `Skor kesehatan gerbong turun ke ${car.healthScore}%.`, category: "status", important: true },
     { time: "12:53", title: "Insight AI dibuat", text: "Sistem menyarankan validasi sensor dan pemeriksaan komponen terkait.", category: "insight", important: true },
@@ -258,7 +259,7 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
         {summaryMode === "trend" ? (
           <Card title="Keterangan Grafik Tren" eyebrow="Analisis grafik" className="car-trend-detail-panel">
             <div className="car-trend-detail-header">
-              <strong>Tren kesehatan Gerbong {car.carNumber}</strong>
+              <strong>Tren kesehatan {carCode}</strong>
               <button type="button" onClick={() => setSummaryMode("action")}>Tutup</button>
             </div>
             <p className="car-trend-short-note">
@@ -311,16 +312,16 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
         {summaryMode === "comparison" ? (
           <Card title="Perbandingan Gerbong" eyebrow="Konteks rangkaian" className="car-comparison-summary-panel">
             <p className="car-mode-panel-copy">
-              Angka ini menjelaskan apakah kondisi Gerbong {car.carNumber} merupakan masalah lokal atau bagian dari tren rangkaian.
+              Angka ini menjelaskan apakah kondisi {carCode} merupakan masalah lokal atau bagian dari tren rangkaian.
             </p>
             <div className="car-comparison-grid">
-              <span><strong>{car.healthScore}%</strong>Gerbong {car.carNumber}</span>
+              <span><strong>{car.healthScore}%</strong>{carCode}</span>
               <span><strong>{fleetAverage}%</strong>Rata-rata rangkaian</span>
               <span><strong>{Math.max(1, fleetAverage - car.healthScore)} pt</strong>Deviasi kesehatan</span>
               <span><strong>{car.carNumber}/10</strong>Posisi gerbong</span>
             </div>
             <div className="car-trend-combined-conclusion">
-              Gerbong {car.carNumber} berada di bawah rata-rata rangkaian. Karena Brake Pipe tetap stabil, masalah lebih kuat dibaca sebagai anomali lokal gerbong.
+              {carCode} berada di bawah rata-rata rangkaian. Karena Brake Pipe tetap stabil, masalah lebih kuat dibaca sebagai anomali lokal unit.
             </div>
           </Card>
         ) : null}
@@ -354,7 +355,7 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
         {summaryMode === "action" ? (
           <Card title="Apa yang harus dilakukan" eyebrow="Tindakan berikutnya" className={`car-action-panel tone-${tone}`}>
             <div className="car-action-copy">
-              <strong>Inspeksi {actionSubsystem} Gerbong {car.carNumber}</strong>
+              <strong>Inspeksi {actionSubsystem} pada {carCode}</strong>
               <p>
                 Bandingkan tekanan dengan gerbong terdekat, periksa sambungan/valve, dan validasi pembacaan sensor sebelum perjalanan berikutnya.
               </p>
@@ -385,7 +386,7 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
           >
             <div className="timeline-dialog-header">
               <div>
-                <span>Gerbong {car.carNumber} - {actionSubsystem}</span>
+                <span>{carCode} - {actionSubsystem}</span>
                 <h3 id="timeline-dialog-title">Timeline Kejadian Lengkap</h3>
               </div>
               <button type="button" onClick={() => setIsTimelineOpen(false)} aria-label="Tutup timeline">Tutup</button>
@@ -463,7 +464,7 @@ export function CarOperationalOverview({ car, telemetry, onOpenDataSensor, onOpe
                 <div className="timeline-selected-meta">
                   <span>Kategori: {selectedTimeline.category}</span>
                   <span>{selectedTimeline.important ? "Prioritas penting" : "Konteks pendukung"}</span>
-                  <span>Gerbong C{car.carNumber}</span>
+                  <span>{carCode}</span>
                   <span>{actionSubsystem}</span>
                 </div>
                 <div className="timeline-selected-note">

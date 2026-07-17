@@ -33,6 +33,10 @@ export type OverviewData = {
     displayCode: string;
     displayName: string;
     totalCars: number;
+    cars: Array<{
+      carId: string;
+      carNumber: number | null;
+    }>;
     carInsights: Insight[];
   }>;
   alarms: Alarm[];

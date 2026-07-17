@@ -21,6 +21,7 @@ const normalBrakePipe = "4.0-4.5 bar";
 
 export function CarDataSensorTab({ car, telemetry, records = [] }: CarDataSensorTabProps) {
   const liveData = Boolean(car.backendCarId);
+  const carCode = car.backendCarId ?? car.id;
   const initialSubsystem = car.selectedSubsystemCode === "AC" ? "HVAC" : car.selectedSubsystemCode === "PRESSURE" ? "Brake System" : car.subsystems[0]?.subsystem ?? "Brake System";
   const [selectedSubsystem, setSelectedSubsystem] = useState<string>(initialSubsystem);
   const [selectedRange, setSelectedRange] = useState("24 jam");
@@ -92,7 +93,7 @@ export function CarDataSensorTab({ car, telemetry, records = [] }: CarDataSensor
 
   return (
     <div className="car-data-sensor-tab">
-      <Card title="Grafik Telemetry Sensor" eyebrow={`${car.trainsetId} - Gerbong ${car.carNumber}`}>
+      <Card title="Grafik Telemetry Sensor" eyebrow={`${car.trainsetId} - ${carCode}`}>
         <div className="car-sensor-toolbar">
           <label>
             Subsistem

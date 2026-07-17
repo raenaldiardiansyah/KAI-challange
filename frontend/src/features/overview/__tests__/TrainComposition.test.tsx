@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { TrainComposition } from "../TrainComposition";
 import type { Insight } from "@/types/insight";
@@ -18,28 +18,52 @@ const insight: Insight = {
   evidence: {},
   structuredInsight: {},
   naturalInsight: "Brake pressure deviation",
-  recommendation: "Inspect brake system"
+  recommendation: "Inspect brake system",
+  carId: "M102401"
 };
 
 describe("TrainComposition", () => {
-  it("uses the composition only as a local insight selector", () => {
-    const onSelectCar = vi.fn();
-
-    render(
+  it("selects the authentic backend car and hides the C-number label", () => {
+    const { container } = render(
       <TrainComposition
+        trainsetId="KA_DATA_DUMMY"
         totalCars={10}
+        cars={[{ carId: "M102401", carNumber: 5 }]}
         selectedCar={5}
         carsInsights={[insight]}
-        onSelectCar={onSelectCar}
+        onSelectCar={() => undefined}
       />
     );
 
-    expect(screen.queryByRole("link", { name: /C5, Status Critical/i })).not.toBeInTheDocument();
-
-    const carButton = screen.getByRole("button", { name: /C5, Status Critical/i });
+    const carButton = screen.getByRole("button", { name: /Gerbong M102401, Status Critical/i });
     expect(carButton).toHaveAttribute("aria-pressed", "true");
-    carButton.click();
+    expect(screen.queryByText("C5")).not.toBeInTheDocument();
+    expect(container.querySelector(".train-car-alert")).toHaveAttribute("transform", "translate(32 17)");
+    expect(screen.queryByRole("link", { name: /Gerbong M102401/i })).not.toBeInTheDocument();
+  });
 
-    expect(onSelectCar).toHaveBeenCalledWith(5);
+  it("renders the actual cars array instead of the reported total", () => {
+    const cars = [
+      { carId: "M102401", carNumber: 1 },
+      { carId: "M102402", carNumber: 2 },
+      { carId: "T102401", carNumber: 3 },
+      { carId: "D102404", carNumber: 4 },
+      { carId: "D102405", carNumber: 5 }
+    ];
+
+    render(
+      <TrainComposition
+        trainsetId="KA_DATA_DUMMY"
+        totalCars={10}
+        cars={cars}
+        selectedCar={1}
+        carsInsights={[]}
+        onSelectCar={() => undefined}
+      />
+    );
+
+    expect(screen.getAllByRole("button")).toHaveLength(5);
+    expect(screen.getByRole("button", { name: /Gerbong D102405/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Gerbong D102406/i })).not.toBeInTheDocument();
   });
 });

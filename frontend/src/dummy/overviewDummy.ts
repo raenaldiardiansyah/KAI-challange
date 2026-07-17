@@ -29,6 +29,7 @@ export const overviewDummy: OverviewData = {
       displayCode: trainset.id,
       displayName: trainset.name,
       totalCars: trainset.totalCars,
+      cars: [],
       carInsights: carInsightsDummy.filter((insight) => insight.trainsetId === trainset.id)
     }))
     .filter((composition) => composition.carInsights.length > 0),

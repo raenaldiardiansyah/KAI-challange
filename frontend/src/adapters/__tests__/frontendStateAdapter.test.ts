@@ -43,7 +43,8 @@ describe("frontend state adapter", () => {
     expect(result.trainsetCompositions[0]).toMatchObject({
       trainsetId: "KA_DATA_DUMMY",
       displayCode: "TS-001",
-      totalCars: 1
+      totalCars: 1,
+      cars: [{ carId: "M102401", carNumber: 1 }]
     });
   });
 });

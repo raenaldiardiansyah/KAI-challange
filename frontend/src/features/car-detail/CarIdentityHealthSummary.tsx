@@ -7,6 +7,7 @@ import type { CarDetail } from "@/types/car";
 import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer } from "recharts";
 
 export function CarIdentityHealthSummary({ car }: { car: CarDetail }) {
+  const carCode = car.backendCarId ?? car.id;
   const healthColor = car.healthScore <= 30 ? "#ef4444" : car.healthScore <= 60 ? "#f59e0b" : "#10b981";
   const trackColor = car.healthScore <= 30 ? "#fee2e2" : car.healthScore <= 60 ? "#fef3c7" : "#d1fae5";
   const tone = car.healthScore <= 30 ? "danger" : car.healthScore <= 60 ? "warning" : "info";
@@ -14,7 +15,7 @@ export function CarIdentityHealthSummary({ car }: { car: CarDetail }) {
 
   return (
     <Card
-      title={`Gerbong ${car.carNumber}`}
+      title={carCode}
       eyebrow={`${car.trainsetId} - ${car.role}`}
       className={`summary-accent-card summary-tone-${tone} car-identity-health-card`}
       action={
@@ -60,7 +61,7 @@ export function CarIdentityHealthSummary({ car }: { car: CarDetail }) {
         </div>
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 6, color: "#64748b", fontSize: 11 }}>
-        <span>{car.role}{car.backendCarId ? ` • ${car.backendCarId}` : ""}</span>
+        <span>Kode autentik: {carCode}</span>
         <span>Primary Rule: {car.primaryRuleId ?? "Belum tersedia"}</span>
         <span>Primary Event: {car.primaryEventCode ?? "Belum tersedia"}</span>
         <span>Subsystem: {car.criticalSubsystemCount ?? 0} Critical • {car.warningSubsystemCount ?? 0} Warning</span>

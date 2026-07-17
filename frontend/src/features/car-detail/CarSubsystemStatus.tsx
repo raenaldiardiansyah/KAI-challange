@@ -6,6 +6,7 @@ import type { CarDetail } from "@/types/car";
 import type { HealthStatus } from "@/types/common";
 
 export function CarSubsystemStatus({ car }: { car: CarDetail }) {
+  const carCode = car.backendCarId ?? car.id;
   const getStatusColor = (status: HealthStatus) => {
     switch (status) {
       case "Critical":
@@ -31,7 +32,7 @@ export function CarSubsystemStatus({ car }: { car: CarDetail }) {
   };
 
   return (
-    <Card title="Status Subsistem" eyebrow={`Gerbong ${car.carNumber}`}>
+    <Card title="Status Subsistem" eyebrow={carCode}>
       <div className="subsystem-status-grid">
         {car.subsystems.map((sub, index) => (
           <div key={index} className="subsystem-status-card" style={{ background: sub.status === "Critical" || sub.status === "Alarm" ? "#fef2f2" : "#ffffff" }}>

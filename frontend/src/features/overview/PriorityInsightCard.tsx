@@ -92,13 +92,16 @@ export function PriorityInsightCard({ insight }: { insight: Insight }) {
     Math.max(8, 100 - insight.healthScore)
   );
   const evidenceMeters = buildEvidenceMeters(insight, riskScore, isHighAlert);
-  const params = new URLSearchParams({
-    trainset: insight.trainsetId,
-    car: String(insight.carNumber),
-    subsystem: insight.subsystem
-  });
-  const workOrderParams = new URLSearchParams(params);
-  workOrderParams.set("source", "overview");
+  const backendCarId = insight.carId?.trim();
+  const params = backendCarId
+    ? new URLSearchParams({
+        trainset: insight.trainsetId,
+        car: backendCarId,
+        subsystem: insight.subsystem
+      })
+    : null;
+  const workOrderParams = params ? new URLSearchParams(params) : null;
+  workOrderParams?.set("source", "overview");
 
   return (
     <Card title="Insight Aktif" eyebrow="Ringkasan Prioritas" className={`overview-priority-card${isHighAlert ? " overview-priority-card-alert" : ""}${isMediumAlert ? " overview-priority-card-warning" : ""}`}>
@@ -109,14 +112,22 @@ export function PriorityInsightCard({ insight }: { insight: Insight }) {
           </span>
         ) : null}
         <div className="overview-priority-content">
-          <h4 className="overview-priority-title">C{insight.carNumber} {insight.subsystem} - Risiko {severityText}</h4>
+          <h4 className="overview-priority-title">{backendCarId ?? "Kode gerbong belum tersedia"} {insight.subsystem} - Risiko {severityText}</h4>
           <p className="overview-priority-description">{insight.diagnosis}</p>
           <p className="overview-priority-recommendation">{insight.recommendation}</p>
           
           <div className="overview-priority-actions">
             <Link href="/insight-analytic" className="button button-primary">Lihat Insight</Link>
-            <Link href={`/car-detail?${params.toString()}`} className="button button-secondary overview-evidence-button">Tinjau Bukti</Link>
-            <Link href={`/work-order?${workOrderParams.toString()}`} className="button button-ghost">Buat SPK</Link>
+            {params ? (
+              <Link href={`/car-detail?${params.toString()}`} className="button button-secondary overview-evidence-button">Tinjau Bukti</Link>
+            ) : (
+              <button className="button button-secondary overview-evidence-button" disabled type="button">Tinjau Bukti</button>
+            )}
+            {workOrderParams ? (
+              <Link href={`/work-order?${workOrderParams.toString()}`} className="button button-ghost">Buat SPK</Link>
+            ) : (
+              <button className="button button-ghost" disabled type="button">Buat SPK</button>
+            )}
           </div>
         </div>
         <aside className="overview-priority-metrics" aria-label="Ringkasan skor risiko dan bukti">
