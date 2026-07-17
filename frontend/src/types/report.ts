@@ -4,5 +4,5 @@ export type Report = {
   period: string;
   generatedAt: string;
   summary: string;
-  type: "Insight" | "Alarm" | "Maintenance";
+  type: "Insight" | "Alarm" | "Maintenance" | "Telemetry" | "Reliability";
 };

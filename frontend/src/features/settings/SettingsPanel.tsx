@@ -72,6 +72,10 @@ export function SettingsPanel() {
           <Metric label="Telemetry signals" value={String(system.data.telemetrySignals)} />
           <Metric label="Event logs" value={String(system.data.eventLogs)} />
           <Metric label="MQTT" value={`${system.data.mqttEnabled ? "Enabled" : "Disabled"} · ${system.data.mqttConnected ? "Connected" : "Offline"}`} />
+          <Metric label="Parser Status" value={system.data.parserStatus} />
+          <Metric label="Unmapped Topic" value={String(system.data.unmappedTopics)} />
+          <Metric label="Dead Letter" value={String(system.data.deadLetterMessages)} />
+          <Metric label="Retention" value={`${system.data.retentionDays} hari`} />
           <Metric label="Queue / received / processed" value={`${system.data.queueSize} / ${system.data.messagesReceived} / ${system.data.messagesProcessed}`} />
           <Metric label="MQTT started" value={system.data.mqttStartedAt ? new Date(system.data.mqttStartedAt).toLocaleString("id-ID") : "Tidak tersedia"} />
           <Metric label="Last error" value={system.data.lastError ?? "Tidak ada"} />

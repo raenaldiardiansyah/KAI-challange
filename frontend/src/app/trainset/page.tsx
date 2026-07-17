@@ -8,6 +8,7 @@ import { TrainsetComposition } from "@/features/trainset/TrainsetComposition";
 import { PriorityCars } from "@/features/trainset/PriorityCars";
 import { HealthByCarChart } from "@/features/trainset/HealthByCarChart";
 import { SubsystemHeatmap } from "@/features/trainset/SubsystemHeatmap";
+import { TrainsetOperationalFocus } from "@/features/trainset/TrainsetOperationalFocus";
 import { getTrainsetPageData, type TrainsetPageData } from "@/services/trainsetService";
 import type { Insight } from "@/types/insight";
 import type { Trainset } from "@/types/trainset";
@@ -85,6 +86,7 @@ export default function TrainsetPage() {
         <TrainsetDetailSummary trainset={selectedTrainset} />
         
         <TrainsetComposition trainsetId={selectedTrainset.id} totalCars={selectedTrainset.totalCars} carsInsights={carInsights} />
+        <TrainsetOperationalFocus trainset={selectedTrainset} carsInsights={carInsights} />
         
         <div className="two-column-grid">
           <PriorityCars carsInsights={carInsights} />

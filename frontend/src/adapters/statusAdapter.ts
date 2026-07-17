@@ -5,7 +5,9 @@ export function adaptSeverity(value: string | null | undefined): Severity {
     case "CRITICAL": return "Critical";
     case "WARNING":
     case "HIGH_RISK": return "High";
+    case "MEDIUM_RISK":
     case "WATCH": return "Medium";
+    case "LOW_RISK":
     case "INFO": return "Low";
     default: return "Normal";
   }

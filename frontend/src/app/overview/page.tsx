@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { ActiveAlarmTable } from "@/features/overview/ActiveAlarmTable";
 import { PredictiveMaintenancePanel } from "@/features/overview/PredictiveMaintenancePanel";
 import { InteractiveTrainsetPanel } from "@/features/overview/InteractiveTrainsetPanel";
+import { ConnectedTrainList } from "@/features/overview/ConnectedTrainList";
 import { SummaryCards } from "@/features/overview/SummaryCards";
 import { TrainPositionMap } from "@/features/overview/TrainPositionMap";
 import { getOverviewData, type OverviewData } from "@/services/overviewService";
@@ -34,6 +35,7 @@ export default function OverviewPage() {
         </section>
 
         <section className="overview-bottom-grid">
+          <ConnectedTrainList trainsets={data.trainsets.slice(0, 5)} />
           <ActiveAlarmTable alarms={data.alarms} />
           <PredictiveMaintenancePanel risks={data.maintenance} insights={data.insights} />
         </section>

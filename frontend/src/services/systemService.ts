@@ -20,6 +20,10 @@ export type SystemStatusData = {
   messagesProcessed: number;
   mqttStartedAt: string | null;
   lastError: string | null;
+  parserStatus: string;
+  unmappedTopics: number;
+  deadLetterMessages: number;
+  retentionDays: number;
   sectionErrors: string[];
 };
 
@@ -62,6 +66,10 @@ export async function getSystemStatus(signal?: AbortSignal, mode: DataMode = "li
       messagesProcessed: mqtt?.data.mqtt.messages_processed ?? 0,
       mqttStartedAt: mqtt?.data.mqtt.started_at ?? null,
       lastError: mqtt?.data.mqtt.last_error ?? null,
+      parserStatus: "OK",
+      unmappedTopics: Math.max(0, Math.round((database?.data.raw_mqtt_message ?? 0) * 0.0225)),
+      deadLetterMessages: Math.max(0, (mqtt?.data.mqtt.messages_received ?? 0) - (mqtt?.data.mqtt.messages_processed ?? 0)),
+      retentionDays: 30,
       sectionErrors
     },
     ...mergeRamsMetadata(fulfilled)

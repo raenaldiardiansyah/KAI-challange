@@ -12,7 +12,7 @@ export const trainsetHealthFixture: RamsTrainsetHealthResponse = {
       display_name: train.display_name,
       health_status: train.status,
       health_score: train.health_score,
-      data_status: train.status === "OFFLINE" ? "OFFLINE" : "ONLINE",
+      data_status: train.status === "OFFLINE" ? "OFFLINE" : train.status === "STALE" ? "STALE" : "ONLINE",
       display_status: train.status,
       total_cars: train.total_cars,
       online_cars: train.online_cars,

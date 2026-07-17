@@ -12,10 +12,17 @@ export type CarIdentity = {
 };
 
 const trainsetIdentities: Record<string, Omit<TrainsetIdentity, "trainsetId">> = {
-  KA_DATA_DUMMY: { displayCode: "TS-001", displayName: "KA DATA DUMMY" },
-  KA_DUMMY_DATA: { displayCode: "TS-002", displayName: "KA DUMMY DATA" },
-  "KA-DUMMY-DATA": { displayCode: "TS-002", displayName: "KA DUMMY DATA" },
-  KA_OFFLINE_DEMO: { displayCode: "TS-003", displayName: "KA OFFLINE DEMO" }
+  KA_DATA_DUMMY: { displayCode: "TS-001", displayName: "Anggrek Lembah M02406" },
+  KA_DUMMY_DATA: { displayCode: "TS-002", displayName: "Argo Wilis M02511" },
+  "KA-DUMMY-DATA": { displayCode: "TS-002", displayName: "Argo Wilis M02511" },
+  KA_OFFLINE_DEMO: { displayCode: "TS-003", displayName: "Lodaya M02103" },
+  KA_TAKSAKA_DEMO: { displayCode: "TS-004", displayName: "Taksaka M02308" },
+  KA_MALIOBORO_DEMO: { displayCode: "TS-005", displayName: "Malioboro Ekspres M02014" },
+  KA_MUTIARA_DEMO: { displayCode: "TS-006", displayName: "Mutiara Selatan M01973" },
+  KA_SENJA_DEMO: { displayCode: "TS-007", displayName: "Senja Utama M01890" },
+  KA_GAJAYANA_DEMO: { displayCode: "TS-008", displayName: "Gajayana M01742" },
+  KA_TURANGGA_DEMO: { displayCode: "TS-009", displayName: "Turangga M01621" },
+  KA_BIMA_DEMO: { displayCode: "TS-010", displayName: "BIMA M01517" }
 };
 
 const carIdentities: Record<string, Record<string, Omit<CarIdentity, "carId" | "trainsetId">>> = {
@@ -65,11 +72,12 @@ export function getTrainsetIdentity(trainsetId: string, backendName?: string | n
 
 export function getCarIdentity(trainsetId: string, carId: string): CarIdentity {
   const identity = carIdentities[trainsetId]?.[carId];
+  const fallbackOrder = Number.parseInt(carId.match(/(\d{1,2})$/)?.[1] ?? "0", 10);
   return {
     trainsetId,
     carId,
-    displayCode: identity?.displayCode ?? carId,
-    order: identity?.order ?? 0
+    displayCode: identity?.displayCode ?? (fallbackOrder > 0 ? `C${fallbackOrder}` : carId),
+    order: identity?.order ?? fallbackOrder
   };
 }
 
