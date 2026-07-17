@@ -21,7 +21,7 @@ export function TrainsetDetailSummary({ trainset }: { trainset: Trainset }) {
   };
 
   return (
-    <Card title={trainset.name} eyebrow="Ringkasan armada terpilih" className={`summary-accent-card summary-tone-${isOnline ? "success" : "danger"}`}>
+    <Card title={trainset.name} eyebrow="Ringkasan armada terpilih" className={`summary-accent-card trainset-detail-summary-card summary-tone-${isOnline ? "success" : "danger"}`}>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "12px", width: "100%" }}>
 
         {/* Status Data */}

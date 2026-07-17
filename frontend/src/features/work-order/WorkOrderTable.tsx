@@ -259,7 +259,7 @@ export function WorkOrderTable({
 
       <div className="spk-table-footer">
         {footerMessage ? <span>{footerMessage}</span> : null}
-        <Button variant="ghost" className="table-mini-button" onClick={() => setFooterMessage("Export SPK disimulasikan di frontend.")}>Export</Button>
+        <Button variant="ghost" className="table-mini-button" onClick={() => setFooterMessage("Export SPK menunggu integrasi backend produksi.")}>Export</Button>
         <Button
           variant="secondary"
           className="table-mini-button"

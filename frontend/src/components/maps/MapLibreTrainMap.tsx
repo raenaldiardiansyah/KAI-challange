@@ -1,7 +1,7 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 
 export type TrainMapPoint = {
@@ -63,23 +63,20 @@ type MapLibreTrainMapProps = {
   points: TrainMapPoint[];
   variant?: "mini" | "full";
   className?: string;
+  selectedTrainsetId?: string | null;
+  onPointSelect?: (point: TrainMapPoint) => void;
 };
 
-export function MapLibreTrainMap({ points, variant = "full", className = "" }: MapLibreTrainMapProps) {
+export function MapLibreTrainMap({
+  points,
+  variant = "full",
+  className = "",
+  selectedTrainsetId,
+  onPointSelect,
+}: MapLibreTrainMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
-  
-  const [activeFilter, setActiveFilter] = useState("All");
-
-  const filterOptions = [
-    { label: "Semua", value: "All" },
-    { label: "Normal", value: "Normal" },
-    { label: "Pantau", value: "Watch" },
-    { label: "Waspada", value: "Warning" },
-    { label: "Kritis", value: "Alarm" },
-    { label: "Luring", value: "Offline" }
-  ];
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -120,30 +117,31 @@ export function MapLibreTrainMap({ points, variant = "full", className = "" }: M
     markersRef.current = [];
 
     const bounds = new maplibregl.LngLatBounds();
-    const filteredPoints = points.filter(p => activeFilter === "All" || p.status === activeFilter || (activeFilter === "Alarm" && p.status === "High"));
-
-    filteredPoints.forEach((point) => {
+    points.forEach((point) => {
       const bgColor = getStatusColor(point.status);
       const markerElement = document.createElement("div");
-      markerElement.className = "train-marker";
+      markerElement.className = selectedTrainsetId === point.trainsetId ? "train-marker selected" : "train-marker";
       markerElement.style.backgroundColor = bgColor;
       markerElement.style.borderColor = "#ffffff";
       markerElement.textContent = point.trainsetId;
+      markerElement.addEventListener("click", () => onPointSelect?.(point));
 
       const mockAlarmCount = point.status === "Warning" ? 3 : (point.status === "Watch" ? 1 : (point.status === "Alarm" || point.status === "High" ? 5 : 0));
 
       const popupHTML = `
-        <div style="font-size: 13px; line-height: 1.5; color: #1f2937; min-width: 220px; padding: 4px;">
-          <h3 style="margin: 0 0 8px; font-size: 14px; font-weight: 700; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px;">
+        <div style="font-size: 13px; line-height: 1.45; color: #1f2937; min-width: 220px; padding: 4px;">
+          <h3 style="margin: 0 0 8px; font-size: 14px; font-weight: 800; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px;">
             ${point.trainsetId} - ${point.trainName || "Tidak diketahui"}
           </h3>
-          <p style="margin: 0 0 4px;"><strong>Rute:</strong> ${point.route || "-"}</p>
-          <p style="margin: 0 0 4px;"><strong>Lokasi:</strong> ${point.label}</p>
-          <p style="margin: 0 0 4px;"><strong>Status:</strong> <span style="color: ${bgColor}; font-weight: 700;">${point.status || "Normal"}</span></p>
-          <p style="margin: 0 0 4px;"><strong>Kesehatan:</strong> ${point.health || 100}%</p>
+          <p style="margin: 0 0 4px;"><strong>Status:</strong> <span style="color: ${bgColor}; font-weight: 800;">${point.status || "Normal"}</span></p>
+          <p style="margin: 0 0 4px;"><strong>Health:</strong> ${point.health || 100}%</p>
           <p style="margin: 0 0 4px;"><strong>Alarm:</strong> ${mockAlarmCount}</p>
-          <p style="margin: 0 0 12px;"><strong>Update Terakhir:</strong> ${point.lastUpdate || "-"}</p>
-          <a href="/trainset" style="display: block; text-align: center; background: #0f766e; color: white; padding: 8px 0; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 12px;">Lihat Detail</a>
+          <p style="margin: 0 0 8px;"><strong>Update:</strong> ${point.lastUpdate || "-"}</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+            <span style="background: #162340; border-radius: 7px; color: #fff; font-size: 12px; font-weight: 800; padding: 6px 8px;">Pilih Kereta</span>
+            <a href="/alarm-center?trainset=${encodeURIComponent(point.trainsetId)}" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 7px; color: #162340; font-size: 12px; font-weight: 800; padding: 5px 8px; text-decoration: none;">Buka Alarm</a>
+            <a href="/trainset?trainset=${encodeURIComponent(point.trainsetId)}" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 7px; color: #162340; font-size: 12px; font-weight: 800; padding: 5px 8px; text-decoration: none;">Detail Armada</a>
+          </div>
         </div>
       `;
 
@@ -168,23 +166,10 @@ export function MapLibreTrainMap({ points, variant = "full", className = "" }: M
         }
       }, 100);
     }
-  }, [points, activeFilter, variant]);
+  }, [points, selectedTrainsetId, onPointSelect, variant]);
 
   return (
     <div className={`train-map-shell train-map-${variant} ${className}`}>
-      {variant === "full" ? (
-        <div className="map-filter-pills">
-          {filterOptions.map(f => (
-            <button
-              key={f.value}
-              className={activeFilter === f.value ? "active" : ""}
-              onClick={() => setActiveFilter(f.value)}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-      ) : null}
       <div className="maplibre-panel" ref={containerRef} />
     </div>
   );

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { OverviewData } from "@/services/overviewService";
+import type { TrainMapPoint } from "@/components/maps/MapLibreTrainMap";
 
 const MapLibreTrainMap = dynamic(
   () =>
@@ -27,11 +28,22 @@ const MapLibreTrainMap = dynamic(
 );
 
 export function LiveTrainMapClient({
+  onPointSelect,
   points,
+  selectedTrainsetId,
   variant = "full",
 }: {
+  onPointSelect?: (point: TrainMapPoint) => void;
   points: OverviewData["mapPoints"];
+  selectedTrainsetId?: string | null;
   variant?: "mini" | "full";
 }) {
-  return <MapLibreTrainMap points={points} variant={variant} />;
+  return (
+    <MapLibreTrainMap
+      onPointSelect={onPointSelect}
+      points={points}
+      selectedTrainsetId={selectedTrainsetId}
+      variant={variant}
+    />
+  );
 }

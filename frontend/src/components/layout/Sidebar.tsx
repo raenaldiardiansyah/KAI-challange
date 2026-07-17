@@ -8,11 +8,11 @@ import { RealtimeClock } from "./RealtimeClock";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react/dist/ssr";
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const COLLAPSED_WIDTH = 88;
-const EXPANDED_DEFAULT_WIDTH = 260;
-const MIN_EXPANDED_WIDTH = 240;
-const MAX_WIDTH = 320;
-const SNAP_THRESHOLD = 180;
+const COLLAPSED_WIDTH = 72;
+const EXPANDED_DEFAULT_WIDTH = 216;
+const MIN_EXPANDED_WIDTH = 204;
+const MAX_WIDTH = 280;
+const SNAP_THRESHOLD = 144;
 const ENABLE_SIDEBAR_NAV_SCROLL = true;
 
 export function Sidebar() {
@@ -93,7 +93,7 @@ export function Sidebar() {
   return (
     <aside
       ref={sidebarRef}
-      className={`sidebar ${isResizing || !isMounted ? "resizing" : ""}`}
+      className={`sidebar ${isCollapsed ? "collapsed" : "expanded"} ${isResizing || !isMounted ? "resizing" : ""}`}
       style={{ "--sidebar-width": `${width}px` } as React.CSSProperties}
     >
       <div
@@ -106,13 +106,13 @@ export function Sidebar() {
         onClick={handleToggle}
         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
-        {isCollapsed ? <CaretRight size={32} weight="bold" /> : <CaretLeft size={32} weight="bold" />}
+        {isCollapsed ? <CaretRight size={22} weight="bold" /> : <CaretLeft size={22} weight="bold" />}
       </button>
 
       <div className="sidebar-inner">
-        <div className="brand" style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '12px 0' : '8px 10px 22px' }}>
+        <div className="brand" style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '6px 0' : '6px 8px 12px' }}>
           {isCollapsed ? (
-            <Image src="/images/logo.png" alt="Logo" width={36} height={36} style={{ objectFit: "contain" }} />
+            <Image src="/images/logo.png" alt="Logo" width={25} height={25} style={{ objectFit: "contain" }} />
           ) : (
             <>
               <span>TEL-U</span>
@@ -132,7 +132,7 @@ export function Sidebar() {
                   key={route.href}
                   title={isCollapsed ? route.label : undefined}
                 >
-                  <Icon size={isCollapsed ? 22 : 20} weight="regular" />
+                  <Icon size={isCollapsed ? 19 : 20} weight="regular" />
                   <span>{isCollapsed ? route.shortLabel || route.label : route.label}</span>
                 </Link>
               );

@@ -49,9 +49,9 @@ export function CarSelectorFilter({
   };
 
   return (
-    <div className="filter-row" style={{ marginBottom: "16px", background: "white", padding: "16px", borderRadius: "8px", border: "1px solid #d8e0e7" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", width: "100%" }}>
-        <span style={{ fontSize: "14px", fontWeight: "bold", color: "#64748b" }}>Filter Gerbong:</span>
+    <div className="filter-row car-selector-filter">
+      <div className="car-selector-filter-inner">
+        <span className="car-selector-filter-label">Filter Gerbong:</span>
         <Select value={selectedTrainset} aria-label="Armada" onChange={(event) => handleTrainsetChange(event.target.value)}>
           {trainsets.map(ts => {
             const hasIssue = issueTrainsets.includes(ts.id);

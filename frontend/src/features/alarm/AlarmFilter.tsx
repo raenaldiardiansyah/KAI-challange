@@ -2,15 +2,37 @@ import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import type { Alarm } from "@/types/alarm";
+import type { AlarmStatus, Severity, SubsystemName } from "@/types/common";
 
 type AlarmFilterProps = {
   query: string;
   suggestions: Alarm[];
+  trainsetFilter: string;
+  subsystemFilter: "all" | SubsystemName;
+  severityFilter: "all" | Severity;
+  statusFilter: "all" | AlarmStatus;
   onQueryChange: (query: string) => void;
   onSuggestionClick: (alarm: Alarm) => void;
+  onTrainsetFilterChange: (value: string) => void;
+  onSubsystemFilterChange: (value: "all" | SubsystemName) => void;
+  onSeverityFilterChange: (value: "all" | Severity) => void;
+  onStatusFilterChange: (value: "all" | AlarmStatus) => void;
 };
 
-export function AlarmFilter({ query, suggestions, onQueryChange, onSuggestionClick }: AlarmFilterProps) {
+export function AlarmFilter({
+  query,
+  suggestions,
+  trainsetFilter,
+  subsystemFilter,
+  severityFilter,
+  statusFilter,
+  onQueryChange,
+  onSuggestionClick,
+  onTrainsetFilterChange,
+  onSubsystemFilterChange,
+  onSeverityFilterChange,
+  onStatusFilterChange
+}: AlarmFilterProps) {
   return (
     <div className="filter-row alarm-filter-vertical" style={{ background: "white", padding: "16px", borderRadius: "8px", border: "1px solid #d8e0e7" }}>
       <div>
@@ -34,27 +56,34 @@ export function AlarmFilter({ query, suggestions, onQueryChange, onSuggestionCli
             </div>
           ) : null}
         </div>
-        <Select defaultValue="all" aria-label="Armada filter">
+        <Select value={trainsetFilter} onChange={(event) => onTrainsetFilterChange(event.target.value)} aria-label="Armada filter">
           <option value="all">Semua Armada</option>
-          <option value="ts1">Anggrek Lembah</option>
-          <option value="ts2">Argo Wilis</option>
+          <option value="TS-001">TS-001</option>
+          <option value="TS-002">TS-002</option>
+          <option value="TS-003">TS-003</option>
         </Select>
-        <Select defaultValue="all" aria-label="Subsistem filter">
+        <Select value={subsystemFilter} onChange={(event) => onSubsystemFilterChange(event.target.value as "all" | SubsystemName)} aria-label="Subsistem filter">
           <option value="all">Semua Subsistem</option>
-          <option value="brake">Brake</option>
+          <option value="Brake System">Brake System</option>
           <option value="door">Door</option>
+          <option value="HVAC">HVAC</option>
+          <option value="Genset">Genset</option>
+          <option value="PIDS">PIDS</option>
+          <option value="Communication">Communication</option>
         </Select>
-        <Select defaultValue="all" aria-label="Severity filter">
+        <Select value={severityFilter} onChange={(event) => onSeverityFilterChange(event.target.value as "all" | Severity)} aria-label="Severity filter">
           <option value="all">Semua Tingkat (Severity)</option>
-          <option value="critical">Kritis (Critical)</option>
-          <option value="high">Tinggi (High)</option>
-          <option value="medium">Sedang (Medium)</option>
+          <option value="Critical">Kritis (Critical)</option>
+          <option value="High">Tinggi (High)</option>
+          <option value="Medium">Sedang (Medium)</option>
+          <option value="Low">Rendah (Low)</option>
         </Select>
-        <Select defaultValue="open" aria-label="Status filter">
+        <Select value={statusFilter} onChange={(event) => onStatusFilterChange(event.target.value as "all" | AlarmStatus)} aria-label="Status filter">
           <option value="all">Semua Status</option>
-          <option value="open">Terbuka (Open)</option>
-          <option value="ack">Diketahui (Ack)</option>
-          <option value="closed">Selesai (Closed)</option>
+          <option value="Open">Terbuka (Open)</option>
+          <option value="Acknowledged">Diketahui (Ack)</option>
+          <option value="Closed">Selesai (Closed)</option>
+          <option value="Auto Cleared">Selesai Otomatis</option>
         </Select>
       </div>
     </div>

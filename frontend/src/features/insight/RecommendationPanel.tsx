@@ -8,12 +8,14 @@ import { useRouter } from "next/navigation";
 
 export function RecommendationPanel({ insight }: { insight: Insight }) {
   const router = useRouter();
+  const workOrderUrl = `/work-order?trainset=${encodeURIComponent(insight.trainsetId)}&car=${insight.carNumber}&subsystem=${encodeURIComponent(insight.subsystem)}&source=insight-analytic`;
+
   return (
     <Card title="Rekomendasi Tindakan" eyebrow="Saran dari sistem">
       <p className="recommendation">{insight.recommendation}</p>
       <Button
         icon={<CheckCircle size={16} />}
-        onClick={() => router.push("/work-order")}
+        onClick={() => router.push(workOrderUrl)}
         style={{ alignSelf: "flex-start" }}
       >
         Buat Draft SPK

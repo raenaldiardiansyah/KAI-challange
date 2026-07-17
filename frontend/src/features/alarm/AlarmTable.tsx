@@ -13,10 +13,12 @@ import { useRouter } from "next/navigation";
 export function AlarmTable({
   alarms,
   selectedAlarmId,
+  onAcknowledge,
   onSelectAlarm
 }: {
   alarms: Alarm[];
   selectedAlarmId?: string;
+  onAcknowledge?: (id: string) => void;
   onSelectAlarm?: (id: string) => void;
 }) {
   const [visibleCount, setVisibleCount] = useState(10);
@@ -73,8 +75,20 @@ export function AlarmTable({
               <td className="alarm-action-cell" onClick={(event) => event.stopPropagation()}>
                 <div className="alarm-action-row">
                   <div className="alarm-action-grid">
-                    <Button variant="ghost" className="table-mini-button alarm-evidence-button" onClick={() => router.push(`/car-detail?car=${alarm.carNumber}`)}>Evidence</Button>
-                    <Button className="table-mini-button" style={{ color: "white" }} onClick={() => router.push('/work-order')}>Buat SPK</Button>
+                    <Button
+                      variant="ghost"
+                      className="table-mini-button alarm-evidence-button"
+                      onClick={() => router.push(`/car-detail?trainset=${encodeURIComponent(alarm.trainsetId)}&car=${alarm.carNumber}&subsystem=${encodeURIComponent(alarm.subsystem)}`)}
+                    >
+                      Evidence
+                    </Button>
+                    <Button
+                      className="table-mini-button"
+                      style={{ color: "white" }}
+                      onClick={() => router.push(`/work-order?trainset=${encodeURIComponent(alarm.trainsetId)}&car=${alarm.carNumber}&subsystem=${encodeURIComponent(alarm.subsystem)}&source=alarm-center`)}
+                    >
+                      Buat SPK
+                    </Button>
                   </div>
                   <div className="alarm-acknowledge-slot">
                     {alarm.status === "Open" && (
@@ -84,7 +98,7 @@ export function AlarmTable({
                         icon={<CheckCircle size={16} weight="bold" />}
                         aria-label="Sudah di acknowledge"
                         title="Sudah di acknowledge"
-                        onClick={() => alert(`Sudah di acknowledge: Alarm ${alarm.id}`)}
+                        onClick={() => onAcknowledge?.(alarm.id)}
                       />
                     )}
                   </div>

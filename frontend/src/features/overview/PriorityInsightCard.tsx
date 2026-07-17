@@ -97,6 +97,8 @@ export function PriorityInsightCard({ insight }: { insight: Insight }) {
     car: String(insight.carNumber),
     subsystem: insight.subsystem
   });
+  const workOrderParams = new URLSearchParams(params);
+  workOrderParams.set("source", "overview");
 
   return (
     <Card title="Insight Aktif" eyebrow="Ringkasan Prioritas" className={`overview-priority-card${isHighAlert ? " overview-priority-card-alert" : ""}${isMediumAlert ? " overview-priority-card-warning" : ""}`}>
@@ -114,7 +116,7 @@ export function PriorityInsightCard({ insight }: { insight: Insight }) {
           <div className="overview-priority-actions">
             <Link href="/insight-analytic" className="button button-primary">Lihat Insight</Link>
             <Link href={`/car-detail?${params.toString()}`} className="button button-secondary">Tinjau Bukti</Link>
-            <Link href="/work-order" className="button button-ghost">Buat SPK</Link>
+            <Link href={`/work-order?${workOrderParams.toString()}`} className="button button-ghost">Buat SPK</Link>
           </div>
         </div>
         <aside className="overview-priority-metrics" aria-label="Ringkasan skor risiko dan bukti">

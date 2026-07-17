@@ -13,7 +13,7 @@ export function Modal({ open, title, children, onClose }: { open: boolean; title
         <div className="card-header">
           <Dialog.Title>{title}</Dialog.Title>
           <Dialog.Close asChild>
-            <Button variant="ghost">Close</Button>
+            <Button variant="ghost">Tutup</Button>
           </Dialog.Close>
         </div>
         {children}

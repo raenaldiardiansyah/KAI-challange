@@ -1,29 +1,45 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { MetricDelta } from "@/components/ui/MetricDelta";
-import type { Severity } from "@/types/common";
+import type { PredictiveRiskView } from "./riskViewModel";
 
-export function RiskRanking() {
-  const rankings: { type: string; name: string; severity: Severity; score: number }[] = [
-    { type: "Komponen", name: "Brake Cylinder (Car 5)", severity: "High", score: 92 },
-    { type: "Armada", name: "Argo Wilis M02511", severity: "Medium", score: 68 },
-    { type: "Gerbong", name: "Gerbong 2 (Genset)", severity: "Medium", score: 64 },
-  ];
+type RiskRankingProps = {
+  risks: PredictiveRiskView[];
+  selectedId?: string;
+  onSelectRisk: (id: string) => void;
+  onOpenAll: () => void;
+};
+
+export function RiskRanking({ risks, selectedId, onSelectRisk, onOpenAll }: RiskRankingProps) {
+  const rankings = [...risks].sort((a, b) => b.riskScore - a.riskScore).slice(0, 3);
 
   return (
-    <Card title="Prioritas Risiko Aset" eyebrow="Aset paling perlu ditindaklanjuti">
-      <div className="stack">
-        {rankings.map((r, i) => (
-          <div key={i} className="train-row" style={{ gridTemplateColumns: "auto 1fr auto" }}>
-            <span style={{ fontSize: "12px", color: "#64748b", minWidth: "70px" }}>{r.type}</span>
-            <strong>{r.name}</strong>
-            <div className="percent-with-delta" style={{ justifyContent: "flex-end" }}>
-              <Badge label={`${r.score}%`} severity={r.severity} />
-              <MetricDelta value={r.score} inverse compact />
+    <Card
+      title="Prioritas Risiko Aset"
+      eyebrow="Aset paling perlu ditindaklanjuti"
+      action={<Button variant="ghost" className="table-mini-button" onClick={onOpenAll}>Lihat Semua</Button>}
+    >
+      <div className="predictive-priority-list">
+        {rankings.map((risk) => (
+          <button
+            className={`predictive-priority-item${selectedId === risk.id ? " active" : ""}`}
+            key={risk.id}
+            onClick={() => onSelectRisk(risk.id)}
+            type="button"
+          >
+            <div className="predictive-priority-head">
+              <span>{risk.trainsetId} - Gerbong {risk.carNumber}</span>
+              <strong>{risk.subsystem}</strong>
             </div>
-          </div>
+            <div className="predictive-priority-metrics">
+              <span><small>Risiko</small><b>{risk.riskScore}%</b></span>
+              <span><small>TTW</small><b>{risk.timeToWarning}</b></span>
+              <span><small>Confidence</small><b>{risk.confidence}%</b></span>
+              <Badge label={`Tren ${risk.trend}`} severity={risk.severity} />
+            </div>
+          </button>
         ))}
       </div>
     </Card>
