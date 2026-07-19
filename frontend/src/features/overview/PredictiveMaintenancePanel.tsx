@@ -26,7 +26,7 @@ export function PredictiveMaintenancePanel({ risks, insights = [] }: PredictiveM
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? insights.length - 1 : prev - 1));
   };
-  
+
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % insights.length);
   };
@@ -34,8 +34,8 @@ export function PredictiveMaintenancePanel({ risks, insights = [] }: PredictiveM
   const insight = insights[currentIndex];
 
   return (
-    <Card 
-      title="Insight LLM Prediktif" 
+    <Card
+      title="Insight LLM Prediktif"
       action={<Link href="/insight-analytic" className="button button-secondary table-mini-button">Lihat Insight</Link>}
       className="llm-insight-card"
     >
@@ -63,16 +63,16 @@ export function PredictiveMaintenancePanel({ risks, insights = [] }: PredictiveM
 
         {insights.length > 1 && (
           <>
-            <button 
-              onClick={handlePrev} 
-              style={{ position: 'absolute', left: '4px', top: '50%', transform: 'translateY(-50%)', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }} 
+            <button
+              onClick={handlePrev}
+              style={{ position: 'absolute', left: '6px', top: 'calc(50% + 16px)%', transform: 'translateY(-50%)', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
               aria-label="Previous insight"
             >
               <CaretLeft size={16} />
             </button>
-            <button 
-              onClick={handleNext} 
-              style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }} 
+            <button
+              onClick={handleNext}
+              style={{ position: 'absolute', right: '6px', top: 'calc(50% + 16px)%', transform: 'translateY(-50%)', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
               aria-label="Next insight"
             >
               <CaretRight size={16} />

@@ -11278,9 +11278,12 @@ pre {
   line-height: 1.15 !important;
 }
 
-.overview-presentation-canvas .overview-alarm-status-grid,
-.overview-presentation-canvas .llm-insight-metrics {
+.overview-presentation-canvas .overview-alarm-status-grid {
   margin-top: auto !important;
+}
+
+.overview-presentation-canvas .llm-insight-metrics {
+  margin-top: 1px !important;
 }
 
 .overview-presentation-canvas .llm-insight-body {
@@ -11311,6 +11314,8 @@ pre {
   font-size: 12px !important;
   line-height: 1.3 !important;
   padding: 8px 10px !important;
+  margin-left: 30px !important;
+  margin-right: 30px !important;
 }
 
 .overview-presentation-canvas .llm-insight-metrics {
