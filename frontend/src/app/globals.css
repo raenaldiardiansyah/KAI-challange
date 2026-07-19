@@ -11004,8 +11004,9 @@ pre {
 
 .overview-presentation-canvas .overview-priority-actions {
   gap: 7px !important;
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
   margin-top: auto !important;
+  margin-left: -36px !important;
 }
 
 .overview-presentation-canvas .overview-priority-actions .button {
@@ -11223,13 +11224,13 @@ pre {
 }
 
 .overview-presentation-canvas .overview-alarm-chart-summary {
-  gap: 7px !important;
-  margin-bottom: 8px !important;
+  gap: 6px !important;
+  margin-bottom: 6px !important;
 }
 
 .overview-presentation-canvas .overview-alarm-chart-summary>div {
   border-radius: 6px !important;
-  padding: 7px 9px !important;
+  padding: 5px 8px !important;
 }
 
 .overview-presentation-canvas .overview-alarm-chart-summary strong {
@@ -11243,8 +11244,8 @@ pre {
 }
 
 .overview-presentation-canvas .overview-alarm-bars {
-  gap: 6px !important;
-  margin: 6px 0 !important;
+  gap: 4px !important;
+  margin: 4px 0 !important;
 }
 
 .overview-presentation-canvas .overview-alarm-bar-row {
@@ -11258,13 +11259,13 @@ pre {
 }
 
 .overview-presentation-canvas .overview-alarm-status-grid {
-  gap: 7px !important;
-  padding-top: 7px !important;
+  gap: 5px !important;
+  padding-top: 5px !important;
 }
 
 .overview-presentation-canvas .overview-alarm-status-grid>div {
   border-radius: 6px !important;
-  padding: 7px 9px !important;
+  padding: 4px 7px !important;
 }
 
 .overview-presentation-canvas .overview-alarm-status-grid strong {
@@ -11286,6 +11287,11 @@ pre {
   gap: 5px !important;
   padding: 10px 12px 10px 17px !important;
   position: relative;
+}
+
+.overview-presentation-canvas .overview-alarm-preview-list {
+  margin-top: 6px !important;
+  gap: 4px !important;
 }
 
 .overview-presentation-canvas .llm-insight-title {
