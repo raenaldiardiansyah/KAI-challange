@@ -10690,7 +10690,7 @@ pre {
 .overview-alarm-preview-list {
   display: grid;
   gap: 6px;
-  margin-top: 10px;
+  margin-top: 4px;
   min-height: 0;
 }
 
@@ -10846,7 +10846,7 @@ pre {
 .overview-presentation-canvas .overview-page {
   display: grid;
   gap: 5px;
-  grid-template-rows: minmax(0, 46fr) 54px minmax(0, 36fr);
+  grid-template-rows: minmax(0, 40fr) 54px minmax(0, 50fr);
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -11224,8 +11224,8 @@ pre {
 }
 
 .overview-presentation-canvas .overview-alarm-chart-summary {
-  gap: 6px !important;
-  margin-bottom: 6px !important;
+  gap: 7px !important;
+  margin-bottom: 4px !important;
 }
 
 .overview-presentation-canvas .overview-alarm-chart-summary>div {
@@ -11244,8 +11244,8 @@ pre {
 }
 
 .overview-presentation-canvas .overview-alarm-bars {
-  gap: 4px !important;
-  margin: 4px 0 !important;
+  gap: 6px !important;
+  margin: 3px 0 !important;
 }
 
 .overview-presentation-canvas .overview-alarm-bar-row {
@@ -12183,7 +12183,7 @@ pre {
 }
 
 .overview-page {
-  grid-template-rows: minmax(0, 1.05fr) auto minmax(280px, 0.95fr);
+  grid-template-rows: minmax(0, 0.70fr) auto minmax(280px, 1.35fr);
   height: 100%;
   min-height: 100%;
 }
