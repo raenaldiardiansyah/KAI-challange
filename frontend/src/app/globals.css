@@ -10846,7 +10846,7 @@ pre {
 .overview-presentation-canvas .overview-page {
   display: grid;
   gap: 5px;
-  grid-template-rows: minmax(0, 40fr) 54px minmax(0, 50fr);
+  grid-template-rows: minmax(0, 42fr) 54px minmax(0, 52fr);
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -11009,13 +11009,17 @@ pre {
   margin-left: -36px !important;
 }
 
+.overview-presentation-canvas .overview-priority-shell-normal .overview-priority-actions {
+  margin-left: 0 !important;
+}
+
 .overview-presentation-canvas .overview-priority-actions .button {
   min-height: 32px !important;
   padding: 0 11px !important;
 }
 
 .overview-presentation-canvas .overview-priority-metrics {
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 8px;
   margin-top: -42px;
   min-height: 0;
@@ -11954,6 +11958,11 @@ pre {
   flex-direction: column !important;
 }
 
+.overview-presentation-canvas .alarm-chart-card {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+}
+
 .overview-compact-fit .alarm-summary-grid {
   gap: 8px;
 }
@@ -12270,6 +12279,8 @@ pre {
 
 .trainset-master-layout .master-list-panel {
   display: grid;
+  align-content: start;
+  grid-template-rows: auto 1fr;
 }
 
 .trainset-master-layout .master-list-panel>.list-grid,
@@ -12278,7 +12289,8 @@ pre {
 }
 
 .trainset-master-layout .detail-workspace {
-  grid-template-rows: minmax(96px, 0.46fr) minmax(100px, 0.5fr) minmax(82px, 0.28fr) minmax(220px, 1.05fr) minmax(220px, 1fr);
+  grid-template-rows: auto auto auto minmax(320px, 1fr) minmax(260px, 1fr);
+  align-content: start;
 }
 
 .trainset-master-layout .two-column-grid {
@@ -12333,8 +12345,10 @@ pre {
 }
 
 .trainset-operational-compact-card {
-  min-height: 0;
+  min-height: 170px;
   padding-block: 10px !important;
+  max-height: 200px;
+  align-self: start;
 }
 
 .trainset-operational-compact {
