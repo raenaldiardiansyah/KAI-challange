@@ -25,6 +25,12 @@ function getPriorityInsight(composition: TrainsetComposition) {
   ))[0];
 }
 
+function getSeverityColorClass(severity?: Insight["severity"]) {
+  if (severity === "Critical" || severity === "High") return "browser-item-critical";
+  if (severity === "Medium") return "browser-item-medium";
+  return "browser-item-normal";
+}
+
 export function InteractiveTrainsetPanel({ compositions }: { compositions: TrainsetComposition[] }) {
   const [selectedTrainsetIndex, setSelectedTrainsetIndex] = useState(0);
   const [selectedCars, setSelectedCars] = useState<Record<string, number>>({});
@@ -100,16 +106,16 @@ export function InteractiveTrainsetPanel({ compositions }: { compositions: Train
       <PriorityInsightCard insight={selectedInsight} />
       <Modal
         open={isCompositionModalOpen}
-        title="Cari Komposisi Kereta"
+        title="Pilih Komposisi Kereta"
         onClose={() => setIsCompositionModalOpen(false)}
       >
         <div className="composition-browser">
           <label className="composition-browser-search">
-            <span className="sr-only">Cari armada atau komposisi kereta</span>
+            <span className="sr-only">Pilih armada atau komposisi kereta</span>
             <MagnifyingGlass size={18} aria-hidden="true" />
             <Input
               autoFocus
-              aria-label="Cari armada atau komposisi kereta"
+              aria-label="Pilih armada atau komposisi kereta"
               placeholder="Ketik kode atau nama kereta, contoh: TS-001"
               value={compositionQuery}
               onChange={(event) => setCompositionQuery(event.target.value)}
@@ -137,7 +143,10 @@ export function InteractiveTrainsetPanel({ compositions }: { compositions: Train
                     type="button"
                     role="option"
                     aria-selected={isActive}
-                    className={isActive ? "active" : ""}
+                    className={[
+                      getSeverityColorClass(priorityInsight?.severity),
+                      isActive ? "active" : ""
+                    ].filter(Boolean).join(" ")}
                     onClick={() => selectTrainset(item.trainsetId)}
                   >
                     <span className="composition-browser-icon" aria-hidden="true">

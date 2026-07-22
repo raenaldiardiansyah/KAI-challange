@@ -10144,6 +10144,28 @@ pre {
   transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
+.composition-browser-results>button.browser-item-critical {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.composition-browser-results>button.browser-item-medium {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.composition-browser-results>button.browser-item-normal {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.composition-browser-results>button.browser-item-critical.active,
+.composition-browser-results>button.browser-item-medium.active,
+.composition-browser-results>button.browser-item-normal.active {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
 .composition-browser-results>button:hover,
 .composition-browser-results>button:focus-visible,
 .composition-browser-results>button.active {
