@@ -107,16 +107,16 @@ export function InteractiveTrainsetPanel({ compositions }: { compositions: Train
       <PriorityInsightCard insight={selectedInsight} />
       <Modal
         open={isCompositionModalOpen}
-        title="Pilih Komposisi Kereta"
+        title="Pilih Trainset"
         onClose={() => setIsCompositionModalOpen(false)}
       >
         <div className="composition-browser">
           <label className="composition-browser-search">
-            <span className="sr-only">Pilih armada atau komposisi kereta</span>
+            <span className="sr-only">Cari Trainset</span>
             <MagnifyingGlass size={18} aria-hidden="true" />
             <Input
               autoFocus
-              aria-label="Pilih armada atau komposisi kereta"
+              aria-label="Pilih Trainset untuk menampilkan komposisinya di Ringkasan"
               placeholder="Ketik kode atau nama kereta, contoh: TS-001"
               value={compositionQuery}
               onChange={(event) => setCompositionQuery(event.target.value)}
@@ -127,9 +127,9 @@ export function InteractiveTrainsetPanel({ compositions }: { compositions: Train
             <strong>
               {normalizedQuery
                 ? `${compositionSuggestions.length} rekomendasi ditemukan`
-                : `${compositions.length} armada tersedia`}
+                : `${compositions.length} Trainset tersedia`}
             </strong>
-            <span>Pilih armada untuk menampilkan komposisinya di Ringkasan.</span>
+            <span>Pilih Trainset untuk menampilkan komposisinya di Ringkasan.</span>
           </div>
 
           {compositionSuggestions.length > 0 ? (
