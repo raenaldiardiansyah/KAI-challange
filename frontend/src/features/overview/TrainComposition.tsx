@@ -78,31 +78,27 @@ export function TrainComposition({
   const compositionCars = cars.length > 0
     ? cars
     : Array.from({ length: totalCars }, (_, index) => ({
-        carId: "",
-        carNumber: index + 1
-      }));
+      carId: "",
+      carNumber: index + 1
+    }));
   const showTrainsetNavigation = totalTrainsets > 1 && onPreviousTrainset && onNextTrainset;
   const navigation = showTrainsetNavigation || onViewMore ? (
     <div className="trainset-composition-actions">
+      {onViewMore ? (
+        <button type="button" className="trainset-composition-more" onClick={onViewMore}>
+          <MagnifyingGlass size={14} weight="bold" />
+          Pilih Trainset
+        </button>
+      ) : null}
       {showTrainsetNavigation ? (
         <div className="trainset-composition-navigation" aria-label="Navigasi komposisi kereta">
           <button type="button" onClick={onPreviousTrainset} aria-label="Kereta sebelumnya" title="Kereta sebelumnya">
             <CaretLeft size={15} weight="bold" />
           </button>
-          <span className="trainset-composition-position" title={trainsetName}>
-            <strong>{trainsetCode}</strong>
-            <small>{currentTrainsetIndex + 1}/{totalTrainsets}</small>
-          </span>
           <button type="button" onClick={onNextTrainset} aria-label="Kereta berikutnya" title="Kereta berikutnya">
             <CaretRight size={15} weight="bold" />
           </button>
         </div>
-      ) : null}
-      {onViewMore ? (
-        <button type="button" className="trainset-composition-more" onClick={onViewMore}>
-          <MagnifyingGlass size={14} weight="bold" />
-          Lihat lebih banyak
-        </button>
       ) : null}
     </div>
   ) : null;
@@ -111,42 +107,42 @@ export function TrainComposition({
     <Card title="Komposisi Kereta" eyebrow="Mewakili armada aktif" action={navigation} className="overview-composition-card">
       <div className="train-composition-scroll" aria-label="Komposisi gerbong interaktif">
         <div className="composition overview-car-grid train-composition-track">
-        {compositionCars.map((compositionCar, index) => {
-          const insight = carsInsights.find((item) => (
-            (compositionCar.carId && item.carId === compositionCar.carId)
-            || (compositionCar.carNumber != null && item.carNumber === compositionCar.carNumber)
-          ));
-          const car = compositionCar.carNumber ?? insight?.carNumber ?? index + 1;
-          const isSelected = car === selectedCar;
-          const status = getVisualStatus(insight);
-          const anomaly = getAnomalyLabel(insight);
-          const statusLabel = status === "no-data" ? "No data" : status.charAt(0).toUpperCase() + status.slice(1);
-          const backendCarId = compositionCar.carId.trim() || insight?.carId?.trim();
+          {compositionCars.map((compositionCar, index) => {
+            const insight = carsInsights.find((item) => (
+              (compositionCar.carId && item.carId === compositionCar.carId)
+              || (compositionCar.carNumber != null && item.carNumber === compositionCar.carNumber)
+            ));
+            const car = compositionCar.carNumber ?? insight?.carNumber ?? index + 1;
+            const isSelected = car === selectedCar;
+            const status = getVisualStatus(insight);
+            const anomaly = getAnomalyLabel(insight);
+            const statusLabel = status === "no-data" ? "No data" : status.charAt(0).toUpperCase() + status.slice(1);
+            const backendCarId = compositionCar.carId.trim() || insight?.carId?.trim();
 
-          const tooltip = [
-            backendCarId ? `Kode gerbong: ${backendCarId}` : "Kode gerbong belum tersedia dari backend",
-            `Status: ${statusLabel}`,
-            insight ? `Health: ${insight.healthScore}%` : "Health: -",
-            anomaly ? `Anomaly: ${anomaly}` : null,
-            "Klik untuk memilih, lalu gunakan Tinjau Bukti"
-          ].filter(Boolean).join("\n");
+            const tooltip = [
+              backendCarId ? `Kode gerbong: ${backendCarId}` : "Kode gerbong belum tersedia dari backend",
+              `Status: ${statusLabel}`,
+              insight ? `Health: ${insight.healthScore}%` : "Health: -",
+              anomaly ? `Anomaly: ${anomaly}` : null,
+              "Klik untuk memilih, lalu gunakan Tinjau Bukti"
+            ].filter(Boolean).join("\n");
 
-          return (
-            <div className="train-composition-segment" key={backendCarId || `fallback-${index}`}>
-              {index > 0 ? <span className="train-car-connector" aria-hidden="true" /> : null}
-              <button
-                type="button"
-                className={`car-item overview-car-item train-car-link status-${status}${isSelected ? " selected" : ""}`}
-                onClick={() => onSelectCar(car)}
-                title={tooltip}
-                aria-label={`${backendCarId ? `Gerbong ${backendCarId}` : "Gerbong tanpa kode backend"}, Status ${statusLabel}${insight ? `, Health ${insight.healthScore} persen` : ""}${anomaly ? `, Anomaly ${anomaly}` : ""}. Pilih untuk meninjau insight`}
-                aria-pressed={isSelected}
-              >
-                <TrainCarIcon status={status} />
-              </button>
-            </div>
-          );
-        })}
+            return (
+              <div className="train-composition-segment" key={backendCarId || `fallback-${index}`}>
+                {index > 0 ? <span className="train-car-connector" aria-hidden="true" /> : null}
+                <button
+                  type="button"
+                  className={`car-item overview-car-item train-car-link status-${status}${isSelected ? " selected" : ""}`}
+                  onClick={() => onSelectCar(car)}
+                  title={tooltip}
+                  aria-label={`${backendCarId ? `Gerbong ${backendCarId}` : "Gerbong tanpa kode backend"}, Status ${statusLabel}${insight ? `, Health ${insight.healthScore} persen` : ""}${anomaly ? `, Anomaly ${anomaly}` : ""}. Pilih untuk meninjau insight`}
+                  aria-pressed={isSelected}
+                >
+                  <TrainCarIcon status={status} />
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
     </Card>

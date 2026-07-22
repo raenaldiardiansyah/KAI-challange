@@ -10042,7 +10042,7 @@ pre {
 }
 
 .trainset-composition-more {
-  align-items: center;
+  align-items: just-start;
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 7px;
@@ -10843,6 +10843,11 @@ pre {
   width: calc(100% / var(--overview-presentation-scale));
 }
 
+.overview-presentation-canvas .trainset-composition-actions {
+  flex: 1;
+  justify-content: space-between;
+}
+
 .overview-presentation-canvas .overview-page {
   display: grid;
   gap: 5px;
@@ -10932,6 +10937,11 @@ pre {
 .overview-presentation-canvas .overview-car-grid {
   gap: 8px !important;
   grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
+}
+
+.overview-presentation-canvas .overview-composition-card .card-header {
+  justify-content: flex-start;
+  gap: 24px;
 }
 
 .overview-presentation-canvas .overview-car-item {
