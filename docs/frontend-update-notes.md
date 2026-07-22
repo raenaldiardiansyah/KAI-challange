@@ -47,3 +47,20 @@ Validasi terakhir:
 - `pnpm run typecheck` passed
 - `pnpm run test:run` passed, 44 tests
 - `git diff --check` passed
+
+## [22-07-20026]
+
+### Perubahan UI/UX
+
+- Card "Grafik Alarm" di `/overview` dirapikan agar tinggi konsisten dengan card sekitarnya, status grid dan preview alarm kini muncul penuh tanpa terpotong.
+- Card "Ringkasan Prioritas" (Insight Aktif) di `/overview` diperbaiki posisi tombol aksinya (Lihat Insight, Tinjau Bukti, Buat SPK) agar konsisten rata kiri di semua kondisi severity (Normal/Sedang/Tinggi/Kritis).
+- Panel "Komposisi Kereta" di `/overview`:
+  - Menampilkan kode trainset aktif (mis. `TS-001`) di header, dengan badge warna otomatis mengikuti severity tertinggi (merah/kuning/hijau).
+  - Tombol "Pilih Trainset" diubah gaya menjadi navy solid, konsisten dengan tombol primer lain.
+  - Navigasi panah (prev/next) tetap rata kanan.
+- Modal pemilihan trainset ("Pilih Trainset") — istilah disamakan menjadi "trainset" di semua teks (judul, label pencarian, ringkasan jumlah) agar tidak campur dengan istilah "armada".
+- Halaman `/telemetry-explorer`: tinggi grafik dan tabel data log ditingkatkan agar mengisi ruang kosong pada layar.
+
+### Catatan Teknis
+
+- Penyesuaian dilakukan di `globals.css` pada scope `.overview-presentation-canvas` (mode tampilan default overview).
