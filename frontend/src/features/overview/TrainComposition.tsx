@@ -19,6 +19,7 @@ type TrainCompositionProps = {
   onPreviousTrainset?: () => void;
   onNextTrainset?: () => void;
   onViewMore?: () => void;
+  activeSeverity?: string;
 };
 
 type CarVisualStatus = "normal" | "warning" | "critical" | "no-data";
@@ -28,6 +29,12 @@ function getVisualStatus(insight?: Insight): CarVisualStatus {
   if (insight.severity === "High" || insight.severity === "Critical") return "critical";
   if (insight.severity === "Medium") return "warning";
   return "normal";
+}
+
+function getSeverityBadgeClass(severity?: string) {
+  if (severity === "Critical" || severity === "High") return "trainset-active-badge-critical";
+  if (severity === "Medium") return "trainset-active-badge-medium";
+  return "trainset-active-badge-normal";
 }
 
 function getAnomalyLabel(insight?: Insight) {
@@ -73,7 +80,8 @@ export function TrainComposition({
   totalTrainsets = 1,
   onPreviousTrainset,
   onNextTrainset,
-  onViewMore
+  onViewMore,
+  activeSeverity
 }: TrainCompositionProps) {
   const compositionCars = cars.length > 0
     ? cars
@@ -84,12 +92,17 @@ export function TrainComposition({
   const showTrainsetNavigation = totalTrainsets > 1 && onPreviousTrainset && onNextTrainset;
   const navigation = showTrainsetNavigation || onViewMore ? (
     <div className="trainset-composition-actions">
-      {onViewMore ? (
-        <button type="button" className="trainset-composition-more" onClick={onViewMore}>
-          <MagnifyingGlass size={14} weight="bold" />
-          Pilih Trainset
-        </button>
-      ) : null}
+      <div className="trainset-composition-left-group">
+        <span className={`trainset-composition-active-label ${getSeverityBadgeClass(activeSeverity)}`}>
+          {trainsetCode}
+        </span>
+        {onViewMore ? (
+          <button type="button" className="trainset-composition-more" onClick={onViewMore}>
+            <MagnifyingGlass size={14} weight="bold" />
+            Pilih Trainset
+          </button>
+        ) : null}
+      </div>
       {showTrainsetNavigation ? (
         <div className="trainset-composition-navigation" aria-label="Navigasi komposisi kereta">
           <button type="button" onClick={onPreviousTrainset} aria-label="Kereta sebelumnya" title="Kereta sebelumnya">
@@ -102,7 +115,6 @@ export function TrainComposition({
       ) : null}
     </div>
   ) : null;
-
   return (
     <Card title="Komposisi Kereta" eyebrow="Mewakili armada aktif" action={navigation} className="overview-composition-card">
       <div className="train-composition-scroll" aria-label="Komposisi gerbong interaktif">

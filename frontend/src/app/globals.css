@@ -10041,6 +10041,38 @@ pre {
   justify-content: flex-end;
 }
 
+.trainset-composition-active-label {
+  border-left: 3px solid;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px 4px 8px;
+}
+
+.trainset-composition-active-label.trainset-active-badge-critical {
+  background: #fef2f2;
+  border-left-color: #dc2626;
+  color: #dc2626;
+}
+
+.trainset-composition-active-label.trainset-active-badge-medium {
+  background: #fffbeb;
+  border-left-color: #d97706;
+  color: #d97706;
+}
+
+.trainset-composition-active-label.trainset-active-badge-normal {
+  background: #f0fdf4;
+  border-left-color: #16a34a;
+  color: #16a34a;
+}
+
+.trainset-composition-left-group {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
 .trainset-composition-more {
   align-items: just-start;
   background: #ffffff;

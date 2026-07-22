@@ -102,6 +102,7 @@ export function InteractiveTrainsetPanel({ compositions }: { compositions: Train
         onPreviousTrainset={showPreviousTrainset}
         onNextTrainset={showNextTrainset}
         onViewMore={openCompositionModal}
+        activeSeverity={defaultInsight.severity}
       />
       <PriorityInsightCard insight={selectedInsight} />
       <Modal
