@@ -2857,6 +2857,8 @@ th {
   color: #111827;
   font-size: 22px;
   line-height: 1.1;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .car-trend-interpretation {
@@ -6914,6 +6916,7 @@ th {
   grid-template-columns: minmax(0, 1fr) auto;
   min-height: 92px;
   padding: 18px 20px;
+  flex-shrink: 0;
 }
 
 .spk-inspector-head h3 {
@@ -10276,6 +10279,7 @@ pre {
   display: flex !important;
   flex-direction: column !important;
   position: relative;
+  overflow-y: auto;
 }
 
 .overview-priority-card .card-header {
@@ -11114,7 +11118,7 @@ pre {
   height: 6px;
 }
 
-.overview-presentation-canvas .overview-map-card {
+.overview-map-card {
   display: grid !important;
   gap: 8px 10px;
   grid-template-columns: minmax(0, 1.28fr) minmax(248px, 0.72fr);
@@ -11124,25 +11128,25 @@ pre {
   padding: 12px 14px !important;
 }
 
-.overview-presentation-canvas .overview-map-card .card-header {
+.overview-map-card .card-header {
   grid-column: 1 / -1;
   margin-bottom: 0 !important;
 }
 
-.overview-presentation-canvas .overview-map-card .map-preview-link {
+.overview-map-card .map-preview-link {
   grid-column: 1;
   grid-row: 2;
   min-height: 0;
   overflow: hidden;
 }
 
-.overview-presentation-canvas .overview-map-card .map-legend-row {
+.overview-map-card .map-legend-row {
   grid-column: 1;
   grid-row: 3;
   margin: 0;
 }
 
-.overview-presentation-canvas .overview-map-card .map-route-legend {
+.overview-map-card .map-route-legend {
   display: flex;
   flex-direction: column;
   gap: 7px;
@@ -11153,7 +11157,7 @@ pre {
   padding: 8px 9px !important;
 }
 
-.overview-presentation-canvas .overview-map-card .map-route-list {
+.overview-map-card .map-route-list {
   display: grid;
   flex: 0 1 auto;
   gap: 7px;
@@ -11162,12 +11166,12 @@ pre {
   overflow: hidden;
 }
 
-.overview-presentation-canvas .overview-map-card .map-route-item {
+.overview-map-card .map-route-item {
   min-height: 0;
   padding: 7px 9px !important;
 }
 
-.overview-presentation-canvas .overview-map-card .map-route-item-head {
+.overview-map-card .map-route-item-head {
   align-items: center;
   display: flex;
   gap: 6px;
@@ -11175,48 +11179,48 @@ pre {
   min-width: 0;
 }
 
-.overview-presentation-canvas .overview-map-card .map-route-status {
+.overview-map-card .map-route-status {
   flex: 0 0 auto;
   font-size: 10px !important;
   line-height: 1.1 !important;
 }
 
-.overview-presentation-canvas .overview-map-card .map-route-item span:not(.map-route-status),
-.overview-presentation-canvas .overview-map-card .map-route-item small {
+.overview-map-card .map-route-item span:not(.map-route-status),
+.overview-map-card .map-route-item small {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
 }
 
-.overview-presentation-canvas .overview-map-card .map-route-item span:not(.map-route-status) {
+.overview-map-card .map-route-item span:not(.map-route-status) {
   -webkit-line-clamp: 1;
 }
 
-.overview-presentation-canvas .overview-map-card .map-route-item small {
+.overview-map-card .map-route-item small {
   -webkit-line-clamp: 2;
 }
 
-.overview-presentation-canvas .overview-map-card .map-route-pagination {
+.overview-map-card .map-route-pagination {
   border-top: 1px solid var(--line);
   flex: 0 0 auto;
   margin-top: auto;
   padding-top: 7px;
 }
 
-.overview-presentation-canvas .overview-map-card .map-route-pagination button {
+.overview-map-card .map-route-pagination button {
   min-height: 28px;
   padding: 4px 9px;
 }
 
-.overview-presentation-canvas .overview-map-card .map-preview,
-.overview-presentation-canvas .overview-map-card .map-container,
-.overview-presentation-canvas .overview-map-card .overview-map-image {
+.overview-map-card .map-preview,
+.overview-map-card .map-container,
+.overview-map-card .overview-map-image {
   height: 100% !important;
   max-height: none !important;
   min-height: 0;
 }
 
-.overview-presentation-canvas .overview-map-card .map-preview-cta {
+.overview-map-card .map-preview-cta {
   bottom: 10px;
   font-size: 11px;
   height: 30px;
@@ -12255,9 +12259,10 @@ pre {
 }
 
 .overview-page {
-  grid-template-rows: minmax(0, 0.70fr) auto minmax(280px, 1.35fr);
+  grid-template-rows: minmax(360px, 0.70fr) auto minmax(280px, 1.35fr);
   height: 100%;
   min-height: 100%;
+  overflow: hidden;
 }
 
 .overview-page .overview-top-grid,
