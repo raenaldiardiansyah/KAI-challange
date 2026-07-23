@@ -1,0 +1,18 @@
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.tabs button { background: #f1f5f9; border: 1px solid #dbe3ea; border-radius: 6px; color: #475569; cursor: pointer; font-size: 11px; padding: 6px 9px; }
+.tabs button[aria-selected="true"] { background: #e0f2fe; border-color: #7dd3fc; color: #075985; font-weight: 700; }
+.grid { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.item { background: #f8fafc; border-radius: 6px; min-width: 0; padding: 8px; }
+.item span { color: #64748b; display: block; font-size: 10px; text-transform: uppercase; }
+.item strong { display: block; font-size: 12px; margin-top: 3px; overflow-wrap: anywhere; }
+.list { margin: 8px 0; padding-left: 18px; }
+.list li { font-size: 12px; margin: 5px 0; }
+.raw { margin-top: 9px; }
+.raw summary { color: #2563eb; cursor: pointer; font-size: 12px; font-weight: 700; }
+.raw pre { background: #0f172a; border-radius: 6px; color: #e2e8f0; font-size: 10px; max-height: 150px; overflow: auto; padding: 9px; white-space: pre-wrap; }
+.actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+.telemetryLink { align-items: center; border: 1px solid #cbd5e1; border-radius: 6px; color: #334155; display: inline-flex; font-size: 12px; font-weight: 700; padding: 7px 10px; text-decoration: none; }
+
+:global(.dashboard-density-compact) .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+:global(.dashboard-density-compact) .item:nth-child(n+5) { display: none; }
+

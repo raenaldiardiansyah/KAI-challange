@@ -36,8 +36,8 @@ export function RiskRanking({ risks, selectedId, onSelectRisk, onOpenAll }: Risk
             <div className="predictive-priority-metrics">
               <span><small>Risiko</small><b>{risk.riskScore}%</b></span>
               <span><small>TTW</small><b>{risk.timeToWarning}</b></span>
-              <span><small>Confidence</small><b>{risk.confidence}%</b></span>
-              <Badge label={`Tren ${risk.trend}`} severity={risk.severity} />
+              <span><small>Confidence</small><b>{risk.prototypeFields ? "Prototype" : `${risk.confidence}%`}</b></span>
+              <Badge label={risk.prototypeFields ? "Tren Prototype" : `Tren ${risk.trend}`} severity={risk.severity} />
             </div>
           </button>
         ))}

@@ -12,4 +12,22 @@ export type Trainset = {
   healthStatus: HealthStatus;
   alarmCount: number;
   location: string;
+  speedKph?: number | null;
+  onlineCars?: number;
+  healthBreakdown?: {
+    critical: number;
+    warning: number;
+    watch: number;
+    offline: number;
+    degraded: number;
+  };
+  carHealthSummary?: Array<{
+    carId: string;
+    displayCode: string;
+    healthScore: number | null;
+    status: string;
+    dataStatus: string;
+  }>;
+  healthSource?: string | null;
+  healthGeneratedAt?: string | null;
 };

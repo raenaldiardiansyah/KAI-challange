@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { AppFrame } from "@/components/layout/AppFrame";
 
 export const metadata: Metadata = {
   title: "TEL-U Insight System",
@@ -16,7 +16,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="id">
       <body>
-        <DashboardLayout>{children}</DashboardLayout>
+        <AppFrame>{children}</AppFrame>
       </body>
     </html>
   );

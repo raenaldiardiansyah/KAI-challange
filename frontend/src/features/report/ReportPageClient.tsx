@@ -11,6 +11,7 @@ import { ReportFilter } from "./ReportFilter";
 import { ReportSummary } from "./ReportSummary";
 import { ReportTrendChart } from "./ReportTrendChart";
 import { TelemetryReportChart } from "./TelemetryReportChart";
+import { ReportCategoryCards } from "./ReportCategoryCards";
 import { ReportTable } from "./ReportTable";
 import { TelemetryTable } from "@/features/telemetry/TelemetryTable";
 
@@ -61,6 +62,10 @@ export function ReportPageClient({ alarms, reports, trainsets, telemetry }: Repo
       </section>
 
       <section>
+        <ReportCategoryCards reports={reports} />
+      </section>
+
+      <section id="report-archive">
         <ReportTable filter={filter} reports={reports} />
       </section>
 

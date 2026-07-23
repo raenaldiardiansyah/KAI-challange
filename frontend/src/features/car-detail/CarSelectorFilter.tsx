@@ -4,6 +4,8 @@ import { Select } from "@/components/ui/Select";
 import { useRouter } from "next/navigation";
 
 type TrainsetInfo = { id: string; name: string; };
+type CarOption = { id: string; label: string; order: number };
+type SubsystemOption = string | { value: string; label: string };
 
 export function CarSelectorFilter({ 
   defaultCar = "5", 
@@ -13,6 +15,7 @@ export function CarSelectorFilter({
   issueTrainsets = [], 
   issueCarsByTrainset = {},
   totalCarsByTrainset = {},
+  carOptionsByTrainset = {},
   availableSubsystems = []
 }: { 
   defaultCar?: string;
@@ -22,12 +25,13 @@ export function CarSelectorFilter({
   issueTrainsets?: string[];
   issueCarsByTrainset?: Record<string, number[]>;
   totalCarsByTrainset?: Record<string, number>;
-  availableSubsystems?: string[];
+  carOptionsByTrainset?: Record<string, CarOption[]>;
+  availableSubsystems?: SubsystemOption[];
 }) {
   const router = useRouter();
   const selectedTrainset = defaultTrainset ?? trainsets[0]?.id ?? "TS-001";
   const issueCars = issueCarsByTrainset[selectedTrainset] ?? [];
-  const totalCars = totalCarsByTrainset[selectedTrainset] ?? 10;
+  const carOptions = carOptionsByTrainset[selectedTrainset] ?? [];
 
   const buildDetailUrl = (trainsetId: string, car: string | number, subsystem = defaultSubsystem) => {
     const params = new URLSearchParams({
@@ -43,15 +47,19 @@ export function CarSelectorFilter({
   };
 
   const handleTrainsetChange = (trainsetId: string) => {
+    const nextOptions = carOptionsByTrainset[trainsetId] ?? [];
     const nextIssueCars = issueCarsByTrainset[trainsetId] ?? [];
-    const nextCar = nextIssueCars[0] ?? 1;
+    const nextCar = nextOptions.find((option) => nextIssueCars.includes(option.order))?.id
+      ?? nextOptions[0]?.id
+      ?? nextIssueCars[0]
+      ?? 1;
     router.push(buildDetailUrl(trainsetId, nextCar));
   };
 
   return (
     <div className="filter-row car-selector-filter">
       <div className="car-selector-filter-inner">
-        <span className="car-selector-filter-label">Filter Gerbong:</span>
+        <span className="car-selector-filter-label">Kode autentik:</span>
         <Select value={selectedTrainset} aria-label="Armada" onChange={(event) => handleTrainsetChange(event.target.value)}>
           {trainsets.map(ts => {
             const hasIssue = issueTrainsets.includes(ts.id);
@@ -70,14 +78,14 @@ export function CarSelectorFilter({
         </Select>
         <Select 
           value={defaultCar} 
-          aria-label="Gerbong"
+          aria-label="Kode autentik"
           onChange={(e) => router.push(buildDetailUrl(selectedTrainset, e.target.value))}
         >
-          {Array.from({ length: totalCars }, (_, i) => i + 1).map(car => {
-            const hasIssue = issueCars.includes(car);
+          {carOptions.map((car) => {
+            const hasIssue = issueCars.includes(car.order);
             return (
-              <option key={car} value={car.toString()} style={{ color: hasIssue ? "#ef4444" : "inherit" }}>
-                Gerbong {car} {hasIssue ? "(!)" : ""}
+              <option key={car.id} value={car.id} style={{ color: hasIssue ? "#ef4444" : "inherit" }}>
+                {car.label} {hasIssue ? "(!)" : ""}
               </option>
             );
           })}
@@ -88,9 +96,11 @@ export function CarSelectorFilter({
           onChange={(event) => router.push(buildDetailUrl(selectedTrainset, defaultCar, event.target.value))}
         >
           <option value="all">Semua Subsistem</option>
-          {availableSubsystems.map((subsystem) => (
-            <option key={subsystem} value={subsystem}>{subsystem}</option>
-          ))}
+          {availableSubsystems.map((subsystem) => {
+            const option = typeof subsystem === "string" ? { value: subsystem, label: subsystem } : subsystem;
+            return <option key={option.value} value={option.value}>{option.label}</option>;
+          })}
+          {carOptions.length === 0 ? <option value={defaultCar}>Kode backend belum tersedia</option> : null}
         </Select>
       </div>
     </div>

@@ -20,6 +20,7 @@ vi.mock("@phosphor-icons/react/dist/ssr", () => {
     Warning: createIcon("Warning"),
     ClipboardText: createIcon("ClipboardText"),
     FileText: createIcon("FileText"),
+    Pulse: createIcon("Pulse"),
     GearSix: createIcon("GearSix"),
     CaretLeft: createIcon("CaretLeft"),
     CaretRight: createIcon("CaretRight"),
@@ -38,11 +39,11 @@ describe("Sidebar", () => {
     Object.defineProperty(window, "localStorage", { value: localStorageMock, writable: true });
   });
 
-  it("renders all 10 sidebar menu links", () => {
+  it("renders all 11 sidebar menu links", () => {
     render(<Sidebar />);
     
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(10);
+    expect(links).toHaveLength(11);
   });
 
   it("each link has the correct href from routes constant", () => {

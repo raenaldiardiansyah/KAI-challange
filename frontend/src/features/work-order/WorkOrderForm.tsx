@@ -36,7 +36,7 @@ const defaultDraft: WorkOrderDraft = {
   task: "Cek kebocoran pada katup Brake Cylinder Car 5"
 };
 
-export function WorkOrderForm({ onSave }: { onSave: (draft: WorkOrderDraft) => void }) {
+export function WorkOrderForm({ onSave, embedded = false }: { onSave: (draft: WorkOrderDraft) => void; embedded?: boolean }) {
   const [draft, setDraft] = useState(defaultDraft);
 
   const updateDraft = <K extends keyof WorkOrderDraft>(key: K, value: WorkOrderDraft[K]) => {
@@ -52,8 +52,8 @@ export function WorkOrderForm({ onSave }: { onSave: (draft: WorkOrderDraft) => v
     setDraft(defaultDraft);
   };
 
-  return (
-    <Card title="Buat Draft SPK Baru" eyebrow="Form Tindakan SPK">
+  const content = (
+    <>
       <div className="spk-form-context">
         <div>
           <span>Evidence Mesin</span>
@@ -152,6 +152,16 @@ export function WorkOrderForm({ onSave }: { onSave: (draft: WorkOrderDraft) => v
           </div>
         </div>
       </div>
+    </>
+  );
+
+  if (embedded) {
+    return <div className="spk-form-embedded">{content}</div>;
+  }
+
+  return (
+    <Card title="Buat Draft SPK Baru" eyebrow="Form Tindakan SPK">
+      {content}
     </Card>
   );
 }

@@ -1,0 +1,21 @@
+.label {
+  align-items: center;
+  color: #64748b;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 7px;
+}
+
+.badge {
+  background: #eef2f6;
+  border-radius: 999px;
+  color: #475569;
+  font-weight: 700;
+  padding: 3px 8px;
+}
+
+.live { background: #dcfce7; color: #166534; }
+.stale { background: #fee2e2; color: #b91c1c; }
+.error { color: #b91c1c; }
+

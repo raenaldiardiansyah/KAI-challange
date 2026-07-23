@@ -14,7 +14,7 @@ export function TelemetryChart({ series }: { series: TelemetrySeries }) {
 
   return (
     <Card title="Grafik Telemetri (Raw Sensor)" eyebrow={`${series.trainsetId} - Gerbong ${series.carNumber} - Brake System`}>
-      <div style={{ width: "100%", height: 350 }}>
+      <div style={{ width: "100%", height: 750 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />

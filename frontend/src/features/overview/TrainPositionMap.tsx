@@ -90,6 +90,7 @@ export function TrainPositionMap({ points }: { points: TrainMapPoint[] }) {
               </div>
               <span>{point.route ?? "Rute belum tersedia"}</span>
               <small>{point.label}</small>
+              <small>{point.speed == null ? "Kecepatan tidak tersedia" : `${point.speed} km/jam`}</small>
             </Link>
           ))}
           {priorityPoints.length === 0 ? (

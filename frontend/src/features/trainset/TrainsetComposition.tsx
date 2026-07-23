@@ -37,7 +37,7 @@ export function TrainsetComposition({ trainsetId, totalCars, carsInsights }: Tra
           const isIssue = color !== "#10b981";
           const params = new URLSearchParams({
             trainset: insight?.trainsetId ?? trainsetId,
-            car: String(car)
+            car: insight?.carId ?? String(car)
           });
 
           if (insight?.subsystem && insight.severity !== "Normal" && insight.subsystem !== "All Systems") {
@@ -56,7 +56,7 @@ export function TrainsetComposition({ trainsetId, totalCars, carsInsights }: Tra
                 fontWeight: isIssue ? "bold" : "normal",
                 cursor: "pointer"
               }}
-              title={insight ? `${insight.trainsetName} - C${car}: ${insight.diagnosis}` : `${trainsetId} - C${car}: Normal`}
+              title={insight ? `${insight.trainsetName} - C${car} (${insight.carId ?? "ID dummy"}): ${insight.diagnosis}` : `${trainsetId} - C${car}: Belum tersedia`}
             >
               C{car}
             </Link>

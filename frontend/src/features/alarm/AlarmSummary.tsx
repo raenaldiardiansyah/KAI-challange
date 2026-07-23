@@ -7,7 +7,7 @@ import type { Alarm } from "@/types/alarm";
 export function AlarmSummary({ alarms }: { alarms: Alarm[] }) {
   const open = alarms.filter(a => a.status === "Open").length;
   const ack = alarms.filter(a => a.status === "Acknowledged").length;
-  const cleared = 2; // Dummy data
+  const cleared = alarms.filter((alarm) => alarm.status === "Auto Cleared").length;
   const high = alarms.filter(a => a.severity === "High" || a.severity === "Critical").length;
 
   return (

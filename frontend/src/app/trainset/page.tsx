@@ -1,13 +1,20 @@
+"use client";
+
+import { useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { TrainsetDetailSummary } from "@/features/trainset/TrainsetDetailSummary";
 import { TrainsetList } from "@/features/trainset/TrainsetList";
 import { TrainsetComposition } from "@/features/trainset/TrainsetComposition";
 import { PriorityCars } from "@/features/trainset/PriorityCars";
 import { HealthByCarChart } from "@/features/trainset/HealthByCarChart";
 import { SubsystemHeatmap } from "@/features/trainset/SubsystemHeatmap";
-import { getOverviewData } from "@/services/overviewService";
-import { getTrainsets } from "@/services/trainsetService";
+import { TrainsetOperationalFocus } from "@/features/trainset/TrainsetOperationalFocus";
+import { getTrainsetPageData, type TrainsetPageData } from "@/services/trainsetService";
 import type { Insight } from "@/types/insight";
 import type { Trainset } from "@/types/trainset";
+import { useRamsResource } from "@/hooks/useRamsResource";
+import { PageSkeleton } from "@/components/layout/PageSkeleton";
+import { DataUnavailableState } from "@/components/data/DataUnavailableState";
 
 const TRAINSET_PAGE_SIZE = 3;
 
@@ -35,13 +42,22 @@ function buildTrainsetCarInsights(trainset: Trainset, allInsights: Insight[]) {
   }).filter((insight): insight is Insight => Boolean(insight));
 }
 
-export default async function TrainsetPage({ searchParams }: { searchParams?: Promise<{ trainset?: string; trainsetPage?: string }> }) {
-  const params = await searchParams;
-  const [trainsets, overview] = await Promise.all([getTrainsets(), getOverviewData()]);
-  const selectedTrainset = trainsets.find((trainset) => trainset.id === params?.trainset) ?? trainsets[0];
+export default function TrainsetPage() {
+  const searchParams = useSearchParams();
+  const loader = useCallback((signal: AbortSignal, mode: "dummy" | "live") => getTrainsetPageData(signal, mode), []);
+  const resource = useRamsResource<TrainsetPageData>(loader, 30_000);
+
+  if (!resource.ready || resource.loading) return <PageSkeleton />;
+  if (!resource.data || resource.data.trainsets.length === 0) {
+    return <DataUnavailableState message={resource.error} onRetry={resource.retry} />;
+  }
+
+  const { trainsets, carInsights: allCarInsights } = resource.data;
+  const selectedTrainset = trainsets.find((trainset) => trainset.id === searchParams.get("trainset")) ?? trainsets[0];
   const totalTrainsetPages = Math.max(1, Math.ceil(trainsets.length / TRAINSET_PAGE_SIZE));
   const selectedIndex = Math.max(0, trainsets.findIndex((trainset) => trainset.id === selectedTrainset.id));
-  const pageFromQuery = params?.trainsetPage ? Number.parseInt(params.trainsetPage, 10) : NaN;
+  const trainsetPageParam = searchParams.get("trainsetPage");
+  const pageFromQuery = trainsetPageParam ? Number.parseInt(trainsetPageParam, 10) : NaN;
   const defaultPage = Math.floor(selectedIndex / TRAINSET_PAGE_SIZE) + 1;
   const currentTrainsetPage = Number.isFinite(pageFromQuery)
     ? Math.min(Math.max(pageFromQuery, 1), totalTrainsetPages)
@@ -50,7 +66,7 @@ export default async function TrainsetPage({ searchParams }: { searchParams?: Pr
     (currentTrainsetPage - 1) * TRAINSET_PAGE_SIZE,
     currentTrainsetPage * TRAINSET_PAGE_SIZE
   );
-  const carInsights = buildTrainsetCarInsights(selectedTrainset, overview.carInsights);
+  const carInsights = buildTrainsetCarInsights(selectedTrainset, allCarInsights);
 
   return (
     <div className="page-grid trainset-master-layout">
@@ -70,6 +86,7 @@ export default async function TrainsetPage({ searchParams }: { searchParams?: Pr
         <TrainsetDetailSummary trainset={selectedTrainset} />
         
         <TrainsetComposition trainsetId={selectedTrainset.id} totalCars={selectedTrainset.totalCars} carsInsights={carInsights} />
+        <TrainsetOperationalFocus trainset={selectedTrainset} carsInsights={carInsights} />
         
         <div className="two-column-grid">
           <PriorityCars carsInsights={carInsights} />

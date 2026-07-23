@@ -1,4 +1,6 @@
-export const mapDummy = [
+import type { MapPoint } from "@/adapters/mapAdapter";
+
+export const mapDummy: MapPoint[] = [
   {
     trainsetId: "TS-001",
     trainName: "Anggrek Lembah M02406",

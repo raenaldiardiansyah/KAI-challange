@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FunnelSimple, MagnifyingGlass, X } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +10,10 @@ import { Modal } from "@/components/ui/Modal";
 import { Textarea } from "@/components/ui/Textarea";
 import type { Severity, SubsystemName } from "@/types/common";
 import type { Insight } from "@/types/insight";
+import type { RamsLlmRecommendationDto } from "@/types/api";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { hasPermission } from "@/lib/auth/permissions";
+import { generateLlmRecommendation } from "@/services/insightService";
 
 type ValidationStatus = "Belum divalidasi" | "Insight Sesuai" | "Perlu Koreksi" | "False Positive";
 type AnalysisTab = "confidence" | "impact" | "validation";
@@ -133,12 +138,33 @@ function matchesCarRange(carNumber: number, range: CarRangeFilter) {
   return carNumber >= 8 && carNumber <= 10;
 }
 
-export function InsightWorkspace({ insights }: { insights: Insight[] }) {
-  const [selectedId, setSelectedId] = useState(insights[0]?.id ?? "");
+function parseEmbeddedLlm(value: unknown): Partial<RamsLlmRecommendationDto> | null {
+  if (!value) return null;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value) as unknown;
+      return parsed && typeof parsed === "object" ? parsed as Partial<RamsLlmRecommendationDto> : { summary: value };
+    } catch {
+      return { summary: value };
+    }
+  }
+  return typeof value === "object" ? value as Partial<RamsLlmRecommendationDto> : null;
+}
+
+export function InsightWorkspace({ insights, isDummy = false, onRefresh }: { insights: Insight[]; isDummy?: boolean; onRefresh?: () => Promise<void> }) {
+  const { user } = useCurrentUser();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const contextualInsight = insights.find((insight) =>
+    (!searchParams.get("trainset") || insight.trainsetId === searchParams.get("trainset")) &&
+    (!searchParams.get("car") || String(insight.carNumber) === searchParams.get("car")?.replace(/^C/i, "")) &&
+    (!searchParams.get("subsystem") || insight.subsystem === searchParams.get("subsystem"))
+  );
+  const [selectedId, setSelectedId] = useState(searchParams.get("insight") ?? contextualInsight?.id ?? insights[0]?.id ?? "");
   const [query, setQuery] = useState("");
   const [severity, setSeverity] = useState<"all" | Severity>("all");
-  const [subsystem, setSubsystem] = useState<"all" | SubsystemName>("all");
-  const [trainset, setTrainset] = useState("all");
+  const [subsystem, setSubsystem] = useState<"all" | SubsystemName>((searchParams.get("subsystem") as SubsystemName | null) ?? "all");
+  const [trainset, setTrainset] = useState(searchParams.get("trainset") ?? "all");
   const [validationFilter, setValidationFilter] = useState<"all" | ValidationStatus>("all");
   const [carRange, setCarRange] = useState<CarRangeFilter>("all");
   const [confidenceMin, setConfidenceMin] = useState(0);
@@ -158,10 +184,18 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
   const [showMoreConfidence, setShowMoreConfidence] = useState(false);
   const [showAllInsights, setShowAllInsights] = useState(false);
   const [isNaturalExpanded, setIsNaturalExpanded] = useState(false);
+  const [isLlmOpen, setIsLlmOpen] = useState(false);
+  const [llmResult, setLlmResult] = useState<RamsLlmRecommendationDto | null>(null);
+  const [llmLoading, setLlmLoading] = useState(false);
+  const [llmError, setLlmError] = useState("");
+  const [refreshStatus, setRefreshStatus] = useState("");
   const [validations, setValidations] = useState(() => getValidationMap(insights, "Belum divalidasi"));
   const [validationNote, setValidationNote] = useState("Perlu inspeksi fisik pada brake cylinder sebelum perjalanan berikutnya.");
 
   const activeInsight = insights.find((insight) => insight.id === selectedId) ?? insights[0];
+  const embeddedLlm = parseEmbeddedLlm(activeInsight.llmRecommendation);
+  const llmRecommendation = llmResult ?? embeddedLlm;
+  const canGenerateLlm = !isDummy && hasPermission(user?.role, "refresh_analytics");
   const reasonSteps = useMemo(() => buildReasonSteps(activeInsight), [activeInsight]);
   const workOrderUrl = `/work-order?trainset=${encodeURIComponent(activeInsight.trainsetId)}&car=${activeInsight.carNumber}&subsystem=${encodeURIComponent(activeInsight.subsystem)}&source=insight-analytic`;
 
@@ -204,9 +238,36 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
   const bcValue = getEvidenceValue(activeInsight, "bc", "-");
   const bpValue = getEvidenceValue(activeInsight, "bp", "-");
   const activeStep = reasonSteps[activeStepIndex] ?? reasonSteps[0];
-  const activeEvidenceItems = evidenceTab === "supporting" ? supportingEvidence : confirmationEvidence;
+  const liveEvidenceItems = Object.entries(activeInsight.evidence).map(([key, value]) => `${key}: ${String(value)}`);
+  const activeEvidenceItems = evidenceTab === "supporting"
+    ? (isDummy ? supportingEvidence : liveEvidenceItems)
+    : (isDummy ? confirmationEvidence : ["Konfirmasi lapangan belum tersedia dari endpoint RAMS."]);
   const visibleEvidenceItems = showAllEvidence ? activeEvidenceItems : activeEvidenceItems.slice(0, 3);
-  const visibleRootCauses = showAllRootCauses ? rootCauses : rootCauses.slice(0, 3);
+  const activeRootCauses = activeInsight.probableCauses?.length
+    ? activeInsight.probableCauses.map((cause) => ({ title: cause, likelihood: "Dari RAMS", detail: activeInsight.technicalExplanation || activeInsight.diagnosis }))
+    : (isDummy ? rootCauses : []);
+  const visibleRootCauses = showAllRootCauses ? activeRootCauses : activeRootCauses.slice(0, 3);
+
+  async function handleGenerateLlm() {
+    if (!canGenerateLlm) return;
+    setLlmLoading(true);
+    setLlmError("");
+    try {
+      const result = await generateLlmRecommendation({
+        trainset_id: activeInsight.trainsetId,
+        car_id: activeInsight.carId,
+        subsystem: activeInsight.subsystem,
+        diagnosis: activeInsight.diagnosis,
+        evidence: activeInsight.evidence,
+        recommended_actions: activeInsight.recommendedActions
+      });
+      setLlmResult(result.data.recommendation);
+    } catch (error) {
+      setLlmError(error instanceof Error ? error.message : "Rekomendasi LLM gagal dibuat.");
+    } finally {
+      setLlmLoading(false);
+    }
+  }
 
   function resetFilters() {
     setQuery("");
@@ -221,6 +282,12 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
 
   function selectInsight(row: Insight) {
     setSelectedId(row.id);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("insight", row.id);
+    params.set("trainset", row.trainsetId);
+    params.set("car", String(row.carNumber));
+    params.set("subsystem", row.subsystem);
+    router.replace(`?${params.toString()}`, { scroll: false });
     setActiveStepIndex(4);
     setIsNaturalExpanded(false);
   }
@@ -248,8 +315,11 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
         <span className="insight-filter-count">{activeFilterCount} aktif</span>
         <Button onClick={resetFilters} variant="ghost">Reset</Button>
         <Button onClick={() => setIsProcessOpen(true)} variant="secondary">Detail Proses Analitik</Button>
+        <Button onClick={() => setIsLlmOpen(true)} variant="secondary">Rekomendasi LLM</Button>
+        {onRefresh ? <Button onClick={async () => { setRefreshStatus("Memproses..."); try { await onRefresh(); setRefreshStatus("Insight diperbarui."); } catch (error) { setRefreshStatus(error instanceof Error ? error.message : "Refresh gagal."); } }} variant="secondary">Refresh RAMS</Button> : null}
         <Button onClick={() => setIsSpkOpen(true)}>Buat Draft SPK</Button>
       </div>
+      {refreshStatus ? <p className="chart-caption">{refreshStatus}</p> : null}
 
       <section className="insight-summary-panel">
         <div className="insight-summary-main">
@@ -291,6 +361,9 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
             <span>{activeInsight.trainsetId} - C{activeInsight.carNumber}</span>
             <strong>{activeInsight.subsystem}</strong>
             <small>Status validasi: {validation}</small>
+            <small>Dibuat oleh: {activeInsight.generatedBy ?? "Tidak tersedia"}</small>
+            <small>Source event: {activeInsight.sourceEventId ?? "Tidak tersedia"}</small>
+            <small>Waktu: {activeInsight.createdAt ? new Date(activeInsight.createdAt).toLocaleString("id-ID") : "Tidak tersedia"}</small>
           </div>
         </aside>
       </section>
@@ -369,6 +442,7 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
               <Button onClick={() => setShowAllRootCauses((value) => !value)} variant="secondary" style={{ alignSelf: "flex-start", marginTop: "12px" }}>
                 {showAllRootCauses ? "Tampilkan 3 Penyebab" : "Lihat Semua Penyebab"}
               </Button>
+              {visibleRootCauses.length === 0 ? <p className="empty-state">Probable cause belum tersedia dari RAMS.</p> : null}
             </div>
           ) : null}
         </div>
@@ -511,6 +585,25 @@ export function InsightWorkspace({ insights }: { insights: Insight[] }) {
           <Button asChild>
             <Link href={workOrderUrl}>Lanjut ke SPK</Link>
           </Button>
+        </div>
+      </Modal>
+
+      <Modal open={isLlmOpen} title="Viewer Rekomendasi LLM" onClose={() => setIsLlmOpen(false)}>
+        <div className="insight-modal-body">
+          <InfoBlock label="Status" value={llmRecommendation?.llm_status ?? (isDummy ? "Dummy" : "Belum tersedia")} />
+          <InfoBlock label="Prioritas" value={llmRecommendation?.priority ?? "Tidak tersedia"} />
+          <InfoBlock label="Ringkasan" value={llmRecommendation?.summary ?? "RAMS belum mengirim rekomendasi LLM untuk insight ini."} />
+          <InfoBlock label="Penjelasan teknis" value={llmRecommendation?.technical_explanation ?? activeInsight.technicalExplanation ?? "Tidak tersedia"} />
+          <InfoBlock label="Probable causes" value={llmRecommendation?.probable_causes?.join("; ") ?? activeInsight.probableCauses?.join("; ") ?? "Tidak tersedia"} />
+          <InfoBlock label="Recommended actions" value={llmRecommendation?.recommended_actions?.join("; ") ?? activeInsight.recommendedActions?.join("; ") ?? "Tidak tersedia"} />
+          <InfoBlock label="Inspection steps" value={llmRecommendation?.inspection_steps?.join("; ") ?? "Tidak tersedia"} />
+          <InfoBlock label="Safety notes" value={llmRecommendation?.safety_notes?.join("; ") ?? "Tidak tersedia"} />
+          <InfoBlock label="Affected cars" value={llmRecommendation?.affected_cars?.map((car) => `${car.car_id}: ${car.reason}`).join("; ") ?? "Tidak tersedia"} />
+          <InfoBlock label="Provider / model" value={[llmRecommendation?.provider, llmRecommendation?.model].filter(Boolean).join(" / ") || "Tidak tersedia"} />
+          {llmError ? <p role="alert" className="empty-state">{llmError}</p> : null}
+          {canGenerateLlm ? <Button disabled={llmLoading} onClick={handleGenerateLlm}>{llmLoading ? "Memproses..." : "Generate dari RAMS"}</Button> : null}
+          {!canGenerateLlm && !isDummy ? <p className="chart-caption">Hanya Admin yang dapat meminta generasi baru. Semua role tetap dapat melihat hasil.</p> : null}
+          {user?.role === "ADMIN" && llmRecommendation ? <details><summary>Raw response</summary><pre>{JSON.stringify(llmRecommendation, null, 2)}</pre></details> : null}
         </div>
       </Modal>
     </div>

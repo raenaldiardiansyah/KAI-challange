@@ -28,11 +28,15 @@ const MapLibreTrainMap = dynamic(
 );
 
 export function LiveTrainMapClient({
+  focusRevision,
+  followTrainsetId,
   onPointSelect,
   points,
   selectedTrainsetId,
   variant = "full",
 }: {
+  focusRevision?: number;
+  followTrainsetId?: string | null;
   onPointSelect?: (point: TrainMapPoint) => void;
   points: OverviewData["mapPoints"];
   selectedTrainsetId?: string | null;
@@ -40,6 +44,8 @@ export function LiveTrainMapClient({
 }) {
   return (
     <MapLibreTrainMap
+      focusRevision={focusRevision}
+      followTrainsetId={followTrainsetId}
       onPointSelect={onPointSelect}
       points={points}
       selectedTrainsetId={selectedTrainsetId}

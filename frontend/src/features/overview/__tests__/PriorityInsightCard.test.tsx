@@ -10,7 +10,7 @@ vi.mock("@phosphor-icons/react", () => ({
   Heartbeat: (props: any) => <span data-testid="heartbeat-icon" {...props} />,
 }));
 
-const insight = insightDummy[0]; // INS-001, Car 5, High, confidence 86, healthScore 42
+const insight = { ...insightDummy[0], carId: "M102401" }; // INS-001, backend car M102401
 
 describe("PriorityInsightCard", () => {
   it("renders the insight diagnosis containing 'Car 5'", () => {
@@ -21,7 +21,7 @@ describe("PriorityInsightCard", () => {
   it("shows the compact risk title and severity badge", () => {
     render(<PriorityInsightCard insight={insight} />);
 
-    expect(screen.getByRole("heading", { name: /c5 brake system - risiko tinggi/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /M102401 brake system - risiko tinggi/i })).toBeInTheDocument();
     expect(screen.getByText("Tinggi")).toBeInTheDocument();
   });
 
@@ -42,11 +42,11 @@ describe("PriorityInsightCard", () => {
     expect(screen.getByRole("link", { name: /lihat insight/i })).toHaveAttribute("href", "/insight-analytic");
     expect(screen.getByRole("link", { name: /tinjau bukti/i })).toHaveAttribute(
       "href",
-      "/car-detail?trainset=TS-001&car=5&subsystem=Brake+System"
+      "/car-detail?trainset=TS-001&car=M102401&subsystem=Brake+System"
     );
     expect(screen.getByRole("link", { name: /buat spk/i })).toHaveAttribute(
       "href",
-      "/work-order?trainset=TS-001&car=5&subsystem=Brake+System&source=overview"
+      "/work-order?trainset=TS-001&car=M102401&subsystem=Brake+System&source=overview"
     );
   });
 });

@@ -9,6 +9,7 @@ import {
   Warning,
   ClipboardText,
   FileText,
+  Pulse,
   GearSix,
 } from "@phosphor-icons/react/dist/ssr";
 
@@ -29,5 +30,6 @@ export const routes: Route[] = [
   { href: "/alarm-center", label: "Alarm", shortLabel: "Alarm", icon: Warning },
   { href: "/work-order", label: "SPK", shortLabel: "SPK", icon: ClipboardText },
   { href: "/report-analytics", label: "Laporan", shortLabel: "Laporan", icon: FileText },
+  { href: "/telemetry-explorer", label: "Sensor mentah", shortLabel: "Sensor", icon: Pulse },
   { href: "/settings", label: "Pengaturan", shortLabel: "Atur", icon: GearSix },
 ];

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowsClockwise,
   ArrowsOut,
@@ -33,6 +34,7 @@ import { formatDate } from "@/utils/formatDate";
 type LiveMonitoringWorkspaceProps = {
   points: OverviewData["mapPoints"];
   trainsets: OverviewData["trainsets"];
+  isDummy?: boolean;
 };
 
 type ConnectionFilter = "all" | "connected" | "moving" | "warning" | "stale";
@@ -55,8 +57,25 @@ const priorityCarByTrainset: Record<string, { car: number; subsystem: string }> 
   "TS-003": { car: 7, subsystem: "Door" },
 };
 
-export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWorkspaceProps) {
-  const [selectedId, setSelectedId] = useState<string | null>(points[0]?.trainsetId ?? null);
+const movementProfile: Record<string, { lat: number; lng: number; phase: number }> = {
+  "TS-001": { lat: 0.0012, lng: 0.0026, phase: 0 },
+  "TS-002": { lat: -0.001, lng: 0.0022, phase: 1.7 },
+  "TS-003": { lat: 0.0014, lng: -0.0018, phase: 3.2 },
+};
+
+function formatLiveTime(date: Date) {
+  return date.toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
+export function LiveMonitoringWorkspace({ points, trainsets, isDummy = false }: LiveMonitoringWorkspaceProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [simulatedPoints, setSimulatedPoints] = useState(points);
+  const [selectedId, setSelectedId] = useState<string | null>(searchParams.get("trainset") ?? points[0]?.trainsetId ?? null);
   const [connectionFilter, setConnectionFilter] = useState<ConnectionFilter>("all");
   const [healthFilter, setHealthFilter] = useState<HealthFilter>("All");
   const [mode, setMode] = useState<MapMode>("Live");
@@ -64,8 +83,35 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
   const [isFollowing, setIsFollowing] = useState(false);
   const [isDockExpanded, setIsDockExpanded] = useState(false);
   const [isPlaybackRunning, setIsPlaybackRunning] = useState(false);
+  const [focusRevision, setFocusRevision] = useState(0);
   const [zoomLevel, setZoomLevel] = useState(6);
   const [layer, setLayer] = useState<"rail" | "traffic">("rail");
+
+  useEffect(() => {
+    if (!isDummy) return;
+    let movementTick = 0;
+    const timer = window.setInterval(() => {
+      movementTick += 1;
+
+      setSimulatedPoints((currentPoints) =>
+        currentPoints.map((point) => {
+          const profile = movementProfile[point.trainsetId] ?? { lat: 0.001, lng: 0.001, phase: 0 };
+          const wave = Math.sin((movementTick + profile.phase) / 3);
+
+          return {
+            ...point,
+            lat: Number((point.lat + profile.lat + wave * 0.00025).toFixed(6)),
+            lng: Number((point.lng + profile.lng + wave * 0.0003).toFixed(6)),
+            lastUpdate: formatLiveTime(new Date()),
+          };
+        })
+      );
+    }, 1600);
+
+    return () => window.clearInterval(timer);
+  }, [isDummy, points]);
+
+  const displayPoints = isDummy ? simulatedPoints : points;
 
   const trainById = useMemo(() => new Map(trainsets.map((trainset) => [trainset.id, trainset])), [trainsets]);
 
@@ -73,7 +119,7 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return [];
 
-    return points.filter((point) => {
+    return displayPoints.filter((point) => {
       const trainset = trainById.get(point.trainsetId);
       return (
         point.trainsetId.toLowerCase().includes(normalizedQuery) ||
@@ -83,17 +129,17 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
         (trainset?.location ?? "").toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [points, query, trainById]);
+  }, [displayPoints, query, trainById]);
 
   const filteredPoints = useMemo(() => {
-    return points.filter((point) => {
+    return displayPoints.filter((point) => {
       const trainset = trainById.get(point.trainsetId);
       if (!trainset) return false;
 
       const matchesConnection =
         connectionFilter === "all" ||
         (connectionFilter === "connected" && trainset.online) ||
-        (connectionFilter === "moving" && trainset.online && trainset.dataStatus === "Online") ||
+        (connectionFilter === "moving" && (point.speed ?? 0) > 0) ||
         (connectionFilter === "warning" && trainset.healthStatus === "Warning") ||
         (connectionFilter === "stale" && trainset.dataStatus !== "Online");
 
@@ -105,24 +151,26 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
 
       return matchesConnection && matchesHealth;
     });
-  }, [connectionFilter, healthFilter, points, trainById]);
+  }, [connectionFilter, healthFilter, displayPoints, trainById]);
 
-  const selectedPoint =
-    points.find((point) => point.trainsetId === selectedId) ??
-    filteredPoints[0] ??
-    points[0];
+  const selectedPoint = selectedId
+    ? displayPoints.find((point) => point.trainsetId === selectedId)
+    : undefined;
   const selectedTrainset = selectedPoint ? trainById.get(selectedPoint.trainsetId) : undefined;
 
   const connectedCount = trainsets.filter((trainset) => trainset.online).length;
-  const movingCount = trainsets.filter((trainset) => trainset.online && trainset.dataStatus === "Online").length;
+  const movingCount = displayPoints.filter((point) => (point.speed ?? 0) > 0).length;
   const warningCount = trainsets.filter((trainset) => trainset.healthStatus === "Warning").length;
   const staleCount = trainsets.filter((trainset) => trainset.dataStatus !== "Online").length;
 
   const handleSelectTrain = (id: string) => {
-    const nextPoint = points.find((point) => point.trainsetId === id);
+    const nextPoint = displayPoints.find((point) => point.trainsetId === id);
     setSelectedId(id);
     setIsFollowing(false);
     setIsDockExpanded(false);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("trainset", id);
+    router.replace(`?${params.toString()}`, { scroll: false });
     if (nextPoint) {
       setQuery(nextPoint.trainName ?? nextPoint.trainsetId);
     }
@@ -186,7 +234,7 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
         <div className="live-filter-pills mode" aria-label="Mode peta">
           {mapModes.map((item) => (
             <button className={mode === item ? "active" : ""} key={item} onClick={() => setMode(item)} type="button">
-              {item}
+              {item}{!isDummy && item !== "Live" ? " · Prototype" : ""}
             </button>
           ))}
         </div>
@@ -202,6 +250,8 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
       <section className="live-operational-grid">
         <div className="live-map-stage">
           <LiveTrainMapClient
+            focusRevision={focusRevision}
+            followTrainsetId={isFollowing ? selectedPoint?.trainsetId ?? null : null}
             points={filteredPoints}
             selectedTrainsetId={selectedPoint?.trainsetId ?? null}
             onPointSelect={(point) => handleSelectTrain(point.trainsetId)}
@@ -213,8 +263,13 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
               icon={<Crosshair size={16} />}
               onClick={() => {
                 setSelectedId(null);
+                router.replace("/live-monitoring", { scroll: false });
                 setIsFollowing(false);
                 setIsDockExpanded(false);
+                setConnectionFilter("all");
+                setHealthFilter("All");
+                setQuery("");
+                setFocusRevision((value) => value + 1);
               }}
               variant="secondary"
             >
@@ -258,6 +313,7 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
               expanded={isDockExpanded}
               onClose={() => {
                 setSelectedId(null);
+                router.replace("/live-monitoring", { scroll: false });
                 setIsDockExpanded(false);
               }}
               onToggle={() => setIsDockExpanded((value) => !value)}
@@ -276,6 +332,7 @@ export function LiveMonitoringWorkspace({ points, trainsets }: LiveMonitoringWor
               onBack={() => {
                 setSelectedId(null);
                 setQuery("");
+                router.replace("/live-monitoring", { scroll: false });
               }}
               onFollow={() => setIsFollowing((value) => !value)}
             />
@@ -384,7 +441,7 @@ function LiveTrainList({
               <span>{trainset.route}</span>
               <span className="live-train-card-meta">
                 <small>{trainset.location}</small>
-                <small>{trainset.healthScore}%</small>
+                <small>{point.speed == null ? "Kecepatan tidak tersedia" : `${point.speed} km/jam`}</small>
               </span>
               <span className="live-train-card-meta">
                 <small>{trainset.alarmCount} alarm aktif</small>
@@ -415,6 +472,7 @@ function LiveTrainDetail({
   const carUrl = `/car-detail?trainset=${encodeURIComponent(trainset.id)}&car=${priorityCar.car}&subsystem=${encodeURIComponent(priorityCar.subsystem)}`;
   const detailRows = [
     { label: "Posisi", value: point.label },
+    { label: "Kecepatan", value: point.speed == null ? "Tidak tersedia" : `${point.speed} km/jam` },
     { label: "Status data", value: trainset.dataStatus },
     { label: "Health", value: `${trainset.healthScore}%` },
     { label: "Alarm aktif", value: `${trainset.alarmCount}` },
@@ -422,7 +480,7 @@ function LiveTrainDetail({
     { label: "Koordinat", value: `${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}` },
   ];
   const operationalRows = [
-    { label: "Rencana perjalanan", value: "ETA Cirebon 14:42 - terlambat 8 menit" },
+    { label: "Rencana perjalanan", value: "Prototype - backend belum menyediakan ETA" },
     { label: "Kualitas koneksi", value: trainset.dataStatus === "Online" ? "Telemetry normal, GPS aktif" : "Telemetry perlu dipantau, data tidak real-time penuh" },
     { label: "Perhatian operator", value: trainset.alarmCount > 0 ? `${trainset.alarmCount} alarm aktif perlu dipantau` : "Tidak ada alarm aktif" },
   ];
@@ -514,7 +572,7 @@ function BottomDock({
       </div>
       <div>
         <span>Perjalanan</span>
-        <strong>82 km/jam - ETA Cirebon 14:42</strong>
+        <strong>{point.speed == null ? "Kecepatan tidak tersedia" : `${point.speed} km/jam`} · ETA Prototype</strong>
       </div>
       <div>
         <span>Status Operasional</span>
@@ -532,7 +590,7 @@ function BottomDock({
       </button>
       {expanded ? (
         <div className="live-bottom-dock-extra">
-          <div><b>Perjalanan</b><span>{point.label}; terlambat 8 menit; progres koridor 62%.</span></div>
+          <div><b>Perjalanan</b><span>{point.label}; ETA dan progres koridor masih Prototype.</span></div>
           <div><b>Koneksi</b><span>GPS 12:30:45; telemetry {trainset.dataStatus}; sinyal stabil.</span></div>
           <div><b>Kondisi</b><span>Gerbong prioritas C{priorityCarByTrainset[trainset.id]?.car ?? 1}; severity {trainset.healthStatus}.</span></div>
           <div><b>Kejadian</b><span>Telemetry masuk, alarm aktif, posisi koridor diperbarui.</span></div>

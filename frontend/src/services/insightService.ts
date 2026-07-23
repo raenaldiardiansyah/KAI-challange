@@ -1,21 +1,33 @@
-import { insightDummy } from "@/dummy/insightDummy";
 import type { Insight } from "@/types/insight";
-import { fetchFromApi, isDummyMode } from "./apiClient";
+import type { RamsInsightsResponse, RamsLlmRecommendationResponse } from "@/types/api";
+import { adaptInsights } from "@/adapters/insightAdapter";
+import { insightsFixture } from "@/dummy/rams";
+import type { DataMode } from "./api/dataMode";
+import { loadRams } from "./api/ramsDataSource";
+import { mapRamsResult, requestRams } from "./api/ramsApiClient";
 
-export async function getInsights(): Promise<Insight[]> {
-  if (isDummyMode()) return insightDummy;
-  try {
-    return await fetchFromApi<Insight[]>("/insights");
-  } catch {
-    return insightDummy;
-  }
+export async function getInsights(signal?: AbortSignal, mode: DataMode = "live") {
+  const result = await loadRams<RamsInsightsResponse>(mode, "/insights", insightsFixture, { signal, query: { limit: 500 } });
+  return mapRamsResult(result, (response) => adaptInsights(response.items));
 }
 
+export async function refreshInsights(signal?: AbortSignal) {
+  return requestRams<RamsInsightsResponse>("/insights/refresh", {
+    method: "POST",
+    signal,
+    query: { limit: 500 }
+  });
+}
+
+export async function generateLlmRecommendation(context: Record<string, unknown>, signal?: AbortSignal) {
+  return requestRams<RamsLlmRecommendationResponse>("/llm/recommendation", {
+    method: "POST",
+    body: { context },
+    signal
+  });
+}
+
+/** @deprecated Detail selection is performed from the shared insight list. */
 export async function getInsight(id: string): Promise<Insight | undefined> {
-  if (isDummyMode()) return insightDummy.find((insight) => insight.id === id);
-  try {
-    return await fetchFromApi<Insight>(`/insights/${id}`);
-  } catch {
-    return insightDummy.find((i) => i.id === id);
-  }
+  return adaptInsights(insightsFixture.items).find((insight) => insight.id === id);
 }

@@ -18,6 +18,17 @@ export const alarmDummy: Alarm[] = [
     message: "Brake Cylinder pressure deviation above threshold",
     detectedAt: "2026-07-03T08:15:00+07:00",
     lastUpdate: "2026-07-03T08:45:00+07:00"
+    ,title: "Brake Cylinder Pressure Deviation",
+    signalName: "brake_cylinder",
+    observedValue: 1.1,
+    thresholdValue: 2.1,
+    evidence: { observed_value: 1.1, threshold_value: 2.1, unit: "bar" },
+    recommendation: "Periksa valve, jalur pneumatic, dan validasi pembacaan sensor.",
+    diagnosticCases: ["LOCAL_BC_DEVIATION", "LOCAL_BRAKE_ABNORMAL"],
+    affectedCars: [{ carId: "CAR-TS001-05", role: "alarm_car", confidence: "HIGH", bp: 4.2, bc: 1.1 }],
+    diagnosticScope: "LOCAL",
+    diagnosticConfidence: "HIGH",
+    diagnosticEvidence: ["Brake Cylinder 1.1 bar berada di bawah ambang 2.1 bar.", "Brake Pipe stabil pada 4.2 bar."]
   },
   {
     id: "ALM-002",

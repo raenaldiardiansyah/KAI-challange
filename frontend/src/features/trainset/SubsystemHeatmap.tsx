@@ -16,9 +16,10 @@ export function SubsystemHeatmap({ trainsetId, trainsetName, totalCars, carsInsi
   const subsystems = ["Brake System", "Door", "HVAC", "Genset", "Speed & GPS"];
 
   const buildCarDetailUrl = (carNumber: number, subsystem: string) => {
+    const carId = carsInsights.find((item) => item.carNumber === carNumber)?.carId ?? carNumber.toString();
     const params = new URLSearchParams({
       trainset: trainsetId,
-      car: carNumber.toString()
+      car: carId
     });
 
     if (subsystem !== "Speed & GPS") {
@@ -30,11 +31,10 @@ export function SubsystemHeatmap({ trainsetId, trainsetName, totalCars, carsInsi
   
   const getSubsystemStatus = (carNum: number, sys: string) => {
     const insight = carsInsights.find(c => c.carNumber === carNum);
-    if (insight && insight.subsystem === sys && insight.severity !== "Normal") {
-      return insight.severity;
+    if (insight && insight.subsystem === sys) {
+      return insight.severity === "Normal" ? "Normal" : insight.severity;
     }
-    
-    return "Normal";
+    return "Belum Tersedia";
   };
 
   const getColor = (status: string) => {
@@ -84,8 +84,8 @@ export function SubsystemHeatmap({ trainsetId, trainsetName, totalCars, carsInsi
                         height: "32px",
                         background: getColor(status),
                         borderRadius: "4px",
-                        border: status === "Normal" ? "1px solid var(--line, #e2e8f0)" : "1px solid #fecaca",
-                        opacity: status === "Normal" ? 0.72 : 0.95,
+                        border: status === "Normal" || status === "Belum Tersedia" ? "1px solid var(--line, #e2e8f0)" : "1px solid #fecaca",
+                        opacity: status === "Belum Tersedia" ? 0.42 : status === "Normal" ? 0.72 : 0.95,
                         cursor: "pointer"
                       }}
                       onClick={() => router.push(buildCarDetailUrl(carNumber, sys))}

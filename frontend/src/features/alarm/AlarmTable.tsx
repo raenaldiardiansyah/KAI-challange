@@ -14,12 +14,14 @@ export function AlarmTable({
   alarms,
   selectedAlarmId,
   onAcknowledge,
-  onSelectAlarm
+  onSelectAlarm,
+  acknowledgingId
 }: {
   alarms: Alarm[];
   selectedAlarmId?: string;
   onAcknowledge?: (id: string) => void;
   onSelectAlarm?: (id: string) => void;
+  acknowledgingId?: string | null;
 }) {
   const [visibleCount, setVisibleCount] = useState(10);
   const router = useRouter();
@@ -58,7 +60,7 @@ export function AlarmTable({
               onClick={() => onSelectAlarm?.(alarm.id)}
             >
               <td style={{ fontSize: "12px" }}>{formatDate(alarm.detectedAt)}</td>
-              <td>{alarm.trainsetId}</td>
+              <td>{alarm.trainsetCode ?? alarm.trainsetId}</td>
               <td>C{alarm.carNumber}</td>
               <td>{alarm.subsystem}</td>
               <td style={{ maxWidth: "200px" }}>{alarm.message}</td>
@@ -78,7 +80,7 @@ export function AlarmTable({
                     <Button
                       variant="ghost"
                       className="table-mini-button alarm-evidence-button"
-                      onClick={() => router.push(`/car-detail?trainset=${encodeURIComponent(alarm.trainsetId)}&car=${alarm.carNumber}&subsystem=${encodeURIComponent(alarm.subsystem)}`)}
+                      onClick={() => router.push(`/car-detail?trainset=${encodeURIComponent(alarm.trainsetId)}&car=${encodeURIComponent(alarm.carId ?? String(alarm.carNumber))}&subsystem=${encodeURIComponent(alarm.subsystemCode ?? alarm.subsystem)}`)}
                     >
                       Evidence
                     </Button>
@@ -98,6 +100,7 @@ export function AlarmTable({
                         icon={<CheckCircle size={16} weight="bold" />}
                         aria-label="Sudah di acknowledge"
                         title="Sudah di acknowledge"
+                        disabled={acknowledgingId === alarm.id}
                         onClick={() => onAcknowledge?.(alarm.id)}
                       />
                     )}

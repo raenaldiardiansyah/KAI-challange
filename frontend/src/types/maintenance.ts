@@ -10,4 +10,9 @@ export type MaintenanceRisk = {
   timeToWarning: string;
   recommendation: string;
   workOrderReady: boolean;
+  carId?: string | null;
+  predictionType?: string;
+  predictedStatus?: string;
+  features?: Record<string, number | string | null>;
+  createdAt?: string;
 };

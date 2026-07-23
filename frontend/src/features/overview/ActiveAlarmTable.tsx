@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import type { Alarm } from "@/types/alarm";
 import type { AlarmStatus, Severity } from "@/types/common";
+import { formatDate } from "@/utils/formatDate";
 
 const severityLabel: Record<Severity, string> = {
   Critical: "Kritis",
@@ -91,6 +92,21 @@ export function ActiveAlarmTable({ alarms }: { alarms: Alarm[] }) {
                   <strong>{item.value}</strong>
                   <span>{item.label}</span>
                 </div>
+              ))}
+            </div>
+
+            <div className="overview-alarm-preview-list" aria-label="Preview alarm aktif">
+              {alarms.slice(0, 3).map((alarm) => (
+                <Link
+                  className="overview-alarm-preview-row"
+                  href={`/alarm-center?alarm=${encodeURIComponent(alarm.id)}`}
+                  key={alarm.id}
+                >
+                  <span>{formatDate(alarm.detectedAt)}</span>
+                  <strong>{alarm.trainsetId} - C{alarm.carNumber}</strong>
+                  <em>{alarm.subsystem}</em>
+                  <b>Level {severityLabel[alarm.severity]}</b>
+                </Link>
               ))}
             </div>
           </>
