@@ -6,104 +6,12 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Sheet } from "@/components/ui/Sheet";
-import { technicianContacts, workOrderEmailCopyRecipients } from "@/dummy/technicianDummy";
+import { technicianContacts, workOrderOperator } from "@/dummy/technicianDummy";
 import type { EmailNotificationRecord } from "@/types/emailNotification";
 import { WorkOrderForm, type WorkOrderDraft } from "./WorkOrderForm";
 import { TechnicianEmailDialog } from "./TechnicianEmailDialog";
 import { getStatusMeta, type SpkRow, type SpkStatus, WorkOrderTable } from "./WorkOrderTable";
 import type { Severity } from "@/types/common";
-import type { WorkOrder } from "@/types/workOrder";
-
-function mapWorkOrderStatus(status: WorkOrder["status"]): SpkStatus {
-  switch (status) {
-    case "In Progress": return "in-progress";
-    case "Completed": return "completed";
-    case "Draft":
-    case "Requested":
-    default: return "open";
-  }
-}
-
-function buildSpkRows(workOrders: WorkOrder[]): SpkRow[] {
-  const serviceRows: SpkRow[] = workOrders.map((workOrder, index) => ({
-    id: workOrder.id.replace("WO", "SPK"),
-    source: index === 0 ? "Alarm: Deviasi BC" : "Manual",
-    eventCode: index === 0 ? "LOCAL_BC_DEVIATION" : "MANUAL_REQUEST",
-    asset: `${workOrder.trainsetId} - C${workOrder.carNumber}`,
-    trainsetId: workOrder.trainsetId,
-    carNumber: workOrder.carNumber,
-    subsystem: index === 0 ? "Brake System" : "General",
-    task: workOrder.title,
-    priority: workOrder.priority,
-    status: mapWorkOrderStatus(workOrder.status),
-    deadline: "2026-07-05",
-    assignee: workOrder.assignee,
-    evidence: index === 0
-      ? ["Brake Pipe 4.2 bar normal", "Brake Cylinder 1.1 bar deviasi (Threshold 2.0)"]
-      : ["Dibuat dari input manual"],
-    recommendation: index === 0
-      ? "Inspeksi brake cylinder valve dan cek potensi kebocoran lokal."
-      : "Validasi kondisi aset sebelum penjadwalan.",
-    notes: index === 0
-      ? "Menunggu validasi teknisi depo sebelum diterbitkan ke lapangan."
-      : "Draft awal perlu dilengkapi."
-  }));
-
-  return [
-    ...serviceRows,
-    {
-      id: "SPK-2407-002",
-      source: "Predictive: TTW 2 Hari",
-      eventCode: "GENSET_FREQ_DRIFT",
-      asset: "TS-002 - C2",
-      trainsetId: "TS-002",
-      carNumber: 2,
-      subsystem: "Genset",
-      task: "Validasi frekuensi genset dan cek governor",
-      priority: "Medium",
-      status: "in-progress",
-      deadline: "2026-07-06",
-      assignee: "Depo Bandung",
-      evidence: ["Frekuensi 47.8 Hz", "RPM 1420", "Voltage 384 V"],
-      recommendation: "Cek governor genset dan stabilitas suplai beban.",
-      notes: "Teknisi sudah menerima assignment, inspeksi dijadwalkan shift malam."
-    },
-    {
-      id: "SPK-2406-089",
-      source: "Alarm: Suhu HVAC",
-      eventCode: "HVAC_TEMP_HIGH",
-      asset: "TS-003 - C1",
-      trainsetId: "TS-003",
-      carNumber: 1,
-      subsystem: "HVAC",
-      task: "Pembersihan filter AC dan cek sensor suhu",
-      priority: "Low",
-      status: "overdue",
-      deadline: "2026-06-30",
-      assignee: "Depo Manggarai",
-      evidence: ["Suhu kabin 28.4 C", "Filter check tertunda", "Alarm berulang 3 kali"],
-      recommendation: "Bersihkan filter HVAC dan kalibrasi sensor suhu.",
-      notes: "Deadline terlewat, perlu eskalasi supervisor."
-    },
-    {
-      id: "SPK-2407-004",
-      source: "Maintenance Rutin",
-      eventCode: "SCHEDULED_CHECK",
-      asset: "TS-004 - C7",
-      trainsetId: "TS-004",
-      carNumber: 7,
-      subsystem: "Door System",
-      task: "Pemeriksaan mekanisme pintu dan controller",
-      priority: "Medium",
-      status: "completed",
-      deadline: "2026-07-01",
-      assignee: "Depo Jakarta",
-      evidence: ["Cycle count normal", "Controller online", "Tidak ada alarm aktif"],
-      recommendation: "Simpan catatan sebagai baseline inspeksi rutin.",
-      notes: "Pekerjaan selesai dan sudah diverifikasi QC."
-    }
-  ];
-}
 
 function getTimeline(status: SpkStatus) {
   if (status === "completed") return ["Created", "Assigned", "In Progress", "Completed"];
@@ -112,8 +20,8 @@ function getTimeline(status: SpkStatus) {
   return ["Created", "Waiting Assignment"];
 }
 
-export function WorkOrderWorkspace({ workOrders }: { workOrders: WorkOrder[] }) {
-  const initialRows = useMemo(() => buildSpkRows(workOrders), [workOrders]);
+export function WorkOrderWorkspace({ workOrders }: { workOrders: SpkRow[] }) {
+  const initialRows = useMemo(() => workOrders.map((row) => ({ ...row })), [workOrders]);
   const [rows, setRows] = useState(initialRows);
   const [selectedId, setSelectedId] = useState(rows[0]?.id ?? "");
   const [isDraftSheetOpen, setIsDraftSheetOpen] = useState(false);
@@ -383,7 +291,7 @@ export function WorkOrderWorkspace({ workOrders }: { workOrders: WorkOrder[] }) 
         open={isEmailDialogOpen}
         row={selected}
         technicians={technicianContacts}
-        copyRecipients={workOrderEmailCopyRecipients}
+        operator={workOrderOperator}
         onClose={() => setIsEmailDialogOpen(false)}
         onSent={handleEmailSent}
       />

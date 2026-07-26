@@ -8,6 +8,11 @@ export type TechnicianContact = {
   status: TechnicianStatus;
 };
 
+export type OperatorContact = {
+  name: string;
+  email: string;
+};
+
 export type WorkOrderEmailPayload = {
   technicianName: string;
   technicianEmail: string;

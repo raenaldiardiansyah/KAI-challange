@@ -8931,14 +8931,30 @@ pre {
   border-radius: 8px;
   display: flex;
   gap: 10px;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 10px 12px;
+}
+
+.notification-config-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.email-status-banner > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
 .email-status-banner span {
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
+}
+
+.email-status-banner svg {
+  flex: 0 0 auto;
 }
 
 .email-status-banner.configured {
@@ -9022,7 +9038,7 @@ pre {
   gap: 8px;
 }
 
-.email-summary-list span {
+.email-summary-list > span {
   align-items: center;
   border-bottom: 1px solid var(--line);
   color: var(--text);
@@ -9078,6 +9094,7 @@ pre {
 
 .technician-email-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
 }
@@ -14740,4 +14757,133 @@ pre {
 .car-workorder-progress span {
   font-size: 15px !important;
   padding: 15px 16px !important;
+}
+
+.technician-search-field {
+  gap: 7px;
+}
+
+.technician-toolbar {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(230px, 0.65fr);
+}
+
+.technician-delivery-filter {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+.technician-search-control {
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+
+.technician-search-control svg {
+  color: var(--muted);
+  left: 12px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.technician-search-control .input-control {
+  padding-left: 38px;
+  width: 100%;
+}
+
+.technician-assignment-panel {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+}
+
+.technician-recipient-heading {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  justify-content: space-between;
+}
+
+.technician-recipient-heading span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.technician-search-menu {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 8px;
+  max-height: 210px;
+  overflow-y: auto;
+}
+
+.technician-search-menu > div {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: inherit;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 9px 10px;
+  text-align: left;
+}
+
+.technician-search-menu > div.recommended {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.technician-search-menu span,
+.technician-search-menu small {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.technician-search-menu em {
+  color: #2563eb;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+.email-summary-value {
+  display: grid;
+  justify-items: end;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.email-summary-value small {
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .notification-config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .technician-assignment-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .technician-search-menu {
+    grid-template-columns: 1fr;
+  }
+
+  .technician-delivery-filter {
+    grid-template-columns: 1fr;
+  }
+
+  .technician-toolbar {
+    grid-template-columns: 1fr;
+  }
 }

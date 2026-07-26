@@ -2,16 +2,24 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { sendWorkOrderEmail } from "@/services/emailNotificationService";
+import { sendWorkOrderTelegram } from "@/services/telegramNotificationService";
 import { WorkOrderWorkspace } from "../WorkOrderWorkspace";
 import { workOrderDummy } from "@/dummy/workOrderDummy";
 
 vi.mock("@/services/emailNotificationService", () => ({
   getEmailNotificationConfigStatus: () => ({
     isConfigured: true,
-    serviceId: "service_test",
-    templateId: "template_test",
+    reason: "EmailJS siap mengirim notifikasi SPK.",
   }),
   sendWorkOrderEmail: vi.fn(),
+}));
+
+vi.mock("@/services/telegramNotificationService", () => ({
+  getTelegramNotificationConfigStatus: vi.fn().mockResolvedValue({
+    isConfigured: true,
+    reason: "Telegram siap mengirim notifikasi SPK."
+  }),
+  sendWorkOrderTelegram: vi.fn(),
 }));
 
 // WorkOrderTable uses DotsThreeVertical from phosphor-icons
@@ -25,9 +33,24 @@ vi.mock("@phosphor-icons/react/dist/ssr", () => ({
   PaperPlaneTilt: function MockPaperPlaneTilt(props: any) {
     return <span data-testid="paper-plane-icon" {...props} />;
   },
+  Info: function MockInfo(props: any) {
+    return <span data-testid="info-icon" {...props} />;
+  },
+  TelegramLogo: function MockTelegramLogo(props: any) {
+    return <span data-testid="telegram-icon" {...props} />;
+  },
+  MagnifyingGlass: function MockMagnifyingGlass(props: any) {
+    return <span data-testid="search-icon" {...props} />;
+  },
 }));
 
 describe("WorkOrderWorkspace", () => {
+  vi.mocked(sendWorkOrderTelegram).mockResolvedValue({
+    success: true,
+    sent: 1,
+    message: "Telegram terkirim."
+  });
+
   it("renders the page header 'SPK Maintenance'", () => {
     render(<WorkOrderWorkspace workOrders={workOrderDummy} />);
 
@@ -112,23 +135,29 @@ describe("WorkOrderWorkspace", () => {
     const dialog = screen.getByRole("dialog", { name: /kirim spk ke teknisi/i });
     expect(dialog).toBeInTheDocument();
     expect(within(dialog).getByText("Teknisi Brake & Pneumatic")).toBeInTheDocument();
+    expect(within(dialog).getByText("EmailJS aktif")).toBeInTheDocument();
+    expect(await within(dialog).findByText("Telegram aktif")).toBeInTheDocument();
+    expect(within(dialog).queryByText(/service_test|template_test/i)).not.toBeInTheDocument();
     expect(within(dialog).getByText("mr.plankton363@gmail.com")).toBeInTheDocument();
-    expect(within(dialog).getByText("Dikirim ke 5 penerima")).toBeInTheDocument();
-    expect(within(dialog).getByText(/raenaldi\.ardiansyah30@gmail\.com/i)).toBeInTheDocument();
+    expect(within(dialog).getByText("Penerima email (5 teknisi)")).toBeInTheDocument();
+    expect(within(dialog).getByText(/satu kali kirim akan mengirim email ke semua teknisi/i)).toBeInTheDocument();
+    expect(within(dialog).queryByText(/status:\s*tersedia/i)).not.toBeInTheDocument();
+    const search = within(dialog).getByRole("textbox", { name: /cari teknisi penerima spk/i });
+    await user.type(search, "faizah");
     expect(within(dialog).getByText(/faizahzahraaqilah@gmail\.com/i)).toBeInTheDocument();
-    expect(within(dialog).getByText(/albiang03@gmail\.com/i)).toBeInTheDocument();
-    expect(within(dialog).getByText(/prasd\.wibawa@gmail\.com/i)).toBeInTheDocument();
-    expect(within(dialog).getByRole("button", { name: /kirim email/i })).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: /^kirim email & telegram$/i })).toBeInTheDocument();
+    expect(within(dialog).queryByRole("button", { name: /^kirim email$/i })).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole("button", { name: /^kirim telegram$/i })).not.toBeInTheDocument();
   });
 
   it("shows failed status when one email recipient fails", async () => {
     const user = userEvent.setup();
     vi.mocked(sendWorkOrderEmail).mockImplementation(async (payload) => {
-      if (payload.technicianEmail === "raenaldi.ardiansyah30@gmail.com") {
+      if (payload.technicianEmail === "mr.plankton363@gmail.com") {
         return {
           success: false,
           code: "SEND_FAILED",
-          message: "EmailJS gagal mengirim salinan operator."
+          message: "EmailJS gagal mengirim ke teknisi."
         };
       }
 
@@ -141,9 +170,61 @@ describe("WorkOrderWorkspace", () => {
 
     render(<WorkOrderWorkspace workOrders={workOrderDummy} />);
     await user.click(screen.getByRole("button", { name: /kirim ke teknisi/i }));
-    await user.click(screen.getByRole("button", { name: /kirim email/i }));
+    await user.click(screen.getByRole("button", { name: /^kirim email & telegram$/i }));
 
-    expect(await screen.findByText(/gagal: raenaldi\.ardiansyah30@gmail\.com/i)).toBeInTheDocument();
-    expect(screen.getByText(/berhasil: mr\.plankton363@gmail\.com/i)).toBeInTheDocument();
+    expect(await screen.findByText(/gagal: mr\.plankton363@gmail\.com/i)).toBeInTheDocument();
+    expect(screen.getByText(/alasan: emailjs gagal mengirim ke teknisi/i)).toBeInTheDocument();
+    expect(sendWorkOrderTelegram).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends email and Telegram when choosing both channels", async () => {
+    const user = userEvent.setup();
+    vi.mocked(sendWorkOrderEmail).mockResolvedValue({
+      success: true,
+      sentAt: "2026-07-26T00:00:00.000Z",
+      recipient: "recipient@example.com"
+    });
+    vi.mocked(sendWorkOrderEmail).mockClear();
+    vi.mocked(sendWorkOrderTelegram).mockClear();
+
+    render(<WorkOrderWorkspace workOrders={workOrderDummy} />);
+    await user.click(screen.getByRole("button", { name: /kirim ke teknisi/i }));
+    await user.click(screen.getByRole("button", { name: /^kirim email & telegram$/i }));
+
+    expect(await screen.findByText(/email terkirim ke 5 penerima/i)).toBeInTheDocument();
+    expect(screen.getByText(/telegram terkirim ke 1 chat/i)).toBeInTheDocument();
+    expect(sendWorkOrderEmail).toHaveBeenCalledTimes(5);
+    expect(sendWorkOrderTelegram).toHaveBeenCalledTimes(1);
+  });
+
+  it("can send email to one specific technician", async () => {
+    const user = userEvent.setup();
+    vi.mocked(sendWorkOrderEmail).mockResolvedValue({
+      success: true,
+      sentAt: "2026-07-26T00:00:00.000Z",
+      recipient: "faizahzahraaqilah@gmail.com"
+    });
+    vi.mocked(sendWorkOrderEmail).mockClear();
+
+    render(<WorkOrderWorkspace workOrders={workOrderDummy} />);
+    await user.click(screen.getByRole("button", { name: /kirim ke teknisi/i }));
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: /filter penerima email/i }),
+      "specific"
+    );
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: /pilih teknisi tertentu/i }),
+      "TECH-003"
+    );
+
+    expect(screen.getByText("Penerima email (1 teknisi)")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /^kirim email & telegram$/i }));
+
+    expect(await screen.findByText(/email terkirim ke 1 penerima/i)).toBeInTheDocument();
+    expect(sendWorkOrderEmail).toHaveBeenCalledTimes(1);
+    expect(sendWorkOrderEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ technicianEmail: "faizahzahraaqilah@gmail.com" })
+    );
   });
 });
