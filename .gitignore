@@ -38,6 +38,12 @@ backend/build/
 .cache/
 .turbo/
 
+# Local Codex context and project documentation
+.agents/
+docs/
+*.md
+*.txt
+
 # OS/editor
 .DS_Store
 Thumbs.db
