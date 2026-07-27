@@ -8,26 +8,9 @@ import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { Table } from "@/components/ui/Table";
 import type { Severity } from "@/types/common";
+import type { SpkRow, SpkStatus } from "@/types/workOrder";
 
-export type SpkStatus = "open" | "in-progress" | "completed" | "overdue";
-
-export type SpkRow = {
-  id: string;
-  source: string;
-  eventCode: string;
-  asset: string;
-  trainsetId: string;
-  carNumber: number;
-  subsystem: string;
-  task: string;
-  priority: Severity;
-  status: SpkStatus;
-  deadline: string;
-  assignee: string;
-  evidence: string[];
-  recommendation: string;
-  notes: string;
-};
+export type { SpkRow, SpkStatus } from "@/types/workOrder";
 
 const priorityLabel: Record<Severity, string> = {
   Critical: "Kritis",

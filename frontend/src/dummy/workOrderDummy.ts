@@ -1,13 +1,72 @@
-import type { WorkOrder } from "@/types/workOrder";
+import type { SpkRow } from "@/types/workOrder";
 
-export const workOrderDummy: WorkOrder[] = [
+export const workOrderDummy: SpkRow[] = [
   {
-    id: "WO-001",
+    id: "SPK-001",
+    source: "Alarm: Deviasi BC",
+    eventCode: "LOCAL_BC_DEVIATION",
+    asset: "TS-001 - C5",
     trainsetId: "TS-001",
     carNumber: 5,
-    title: "Inspect brake cylinder and local valve",
-    status: "Draft",
+    subsystem: "Brake System",
+    task: "Inspect brake cylinder and local valve",
     priority: "High",
-    assignee: "Depo Jakarta"
+    status: "open",
+    deadline: "2026-07-05",
+    assignee: "Depo Jakarta",
+    evidence: ["Brake Pipe 4.2 bar normal", "Brake Cylinder 1.1 bar deviasi (Threshold 2.0)"],
+    recommendation: "Inspeksi brake cylinder valve dan cek potensi kebocoran lokal.",
+    notes: "Menunggu validasi teknisi depo sebelum diterbitkan ke lapangan."
+  },
+  {
+    id: "SPK-2407-002",
+    source: "Predictive: TTW 2 Hari",
+    eventCode: "GENSET_FREQ_DRIFT",
+    asset: "TS-002 - C2",
+    trainsetId: "TS-002",
+    carNumber: 2,
+    subsystem: "Genset",
+    task: "Validasi frekuensi genset dan cek governor",
+    priority: "Medium",
+    status: "in-progress",
+    deadline: "2026-07-06",
+    assignee: "Depo Bandung",
+    evidence: ["Frekuensi 47.8 Hz", "RPM 1420", "Voltage 384 V"],
+    recommendation: "Cek governor genset dan stabilitas suplai beban.",
+    notes: "Teknisi sudah menerima assignment, inspeksi dijadwalkan shift malam."
+  },
+  {
+    id: "SPK-2406-089",
+    source: "Alarm: Suhu HVAC",
+    eventCode: "HVAC_TEMP_HIGH",
+    asset: "TS-003 - C1",
+    trainsetId: "TS-003",
+    carNumber: 1,
+    subsystem: "HVAC",
+    task: "Pembersihan filter AC dan cek sensor suhu",
+    priority: "Low",
+    status: "overdue",
+    deadline: "2026-06-30",
+    assignee: "Depo Manggarai",
+    evidence: ["Suhu kabin 28.4 C", "Filter check tertunda", "Alarm berulang 3 kali"],
+    recommendation: "Bersihkan filter HVAC dan kalibrasi sensor suhu.",
+    notes: "Deadline terlewat, perlu eskalasi supervisor."
+  },
+  {
+    id: "SPK-2407-004",
+    source: "Maintenance Rutin",
+    eventCode: "SCHEDULED_CHECK",
+    asset: "TS-004 - C7",
+    trainsetId: "TS-004",
+    carNumber: 7,
+    subsystem: "Door System",
+    task: "Pemeriksaan mekanisme pintu dan controller",
+    priority: "Medium",
+    status: "completed",
+    deadline: "2026-07-01",
+    assignee: "Depo Jakarta",
+    evidence: ["Cycle count normal", "Controller online", "Tidak ada alarm aktif"],
+    recommendation: "Simpan catatan sebagai baseline inspeksi rutin.",
+    notes: "Pekerjaan selesai dan sudah diverifikasi QC."
   }
 ];
