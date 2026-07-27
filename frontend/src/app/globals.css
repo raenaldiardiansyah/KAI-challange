@@ -6956,7 +6956,7 @@ th {
 
 .spk-detail-tabs button.active,
 .spk-detail-tabs button:hover {
-  background: var(--dark);
+  background: var(--text);
   color: #ffffff;
 }
 
