@@ -6,7 +6,7 @@ const cookieStore = {
     const value = cookieValues.get(name);
     return value ? { value } : undefined;
   }),
-  set: vi.fn((name: string, value: string) => {
+  set: vi.fn((name: string, value: string, _options?: Record<string, unknown>) => {
     if (value) cookieValues.set(name, value);
     else cookieValues.delete(name);
   })
@@ -16,7 +16,7 @@ vi.mock("next/headers", () => ({
   cookies: async () => cookieStore
 }));
 
-import { fetchRamsWithSession } from "../session";
+import { fetchRamsWithSession, setLoginSession } from "../session";
 
 describe("RAMS session refresh", () => {
   beforeEach(() => {
@@ -26,6 +26,35 @@ describe("RAMS session refresh", () => {
     cookieStore.get.mockClear();
     cookieStore.set.mockClear();
     vi.unstubAllGlobals();
+  });
+
+  it("stores login tokens as browser-session cookies", async () => {
+    await setLoginSession({
+      ok: true,
+      access_token: "access-token",
+      refresh_token: "refresh-token",
+      token_type: "bearer",
+      expires_in: 900,
+      user: {
+        id: 1,
+        username: "operator_kai",
+        email: null,
+        name: "Operator KAI",
+        role: "ADMIN",
+        is_active: true
+      }
+    });
+
+    expect(cookieStore.set).toHaveBeenCalledTimes(2);
+    for (const call of cookieStore.set.mock.calls) {
+      expect(call[2]).not.toHaveProperty("maxAge");
+      expect(call[2]).not.toHaveProperty("expires");
+      expect(call[2]).toMatchObject({
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/"
+      });
+    }
   });
 
   it("refreshes once after 401 and retries the original request once", async () => {

@@ -6,31 +6,28 @@ import {
   buildRamsApiUrl
 } from "./config";
 
-const DEFAULT_REFRESH_MAX_AGE = 60 * 60 * 24 * 7;
-
-function cookieOptions(maxAge: number) {
+function sessionCookieOptions() {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
-    path: "/",
-    maxAge
+    path: "/"
   };
 }
 
 export async function setLoginSession(payload: RamsLoginResponse) {
   const cookieStore = await cookies();
-  cookieStore.set(ACCESS_TOKEN_COOKIE, payload.access_token, cookieOptions(payload.expires_in));
+  cookieStore.set(ACCESS_TOKEN_COOKIE, payload.access_token, sessionCookieOptions());
 
   if (payload.refresh_token) {
-    cookieStore.set(REFRESH_TOKEN_COOKIE, payload.refresh_token, cookieOptions(DEFAULT_REFRESH_MAX_AGE));
+    cookieStore.set(REFRESH_TOKEN_COOKIE, payload.refresh_token, sessionCookieOptions());
   }
 }
 
 export async function clearLoginSession() {
   const cookieStore = await cookies();
-  cookieStore.set(ACCESS_TOKEN_COOKIE, "", cookieOptions(0));
-  cookieStore.set(REFRESH_TOKEN_COOKIE, "", cookieOptions(0));
+  cookieStore.set(ACCESS_TOKEN_COOKIE, "", { ...sessionCookieOptions(), maxAge: 0 });
+  cookieStore.set(REFRESH_TOKEN_COOKIE, "", { ...sessionCookieOptions(), maxAge: 0 });
 }
 
 export async function getAccessToken() {
@@ -59,8 +56,8 @@ export async function refreshLoginSession(): Promise<string | null> {
 
   const payload = await response.json() as RamsRefreshResponse;
   const cookieStore = await cookies();
-  cookieStore.set(ACCESS_TOKEN_COOKIE, payload.access_token, cookieOptions(payload.expires_in));
-  cookieStore.set(REFRESH_TOKEN_COOKIE, payload.refresh_token, cookieOptions(DEFAULT_REFRESH_MAX_AGE));
+  cookieStore.set(ACCESS_TOKEN_COOKIE, payload.access_token, sessionCookieOptions());
+  cookieStore.set(REFRESH_TOKEN_COOKIE, payload.refresh_token, sessionCookieOptions());
   return payload.access_token;
 }
 
