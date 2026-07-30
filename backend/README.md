@@ -34,3 +34,17 @@ GET  /health
 ```
 
 Deployment Render dikonfigurasi melalui `render.yaml` pada root repository.
+
+## Deploy ke Vercel
+
+Backend juga dapat dijalankan sebagai project Vercel terpisah:
+
+1. Import repository yang sama sebagai project baru.
+2. Atur **Root Directory** ke `backend`.
+3. Biarkan Framework Preset terdeteksi sebagai FastAPI atau pilih **Other**.
+4. Jangan isi Build Command, Output Directory, maupun Install Command.
+5. Tambahkan environment variable `APP_ENV`, `DATABASE_URL`,
+   `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, dan `CORS_ORIGINS`.
+
+Vercel memuat aplikasi melalui `backend/index.py`. Migration database tetap
+dijalankan dari mesin lokal dengan `alembic upgrade head` sebelum deployment.
