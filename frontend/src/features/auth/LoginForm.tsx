@@ -22,6 +22,10 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const sessionNotice =
+    searchParams.get("reason") === "inactive"
+      ? "Sesi berakhir karena tidak ada aktivitas selama 15 menit. Silakan masuk kembali."
+      : "";
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -64,16 +68,25 @@ export function LoginForm() {
       <section className={styles.panel} aria-labelledby="login-title">
         <div className={styles.brand}>
           <Image src="/images/logo.png" alt="Logo KAI RAMS" width={42} height={42} priority />
-          <div><span>Sistem Pemantauan Aset Kereta</span><strong>TEL-U Insight System</strong></div>
+          <div>
+            <strong>KAI Predictive Maintenance</strong>
+            <span>Dashboard RAMS</span>
+          </div>
         </div>
-        <h1 className={styles.heading} id="login-title">Masuk ke Dashboard RAMS</h1>
-        <p className={styles.description}>Gunakan akun RAMS untuk mengakses dashboard sesuai hak akses Anda.</p>
+
+        <div className={styles.intro}>
+          <h1 className={styles.heading} id="login-title">Masuk</h1>
+          <p className={styles.description}>Gunakan username dan password akun Anda.</p>
+        </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <label className={styles.field}>
             <span>Username</span>
             <Input
               autoComplete="username"
+              autoFocus
+              placeholder="Masukkan username"
+              spellCheck={false}
               value={username}
               onChange={(event) => setUsername(event.target.value)}
               disabled={isSubmitting}
@@ -83,18 +96,24 @@ export function LoginForm() {
             <span>Password</span>
             <Input
               autoComplete="current-password"
+              placeholder="Masukkan password"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               disabled={isSubmitting}
             />
           </label>
-          {error ? <p className={styles.error} role="alert">{error}</p> : null}
+          {error || sessionNotice ? (
+            <p className={styles.error} role="alert" aria-live="polite">
+              {error || sessionNotice}
+            </p>
+          ) : null}
           <Button className={styles.submit} disabled={isSubmitting} type="submit">
             {isSubmitting ? "Memverifikasi..." : "Masuk"}
           </Button>
         </form>
-        <p className={styles.note}>Session disimpan melalui cookie aman dan tidak tersedia untuk JavaScript browser.</p>
+
+        <p className={styles.note}>Akses hanya untuk pengguna yang terdaftar.</p>
       </section>
     </main>
   );

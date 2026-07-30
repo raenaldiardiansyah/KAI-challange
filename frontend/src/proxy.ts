@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ACCESS_TOKEN_COOKIE, isRamsAuthEnabled } from "@/lib/auth/config";
+import { ACCESS_TOKEN_COOKIE } from "@/lib/auth/config";
 
 export function proxy(request: NextRequest) {
-  if (!isRamsAuthEnabled()) return NextResponse.next();
-
   const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
   const isLoginPage = request.nextUrl.pathname === "/login";
 
