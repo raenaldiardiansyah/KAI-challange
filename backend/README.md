@@ -46,5 +46,6 @@ Backend juga dapat dijalankan sebagai project Vercel terpisah:
 5. Tambahkan environment variable `APP_ENV`, `DATABASE_URL`,
    `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, dan `CORS_ORIGINS`.
 
-Vercel memuat aplikasi melalui `backend/index.py`. Migration database tetap
+Vercel memuat aplikasi melalui `backend/api/index.py`, sedangkan `vercel.json`
+mengarahkan seluruh URL publik ke FastAPI. Migration database tetap
 dijalankan dari mesin lokal dengan `alembic upgrade head` sebelum deployment.
