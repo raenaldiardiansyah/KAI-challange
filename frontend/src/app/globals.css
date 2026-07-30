@@ -4661,15 +4661,15 @@ th {
   padding: 7px 12px;
 }
 
-.predictive-queue-layout .predictive-spk-button {
-  background: #162340;
-  border-color: #0f1a30;
-  color: #ffffff;
+.predictive-spk-button {
+  background: #162340 !important;
+  border-color: #0f1a30 !important;
+  color: #ffffff !important;
 }
 
-.predictive-queue-layout .predictive-spk-button:hover {
-  background: #0f1a30;
-  color: #ffffff;
+.predictive-spk-button:hover {
+  background: #0f1a30 !important;
+  color: #ffffff !important;
 }
 
 .danger-text {
@@ -8941,7 +8941,7 @@ pre {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.email-status-banner > div {
+.email-status-banner>div {
   display: grid;
   gap: 2px;
   min-width: 0;
@@ -9038,7 +9038,7 @@ pre {
   gap: 8px;
 }
 
-.email-summary-list > span {
+.email-summary-list>span {
   align-items: center;
   border-bottom: 1px solid var(--line);
   color: var(--text);
@@ -14823,7 +14823,7 @@ pre {
   overflow-y: auto;
 }
 
-.technician-search-menu > div {
+.technician-search-menu>div {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -14835,7 +14835,7 @@ pre {
   text-align: left;
 }
 
-.technician-search-menu > div.recommended {
+.technician-search-menu>div.recommended {
   background: #eff6ff;
   border-color: #93c5fd;
 }
