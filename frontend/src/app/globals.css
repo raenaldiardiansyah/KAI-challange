@@ -10053,6 +10053,11 @@ pre {
   padding: 14px 16px !important;
 }
 
+.overview-composition-card .card-header {
+  justify-content: flex-start;
+  gap: 24px;
+}
+
 .trainset-composition-actions {
   align-items: center;
   display: flex;
