@@ -9266,6 +9266,13 @@ pre {
     margin-bottom: 12px;
   }
 
+  .card-header-action {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+  }
+
   .card h2,
   .card h3 {
     font-size: 16px;

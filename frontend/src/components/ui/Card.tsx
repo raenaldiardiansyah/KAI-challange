@@ -18,7 +18,7 @@ export function Card({ title, eyebrow, action, children, className = "" }: CardP
             {eyebrow && <p className="eyebrow">{eyebrow}</p>}
             {title && <h2>{title}</h2>}
           </div>
-          {action}
+          {action && <div className="card-header-action">{action}</div>}
         </div>
       )}
       {children}
