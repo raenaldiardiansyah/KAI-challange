@@ -8825,7 +8825,7 @@ pre {
   background: rgba(15, 23, 42, 0.5);
   inset: 0;
   position: fixed;
-  z-index: 10;
+  z-index: 95;
 }
 
 .modal {
@@ -8841,7 +8841,7 @@ pre {
   top: 50%;
   transform: translate(-50%, -50%);
   width: min(680px, calc(100vw - 32px));
-  z-index: 11;
+  z-index: 96;
 }
 
 .modal:has(.technician-email-dialog) {
