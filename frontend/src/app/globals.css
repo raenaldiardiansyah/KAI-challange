@@ -11618,6 +11618,15 @@ pre {
   align-items: center;
   display: flex;
   gap: 6px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.overview-composition-card .card-header {
+  position: relative;
+  padding-right: 92px;
 }
 
 .trainset-composition-navigation button {
