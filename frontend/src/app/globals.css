@@ -10068,9 +10068,11 @@ pre {
 .trainset-composition-actions {
   align-items: center;
   display: flex;
+  flex: 1;
   flex-wrap: wrap;
   gap: 8px;
-  justify-content: flex-end;
+  justify-content: space-between;
+  min-width: 0;
 }
 
 .trainset-composition-active-label {
