@@ -51,7 +51,7 @@ describe("RAMS session refresh", () => {
       expect(call[2]).not.toHaveProperty("expires");
       expect(call[2]).toMatchObject({
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "strict",
         path: "/"
       });
     }

@@ -8,6 +8,13 @@
 .label { color: #475569; display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
 .actions { align-items: center; display: flex; flex-wrap: wrap; gap: 6px; }
 .connection { align-content: center; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; display: grid; gap: 8px; padding: 12px; }
+.authConnection { background: #f0fdf4; border-color: #86efac; }
+.authConnection p { color: #475569; font-size: 12px; line-height: 1.5; margin: 0; }
+.connectionHeading { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; }
+.connectionDotOnline, .connectionDotChecking { border-radius: 999px; display: inline-block; height: 10px; width: 10px; }
+.connectionDotOnline { background: #16a34a; box-shadow: 0 0 0 3px #dcfce7; }
+.connectionDotChecking { background: #d97706; box-shadow: 0 0 0 3px #fef3c7; }
+.liveBadge { background: #166534; border-radius: 999px; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 0.06em; padding: 3px 7px; }
 .stack { display: grid; gap: 12px; }
 .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .metric { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9px; display: grid; gap: 4px; min-width: 0; padding: 10px; }
@@ -23,4 +30,45 @@
 .warning { background: #fff7ed; color: #c2410c; }
 .notice { background: #eff6ff; color: #1d4ed8; }
 .headerRow { align-items: center; display: flex; justify-content: space-between; gap: 12px; }
+.approvalSummary { align-items: center; background: #f8fafc; border: 1px solid #dbe3ec; border-radius: 10px; display: grid; gap: 8px; grid-template-columns: minmax(170px, auto) 1fr; padding: 12px; }
+.approvalSummary div { align-items: center; display: flex; gap: 10px; }
+.approvalSummary strong { color: #c2410c; font-size: 22px; line-height: 1; }
+.approvalSummary span { color: #334155; font-size: 12px; font-weight: 750; }
+.approvalSummary p { color: #64748b; font-size: 12px; line-height: 1.5; margin: 0; }
+.securitySummary, .adminOnlySummary { align-items: center; background: #f8fafc; border: 1px solid #dbe3ec; border-radius: 10px; display: grid; gap: 8px; grid-template-columns: minmax(180px, auto) 1fr; padding: 12px; }
+.securitySummary div, .adminOnlySummary div { display: grid; gap: 3px; }
+.securitySummary strong, .adminOnlySummary strong { color: #162340; font-size: 13px; }
+.securitySummary span, .adminOnlySummary span { color: #64748b; font-size: 11px; font-weight: 700; }
+.securitySummary p, .adminOnlySummary p { color: #64748b; font-size: 12px; line-height: 1.5; margin: 0; }
+.adminOnlySummary { background: #fff7ed; border-color: #fed7aa; }
+.adminOnlySummary strong { color: #9a3412; }
+.auditSection { border-top: 1px solid #dbe3ec; display: grid; gap: 12px; margin-top: 4px; padding-top: 16px; }
+.sectionHeading { align-items: flex-start; display: flex; gap: 12px; justify-content: space-between; }
+.sectionHeading div { display: grid; gap: 4px; }
+.sectionHeading strong { color: #162340; font-size: 13px; }
+.sectionHeading p { color: #64748b; font-size: 12px; line-height: 1.5; margin: 0; }
+.adminBadge { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 999px; color: #9a3412; flex: 0 0 auto; font-size: 10px; font-weight: 800; padding: 5px 8px; }
+.statusBadge { border: 1px solid transparent; border-radius: 999px; display: inline-flex; font-size: 11px; font-weight: 800; padding: 4px 8px; }
+.pending { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+.approved { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+.rejected { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+.inactive { background: #f1f5f9; border-color: #cbd5e1; color: #475569; }
+.actions button { min-height: 44px; }
+.actions .editAction { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+.actions .editAction:hover:not(:disabled) { background: #dbeafe; border-color: #60a5fa; }
+.actions .deactivateAction { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+.actions .deactivateAction:hover:not(:disabled) { background: #fee2e2; border-color: #f87171; }
+.actions .activateAction { background: #ecfdf5; border-color: #6ee7b7; color: #047857; }
+.actions .activateAction:hover:not(:disabled) { background: #d1fae5; border-color: #34d399; }
+.actions .passwordAction { background: #faf5ff; border-color: #d8b4fe; color: #7e22ce; }
+.actions .passwordAction:hover:not(:disabled) { background: #f3e8ff; border-color: #c084fc; }
+.actions .editAction:focus-visible,
+.actions .deactivateAction:focus-visible,
+.actions .activateAction:focus-visible,
+.actions .passwordAction:focus-visible { outline: 3px solid rgba(37, 99, 235, 0.28); outline-offset: 2px; }
+.actions .editAction:disabled,
+.actions .deactivateAction:disabled,
+.actions .activateAction:disabled,
+.actions .passwordAction:disabled { cursor: not-allowed; opacity: 0.45; }
 @media (max-width: 800px) { .grid, .metrics { grid-template-columns: 1fr; } .full { grid-column: auto; } }
+@media (max-width: 640px) { .approvalSummary, .securitySummary, .adminOnlySummary { grid-template-columns: 1fr; } .sectionHeading { align-items: stretch; flex-direction: column; } .adminBadge { align-self: flex-start; } }

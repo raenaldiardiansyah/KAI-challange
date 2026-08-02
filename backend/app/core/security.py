@@ -11,6 +11,7 @@ from app.core.config import settings
 
 ALGORITHM = "HS256"
 password_hash = PasswordHash.recommended()
+DUMMY_PASSWORD_HASH = password_hash.hash("dummy-password-that-is-never-valid")
 
 
 class TokenValidationError(ValueError):

@@ -20,7 +20,17 @@ class Settings(BaseSettings):
     jwt_refresh_secret: str = "development-refresh-secret-change-me"
     access_token_expire_minutes: int = Field(default=15, ge=1, le=1440)
     refresh_token_expire_days: int = Field(default=7, ge=1, le=90)
+    login_max_failed_attempts: int = Field(default=5, ge=3, le=20)
+    login_observation_window_minutes: int = Field(default=15, ge=1, le=1440)
+    login_lock_minutes: int = Field(default=15, ge=1, le=1440)
+    login_ip_rate_limit: int = Field(default=30, ge=5, le=1000)
+    login_ip_rate_window_minutes: int = Field(default=15, ge=1, le=1440)
+    refresh_ip_rate_limit: int = Field(default=120, ge=10, le=5000)
+    refresh_ip_rate_window_minutes: int = Field(default=15, ge=1, le=1440)
+    register_ip_rate_limit: int = Field(default=5, ge=1, le=100)
+    register_ip_rate_window_minutes: int = Field(default=60, ge=1, le=1440)
     cors_origins: str = "http://localhost:3000"
+    bootstrap_admin_username: str = "operator_kai"
 
     @field_validator("jwt_access_secret", "jwt_refresh_secret")
     @classmethod

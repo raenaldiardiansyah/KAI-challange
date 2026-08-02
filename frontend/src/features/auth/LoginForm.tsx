@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
@@ -113,6 +114,7 @@ export function LoginForm() {
           </Button>
         </form>
 
+        <p className={styles.authSwitch}>Belum memiliki akun? <Link href="/register">Daftar</Link></p>
         <p className={styles.note}>Akses hanya untuk pengguna yang terdaftar.</p>
       </section>
     </main>

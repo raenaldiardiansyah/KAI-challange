@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildRamsApiUrl } from "@/lib/auth/config";
 import { authError, relayRamsResponse } from "@/lib/auth/response";
+import { backendRequestHeaders, rejectUntrustedMutation } from "@/lib/auth/requestSecurity";
 import { setLoginSession } from "@/lib/auth/session";
 import type { RamsLoginResponse } from "@/types/auth";
 import { mapAuthUser } from "@/types/auth";
 
 export async function POST(request: NextRequest) {
-  let credentials: { username?: string; password?: string };
+const rejected = rejectUntrustedMutation(request);
+if (rejected) return rejected;
+
+let credentials: { username?: string; password?: string };
 
   try {
     credentials = await request.json();
@@ -21,7 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     const response = await fetch(buildRamsApiUrl("/auth/login"), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+headers: backendRequestHeaders(request),
       body: JSON.stringify({
         username: credentials.username.trim(),
         password: credentials.password
