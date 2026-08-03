@@ -27,7 +27,7 @@ describe("RAMS-shaped Dummy pipeline", () => {
 
   it("preserves documented wrappers and explicit C1-C10 identity mapping", () => {
     expect(trainsetsFixture).toMatchObject({ ok: true, trains: expect.any(Array) });
-    expect(frontendTrainsetsFixture).toMatchObject({ ok: true, total: 3, limit: 1000, offset: 0, items: expect.any(Array) });
+    expect(frontendTrainsetsFixture).toMatchObject({ ok: true, total: 10, limit: 1000, offset: 0, items: expect.any(Array) });
     expect(frontendMapsFixture).toMatchObject({ ok: true, items: expect.any(Array) });
     expect(activeAlarmsFixture).toMatchObject({ ok: true, items: expect.any(Array) });
     expect(Array.isArray(authUsersFixture)).toBe(true);
@@ -63,7 +63,7 @@ describe("RAMS-shaped Dummy pipeline", () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
-    const [overview, trainsets, alarms, insights, predictive, maps, telemetry, system, rules, users] = await Promise.all([
+    const [overview, trainsets, alarms, insights, predictive, maps, telemetry, system, rules] = await Promise.all([
       getOverviewData(undefined, "dummy"),
       getTrainsetPageData(undefined, "dummy"),
       getAlarms(undefined, "dummy"),
@@ -72,20 +72,19 @@ describe("RAMS-shaped Dummy pipeline", () => {
       getLiveMonitoringData(undefined, "dummy"),
       getTelemetryData({}, undefined, "dummy"),
       getSystemStatus(undefined, "dummy"),
-      getRules(undefined, "dummy"),
-      getUsers(undefined, "dummy")
+      getRules(undefined, "dummy")
     ]);
 
     expect(fetchSpy).not.toHaveBeenCalled();
-    expect([overview, trainsets, alarms, insights, predictive, maps, telemetry, system, rules, users].every((result) => result.source === "dummy")).toBe(true);
+    expect([overview, trainsets, alarms, insights, predictive, maps, telemetry, system, rules].every((result) => result.source === "dummy")).toBe(true);
     expect(overview.data.summary.totalCars).toBe(frontendStateFixture.metrics.total_cars);
     expect(overview.data.trainsets.find((trainset) => trainset.id === "KA_DATA_DUMMY")).toMatchObject({ online: true, healthStatus: "Warning" });
     expect(overview.data.carInsights).toHaveLength(10);
     expect(overview.data.carInsights.every((insight) => insight.trainsetId === "KA_DATA_DUMMY")).toBe(true);
-    expect(overview.data.trainsetCompositions.map((composition) => composition.totalCars)).toEqual([10, 9, 8]);
-    expect(overview.data.trainsetCompositions.map((composition) => composition.cars.length)).toEqual([10, 9, 8]);
+    expect(overview.data.trainsetCompositions.map((composition) => composition.totalCars)).toEqual([10, 9, 8, 8, 7, 8, 7, 7, 6, 5]);
+    expect(overview.data.trainsetCompositions.map((composition) => composition.cars.length)).toEqual([10, 9, 8, 8, 7, 8, 7, 7, 6, 5]);
     expect(overview.data.trainsetCompositions[1].carInsights.every((insight) => insight.trainsetId === "KA_DUMMY_DATA")).toBe(true);
-    expect(trainsets.data.trainsets).toHaveLength(3);
+    expect(trainsets.data.trainsets).toHaveLength(10);
     expect(alarms.data.some((alarm) => alarm.diagnosticEvidence?.length)).toBe(true);
     expect(alarms.data.every((alarm) => !Number.isNaN(new Date(alarm.detectedAt).getTime()))).toBe(true);
     expect(insights.data[0]).toMatchObject({ generatedBy: "template", sourceEventId: 12, confidence: 86 });
@@ -94,6 +93,19 @@ describe("RAMS-shaped Dummy pipeline", () => {
     expect(telemetry.data.records.some((record) => record.quality_status === "BAD")).toBe(true);
     expect(system.data.mqttConnected).toBe(true);
     expect(rules.data[0].rule_id).toBe("PRESS-R001");
+  });
+
+  it("always loads user accounts from the backend database", async () => {
+    const fetchSpy = vi.fn().mockResolvedValue(new Response(JSON.stringify(authUsersFixture), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    }));
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const users = await getUsers();
+
+    expect(fetchSpy).toHaveBeenCalledWith("/api/rams/auth/users", expect.objectContaining({ method: "GET" }));
+    expect(users.source).toBe("live");
     expect(users.data.map((user) => user.role)).toEqual(["ADMIN", "TECHNICIAN", "VIEWER"]);
   });
 

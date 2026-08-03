@@ -3,14 +3,15 @@ import type { RamsLoginResponse, RamsRefreshResponse } from "@/types/auth";
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
-  buildRamsApiUrl
+  buildAuthApiUrl,
+  buildRamsDataApiUrl
 } from "./config";
 
 function sessionCookieOptions() {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
+sameSite: "strict" as const,
     path: "/"
   };
 }
@@ -42,7 +43,7 @@ export async function refreshLoginSession(): Promise<string | null> {
   const refreshToken = await getRefreshToken();
   if (!refreshToken) return null;
 
-  const response = await fetch(buildRamsApiUrl("/auth/refresh"), {
+  const response = await fetch(buildAuthApiUrl("/auth/refresh"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refresh_token: refreshToken }),
@@ -67,7 +68,10 @@ function withAuthorization(init: RequestInit, accessToken: string) {
   return { ...init, headers, cache: "no-store" as RequestCache };
 }
 
-export async function fetchRamsWithSession(path: string, init: RequestInit = {}) {
+async function fetchWithSession(
+  url: string,
+  init: RequestInit = {}
+) {
   const accessToken = await getAccessToken();
   if (!accessToken) {
     return new Response(JSON.stringify({ detail: "Authentication required" }), {
@@ -76,7 +80,6 @@ export async function fetchRamsWithSession(path: string, init: RequestInit = {})
     });
   }
 
-  const url = buildRamsApiUrl(path);
   let response = await fetch(url, withAuthorization(init, accessToken));
 
   if (response.status !== 401) return response;
@@ -86,4 +89,12 @@ export async function fetchRamsWithSession(path: string, init: RequestInit = {})
 
   response = await fetch(url, withAuthorization(init, refreshedAccessToken));
   return response;
+}
+
+export function fetchAuthWithSession(path: string, init: RequestInit = {}) {
+  return fetchWithSession(buildAuthApiUrl(path), init);
+}
+
+export function fetchRamsWithSession(path: string, init: RequestInit = {}) {
+  return fetchWithSession(buildRamsDataApiUrl(path), init);
 }

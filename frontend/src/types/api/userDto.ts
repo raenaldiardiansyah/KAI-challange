@@ -7,7 +7,8 @@ export type RamsUserAdminDto = {
   name: string;
   role: UserRole;
   is_active: boolean;
+  account_status: "PENDING" | "APPROVED" | "REJECTED";
 };
 
-export type RamsUserCreateDto = Omit<RamsUserAdminDto, "id"> & { password: string };
+export type RamsUserCreateDto = Omit<RamsUserAdminDto, "id" | "account_status"> & { password: string };
 export type RamsUserUpdateDto = Partial<Pick<RamsUserAdminDto, "email" | "name" | "role" | "is_active">>;

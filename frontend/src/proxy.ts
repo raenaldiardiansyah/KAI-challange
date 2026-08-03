@@ -3,13 +3,13 @@ import { ACCESS_TOKEN_COOKIE } from "@/lib/auth/config";
 
 export function proxy(request: NextRequest) {
   const accessToken = request.cookies.get(ACCESS_TOKEN_COOKIE)?.value;
-  const isLoginPage = request.nextUrl.pathname === "/login";
+  const isPublicAuthPage = ["/login", "/register"].includes(request.nextUrl.pathname);
 
-  if (isLoginPage && accessToken) {
+  if (isPublicAuthPage && accessToken) {
     return NextResponse.redirect(new URL("/overview", request.url));
   }
 
-  if (!isLoginPage && !accessToken) {
+  if (!isPublicAuthPage && !accessToken) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(loginUrl);

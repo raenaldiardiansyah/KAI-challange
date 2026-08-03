@@ -18,8 +18,8 @@ export async function getRules(signal?: AbortSignal, mode: DataMode = "live") {
   return mapRamsResult(result, (response) => response.items);
 }
 
-export async function getUsers(signal?: AbortSignal, mode: DataMode = "live") {
-  return loadRams<RamsUserAdminDto[]>(mode, "/auth/users", authUsersFixture, { signal });
+export async function getUsers(signal?: AbortSignal) {
+  return requestRams<RamsUserAdminDto[]>("/auth/users", { signal });
 }
 
 export async function createUser(input: RamsUserCreateDto) {
@@ -32,4 +32,12 @@ export async function updateUser(userId: number, input: RamsUserUpdateDto) {
 
 export async function updateUserPassword(userId: number, password: string) {
   return requestRams<{ ok: boolean }>(`/auth/users/${userId}/password`, { method: "PATCH", body: { password } });
+}
+
+export async function approveUser(userId: number) {
+  return requestRams<RamsUserAdminDto>(`/auth/users/${userId}/approve`, { method: "PATCH" });
+}
+
+export async function rejectUser(userId: number) {
+  return requestRams<RamsUserAdminDto>(`/auth/users/${userId}/reject`, { method: "PATCH" });
 }

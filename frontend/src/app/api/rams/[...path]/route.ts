@@ -1,25 +1,30 @@
 import { NextRequest } from "next/server";
-import { fetchRamsWithSession } from "@/lib/auth/session";
+import { fetchAuthWithSession, fetchRamsWithSession } from "@/lib/auth/session";
 import { relayRamsResponse } from "@/lib/auth/response";
+import { rejectUntrustedMutation } from "@/lib/auth/requestSecurity";
 
 type RouteContext = { params: Promise<{ path: string[] }> };
 
 async function proxyRequest(request: NextRequest, context: RouteContext) {
+  const rejected = rejectUntrustedMutation(request);
+  if (rejected) return rejected;
+
   const { path } = await context.params;
   const backendPath = `/${path.map(encodeURIComponent).join("/")}${request.nextUrl.search}`;
   const headers = new Headers();
   const contentType = request.headers.get("content-type");
-  const adminToken = request.headers.get("x-admin-token");
 
   if (contentType) headers.set("Content-Type", contentType);
-  if (adminToken) headers.set("x-admin-token", adminToken);
 
   const requestBody = request.method === "GET" || request.method === "HEAD"
     ? undefined
     : await request.arrayBuffer();
 
   try {
-    const response = await fetchRamsWithSession(backendPath, {
+    const fetchBackend = backendPath.startsWith("/auth/")
+      ? fetchAuthWithSession
+      : fetchRamsWithSession;
+    const response = await fetchBackend(backendPath, {
       method: request.method,
       headers,
       body: requestBody && requestBody.byteLength > 0 ? requestBody : undefined

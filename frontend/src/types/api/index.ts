@@ -7,6 +7,7 @@ export * from "./insightDto";
 export * from "./mapDto";
 export * from "./predictiveDto";
 export * from "./ruleDto";
+export * from "./securityDto";
 export * from "./systemDto";
 export * from "./subsystemDto";
 export * from "./telemetryDto";
