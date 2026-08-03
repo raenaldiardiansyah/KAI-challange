@@ -13075,10 +13075,11 @@ pre {
 
 .car-llm-open-hint {
   background: #dbeafe;
-  border-radius: 999px;
+  border-radius: 6px;
   justify-self: start;
   padding: 5px 9px;
 }
+
 
 .car-llm-dialog-backdrop {
   align-items: center !important;
