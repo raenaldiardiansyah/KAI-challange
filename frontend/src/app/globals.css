@@ -6017,19 +6017,17 @@ th {
   align-self: center;
 }
 
-.insight-step-inline-detail>div:first-child span {
+.insight-step-inline-detail>div span {
   color: #64748b;
-  display: block;
   font-size: 12px;
   font-weight: 900;
+  margin-right: 6px;
   text-transform: uppercase;
 }
 
-.insight-step-inline-detail>div:first-child strong {
+.insight-step-inline-detail>div strong {
   color: #111827;
-  display: block;
-  font-size: 19px;
-  line-height: 1.25;
+  line-height: 1.35;
 }
 
 .insight-main-grid {
@@ -7497,6 +7495,10 @@ th {
   color: var(--muted);
   line-height: 1.5;
   margin: 6px 0 0;
+}
+
+.spk-notification-panel>div>.eyebrow {
+  margin-right: 6px;
 }
 
 .spk-notification-history {
