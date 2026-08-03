@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/kai_auth"
     jwt_access_secret: str = "development-access-secret-change-me"
     jwt_refresh_secret: str = "development-refresh-secret-change-me"
+    jwt_access_private_key_b64: str | None = None
+    jwt_access_public_key_b64: str | None = None
+    jwt_access_key_id: str = "kai-auth-2026-01"
+    jwt_issuer: str = "https://kai-rams-backend.vercel.app"
+    jwt_audience: str = "kai-rams-api"
     access_token_expire_minutes: int = Field(default=15, ge=1, le=1440)
     refresh_token_expire_days: int = Field(default=7, ge=1, le=90)
     login_max_failed_attempts: int = Field(default=5, ge=3, le=20)
@@ -38,6 +43,20 @@ class Settings(BaseSettings):
         if info.data.get("app_env") == "production" and len(value) < 32:
             raise ValueError("JWT secret production minimal 32 karakter.")
         return value
+
+    @model_validator(mode="after")
+    def validate_access_key_pair(self):
+        has_private_key = bool(self.jwt_access_private_key_b64)
+        has_public_key = bool(self.jwt_access_public_key_b64)
+        if has_private_key != has_public_key:
+            raise ValueError(
+                "JWT_ACCESS_PRIVATE_KEY_B64 dan JWT_ACCESS_PUBLIC_KEY_B64 harus diisi berpasangan."
+            )
+        return self
+
+    @property
+    def uses_asymmetric_access_tokens(self) -> bool:
+        return bool(self.jwt_access_private_key_b64 and self.jwt_access_public_key_b64)
 
     @property
     def sqlalchemy_database_url(self) -> str:

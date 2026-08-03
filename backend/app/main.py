@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.core.config import settings
+from app.core.jwks import build_jwks, build_openid_configuration
+from app.core.permissions import build_authorization_contract
 from app.db.session import engine
 
 
@@ -48,6 +50,21 @@ async def add_security_headers(request: Request, call_next):
 
 
 app.include_router(api_router, prefix=settings.api_v1_prefix)
+
+
+@app.get("/.well-known/jwks.json", include_in_schema=False)
+async def jwks() -> dict[str, object]:
+    return build_jwks()
+
+
+@app.get("/.well-known/openid-configuration", include_in_schema=False)
+async def openid_configuration() -> dict[str, object]:
+    return build_openid_configuration()
+
+
+@app.get("/.well-known/rams-authorization.json", include_in_schema=False)
+async def rams_authorization_contract() -> dict[str, object]:
+    return build_authorization_contract(settings.jwt_issuer, settings.jwt_audience)
 
 
 @app.get("/", tags=["health"])

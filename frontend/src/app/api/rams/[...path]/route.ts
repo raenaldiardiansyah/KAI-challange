@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { fetchRamsWithSession } from "@/lib/auth/session";
+import { fetchAuthWithSession, fetchRamsWithSession } from "@/lib/auth/session";
 import { relayRamsResponse } from "@/lib/auth/response";
 import { rejectUntrustedMutation } from "@/lib/auth/requestSecurity";
 
@@ -21,7 +21,10 @@ async function proxyRequest(request: NextRequest, context: RouteContext) {
     : await request.arrayBuffer();
 
   try {
-    const response = await fetchRamsWithSession(backendPath, {
+    const fetchBackend = backendPath.startsWith("/auth/")
+      ? fetchAuthWithSession
+      : fetchRamsWithSession;
+    const response = await fetchBackend(backendPath, {
       method: request.method,
       headers,
       body: requestBody && requestBody.byteLength > 0 ? requestBody : undefined

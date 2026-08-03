@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { buildRamsApiUrl } from "@/lib/auth/config";
+import { buildAuthApiUrl } from "@/lib/auth/config";
 import { authError, relayRamsResponse } from "@/lib/auth/response";
 import { backendRequestHeaders, rejectUntrustedMutation } from "@/lib/auth/requestSecurity";
 
@@ -26,7 +26,7 @@ let payload: RegisterPayload;
   }
 
   try {
-    const response = await fetch(buildRamsApiUrl("/auth/register"), {
+    const response = await fetch(buildAuthApiUrl("/auth/register"), {
       method: "POST",
 headers: backendRequestHeaders(request),
       body: JSON.stringify({

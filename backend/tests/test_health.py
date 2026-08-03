@@ -24,3 +24,19 @@ def test_root_identifies_the_authentication_service() -> None:
         "status": "ok",
         "service": "KAI RAMS Authentication API",
     }
+
+
+def test_public_token_discovery_endpoints() -> None:
+    with TestClient(app) as client:
+        jwks_response = client.get("/.well-known/jwks.json")
+        discovery_response = client.get("/.well-known/openid-configuration")
+        authorization_response = client.get("/.well-known/rams-authorization.json")
+
+    assert jwks_response.status_code == 200
+    assert isinstance(jwks_response.json()["keys"], list)
+    assert discovery_response.status_code == 200
+    assert discovery_response.json()["issuer"]
+    assert discovery_response.json()["jwks_uri"].endswith("/.well-known/jwks.json")
+    assert authorization_response.status_code == 200
+    assert authorization_response.json()["subject_format"] == "user_id"
+    assert "users:manage" in authorization_response.json()["roles"]["ADMIN"]

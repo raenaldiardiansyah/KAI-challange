@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildRamsApiUrl } from "@/lib/auth/config";
+import { buildAuthApiUrl } from "@/lib/auth/config";
 import { authError, relayRamsResponse } from "@/lib/auth/response";
 import { backendRequestHeaders, rejectUntrustedMutation } from "@/lib/auth/requestSecurity";
 import { setLoginSession } from "@/lib/auth/session";
@@ -23,7 +23,7 @@ let credentials: { username?: string; password?: string };
   }
 
   try {
-    const response = await fetch(buildRamsApiUrl("/auth/login"), {
+    const response = await fetch(buildAuthApiUrl("/auth/login"), {
       method: "POST",
 headers: backendRequestHeaders(request),
       body: JSON.stringify({

@@ -262,7 +262,7 @@ async def login(
     user.last_failed_login_at = None
     user.locked_until = None
 
-    access_token, _, _ = create_access_token(user.id)
+    access_token, _, _ = create_access_token(user.id, user.username, user.role)
     refresh_token, refresh_token_id, refresh_expires_at = create_refresh_token(user.id)
     db.add(
         RefreshSession(
@@ -361,7 +361,7 @@ async def refresh(
 
     session.revoked_at = now
     session.last_used_at = now
-    access_token, _, _ = create_access_token(user.id)
+    access_token, _, _ = create_access_token(user.id, user.username, user.role)
     refresh_token, refresh_token_id, refresh_expires_at = create_refresh_token(user.id)
     db.add(
         RefreshSession(
@@ -581,7 +581,8 @@ async def update_user(
     previous_active = user.is_active
     for field, value in changes.items():
         setattr(user, field, value)
-    if payload.is_active is False:
+    role_changed = payload.role is not None and payload.role != previous_role
+    if payload.is_active is False or role_changed:
         await revoke_user_sessions(user.id, db)
     add_audit_log(
         db,

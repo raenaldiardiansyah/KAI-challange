@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildRamsApiUrl } from "@/lib/auth/config";
+import { buildAuthApiUrl } from "@/lib/auth/config";
 import { clearLoginSession, getAccessToken, getRefreshToken } from "@/lib/auth/session";
 import { backendRequestHeaders, rejectUntrustedMutation } from "@/lib/auth/requestSecurity";
 
@@ -12,7 +12,7 @@ const refreshToken = await getRefreshToken();
 
   try {
     if (accessToken) {
-await fetch(buildRamsApiUrl("/auth/logout"), {
+await fetch(buildAuthApiUrl("/auth/logout"), {
 method: "POST",
 headers: (() => {
 const headers = backendRequestHeaders(request);

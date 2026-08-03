@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { fetchRamsWithSession } from "@/lib/auth/session";
+import { fetchAuthWithSession } from "@/lib/auth/session";
 import { relayRamsResponse } from "@/lib/auth/response";
 import type { RamsUserDto } from "@/types/auth";
 import { mapAuthUser } from "@/types/auth";
 
 export async function GET() {
   try {
-    const response = await fetchRamsWithSession("/auth/me");
+    const response = await fetchAuthWithSession("/auth/me");
     if (!response.ok) return relayRamsResponse(response);
 
     const user = await response.json() as RamsUserDto;
