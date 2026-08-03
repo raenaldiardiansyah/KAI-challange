@@ -12,9 +12,9 @@ const contentSecurityPolicy = [
   "form-action 'self'",
   `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https://basemaps.cartocdn.com https://a.tiles.openrailwaymap.org",
   "font-src 'self' data:",
-  `connect-src 'self'${isDevelopment ? " ws: wss:" : ""}`,
+  `connect-src 'self' https://api.emailjs.com https://basemaps.cartocdn.com https://a.tiles.openrailwaymap.org${isDevelopment ? " ws: wss:" : ""}`,
   ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
