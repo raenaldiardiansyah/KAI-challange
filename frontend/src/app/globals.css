@@ -5070,6 +5070,10 @@ th {
   gap: 10px;
 }
 
+.insight-validation-panel>div>span {
+  margin-right: 6px;
+}
+
 .insight-confidence-row {
   display: grid;
   gap: 6px;
