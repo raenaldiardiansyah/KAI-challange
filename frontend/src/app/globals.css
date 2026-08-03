@@ -6151,6 +6151,12 @@ th {
   gap: 14px;
 }
 
+.insight-panel-scroll>.button,
+.insight-tab-content>.button {
+  justify-self: start;
+  width: auto;
+}
+
 .insight-tab-panel .insight-metric-tile {
   padding: 15px;
 }
